@@ -4,12 +4,17 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "npx tsc -w",
+    "lint": "eslint . --ext .ts",
+    "defs": "node ./updateDefs.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/lodash": "^4.14.178",
     "bitburner": "github:danielyxie/bitburner",
+    "lodash": "^4.17.21",
     "typescript": "^4.5.5"
   }
 }

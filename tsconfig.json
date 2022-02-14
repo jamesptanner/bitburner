@@ -1,12 +1,31 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "ES2020",
-        "sourceMap": true,
-        "outDir": "build",
-        "declaration": true
-
+        "module": "esnext",
+        "target": "esnext",
+        "moduleResolution": "node",
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "esModuleInterop": true,
+        "inlineSourceMap": true,
+        "sourceRoot": "http://localhost:8000/sources/",
+        "strict": true,
+        "rootDir": "src/",
+        "outDir": "build/",
+        "baseUrl": "src/",
+        "paths": {
+          "/*": [
+            "*"
+          ],
+          "@ns": [
+            "../NetscriptDefinitions.d.ts"
+          ]
+        }
     },
+    "include": [
+        "NetscriptDefinitions.d.ts",
+        "global.d.ts",
+        "src/**/*",
+    ],
     "exclude": [
         "node_modules"
     ]

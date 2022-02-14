@@ -1,0 +1,6 @@
+{
+    "bitburner.fileWatcher.enable": true,
+    "bitburner.scriptRoot": "./build",
+    "bitburner.showFileWatcherEnabledNotification": true,
+    "bitburner.showPushSuccessNotification": true
+}
