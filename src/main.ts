@@ -1,4 +1,3 @@
-async function main(){
-import { HackNet } from './Bitburner.d';
-HackNet.
-}
+import { NS } from '@ns';
+export async function main(ns: NS) {
+} 
