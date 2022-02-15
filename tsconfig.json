@@ -28,6 +28,11 @@
     ],
     "exclude": [
         "node_modules"
-    ]
+    ],
+    "typedocOptions":{
+      "entryPoints": ["NetscriptDefinitions.d.ts"],
+      "out": "docs"
+    }
+
 
 }
