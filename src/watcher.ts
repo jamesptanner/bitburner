@@ -33,6 +33,11 @@ export async function main(ns: NS): Promise<void> {
                     }
                 }
 
+                if (processes.length == 0 && file.match("/autorun/.*")){
+                    ns.tprintf(`INFO: triggering autorun script ${file}`)
+                    ns.run(file,1);
+                }
+
                 hashes[file] = hash
             }
         }
