@@ -17,8 +17,10 @@ export async function main(ns: NS): Promise<void> {
             const hash = getHash(contents)
 
             if (hash != hashes[file]) {
-                ns.tprintf(`INFO: Detected change in ${file}`)
 
+                const ramUsage = ns.getScriptRam(file);
+                ns.tprintf(`INFO: Detected change in ${file}`)
+                ns.tprintf(`INFO: ${file} will use ${ramUsage}GB of ram`);
                 const processes = ns.ps().filter((p: ProcessInfo) => {
                     return p.filename == file
                 })
