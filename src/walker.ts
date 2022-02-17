@@ -1,28 +1,27 @@
 import { NS } from '@ns'
+import { parentPort } from 'worker_threads';
 
 export async function main(ns: NS): Promise<void> {
     //
     const parent = ns.args?.[0] || "home";
-    const us = ns.getHostname();
-    ns.tprintf(`Running on host: ${us} Parent: ${parent}`);
-
+    const alreadyScanned = [];
     if (typeof parent === "string") {
-        let hosts = ns.scan();
-        hosts = hosts.filter(host => {
-            return host != parent;
-        })
-        for await (const host of hosts) {
-            ns.tprintf(`found host ${host} at ${us}`);
-            ns.exec("walker.js", host, 1, us);
-            const files = ns.ls(host, ".lit|.txt|.script");
-            if (files.length > 0) {
-                await ns.scp(files, host, "home").catch(e =>{
-                    ns.tprintf(`unable to copy files from target: ${e}`)
-                });
+        const hosts = ns.scan(parent);
+        while (hosts.length > 0){
+            const currentHost = hosts.pop();
+            if(alreadyScanned.indexOf(currentHost) != -1){
+                continue;
             }
-            await ns.scp("walker.js", "home", host).catch(e => {
-                ns.tprintf(`Failed to copy script: ${e}`)
-            });
+            ns.tprintf(`Scanning ${currentHost}`);
+            hosts.push(...ns.scan(currentHost));
+            const serverInfo = ns.getServer(currentHost)
+            if(!serverInfo.backdoorInstalled && currentHost && currentHost){
+                ns.tprintf(`💣 ${currentHost}`);
+
+                ns.exec("infiltrate.js", "home",1,currentHost);
+            }
+            alreadyScanned.push(currentHost);
+            await ns.sleep(1000);
         }
     }
 
