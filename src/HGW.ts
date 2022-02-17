@@ -1,20 +1,26 @@
 import { BasicHGWOptions, NS } from "@ns";
 
-const defaultHGWOptions: BasicHGWOptions =
-{
-    threads: 2
-};
-
+function createHGWoptions(ns: NS, target: string): BasicHGWOptions {
+    const defaultHGWOptions: BasicHGWOptions =
+    {
+        threads:2
+    };
+    const process = ns.ps().find(x =>x.filename==ns.getScriptName()&& x.args[0]==target);
+    if(process){
+        defaultHGWOptions.threads = process.threads;
+    }
+    return defaultHGWOptions;
+}
 export async function growServer(ns: NS, target: string): Promise<void> {
-    await ns.grow(target, defaultHGWOptions)
+    await ns.grow(target,createHGWoptions(ns,target))
 }
 
 export async function weakenServer(ns: NS, target: string): Promise<void> {
-    await ns.weaken(target, defaultHGWOptions)
+    await ns.weaken(target, createHGWoptions(ns,target))
 }
 
 export async function attack(ns: NS, target: string): Promise<void> {
-    await ns.hack(target, defaultHGWOptions)
+    await ns.hack(target, createHGWoptions(ns,target))
 }
 
 export const scripts = new Map<string, number>([
