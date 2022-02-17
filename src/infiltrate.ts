@@ -1,0 +1,44 @@
+import { NS } from '@ns'
+import { getNumberOfTools, hasFTP, hasHTTP, hasSSH, hasSMTP, hasSQL } from './HGW';
+
+export async function main(ns: NS): Promise<void> {
+    const target = ns.args[0];
+    ns.tprintf(`INFO infiltrating target: ${target}`)
+    if (typeof target === 'string') {
+        const targethacklevel = ns.getServerRequiredHackingLevel(target)
+        if (targethacklevel > ns.getHackingLevel()) {
+            ns.tprintf(`INFO not able to hack host: ${target}(${targethacklevel})`)
+            return
+        }
+        const server = ns.getServer(target)
+        if (server.openPortCount < server.numOpenPortsRequired) {
+            if (server.numOpenPortsRequired <= getNumberOfTools(ns)) {
+                if (!server.ftpPortOpen && hasFTP(ns)) {
+                    ns.ftpcrack(target)
+                }
+                if (!server.httpPortOpen && hasHTTP(ns)) {
+                    ns.httpworm(target)
+                }
+                if (!server.sshPortOpen && hasSSH(ns)) {
+                    ns.brutessh(target)
+                }
+                if (!server.smtpPortOpen && hasSMTP(ns)) {
+                    ns.relaysmtp(target)
+                }
+                if (!server.sqlPortOpen && hasSQL(ns)) {
+                    ns.sqlinject(target)
+                }
+            }
+            else {
+                ns.tprintf(`INFO not enough tools to hack host: ${target}`)
+                return;
+            }
+        }
+        ns.tprintf(`INFO nuking host: ${target}`)
+        ns.nuke(target);
+        ns.tprintf(`INFO installing backdoor: ${target}`)
+        //await ns.installBackdoor()
+        ns.tprintf(`INFO host ready: ${target}`)
+
+    }
+}
