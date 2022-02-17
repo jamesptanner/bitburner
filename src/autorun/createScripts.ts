@@ -1,16 +1,7 @@
 import { NS } from '@ns'
 
-const scripts = new Map<string, number>([
-    ["AutoLink.exe", 25],
-    ["BruteSSH.exe", 50],
-    ["ServerProfiler.exe", 75],
-    ["DeepscanV1.exe", 75],
-    ["FTPCrack.exe", 100],
-    ["relaySMTP.exe", 250],
-    ["DeepscanV2.exe", 400],
-    ["HTTPWorm.exe", 500],
-    ["SQLInject.exe", 750],
-]);
+import { scripts } from '/HGW';
+
 export async function main(ns: NS): Promise<void> {
     const player = ns.getPlayer();
     while (true) {
