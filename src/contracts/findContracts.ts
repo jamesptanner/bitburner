@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { walk } from './utils'
+import { walk } from '../utils'
 
 export async function main(ns : NS) : Promise<void> {
     const contracts = {};
@@ -9,6 +9,6 @@ export async function main(ns : NS) : Promise<void> {
         }
     return true;
     },contracts);
-    ns.tprintf(`${JSON.stringify(contracts)}`);
     await ns.write("contracts.txt",JSON.stringify(contracts),"w");
+    ns.spawn("contracts/processContracts.js")
 }
