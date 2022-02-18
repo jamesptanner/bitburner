@@ -6,10 +6,12 @@ export async function main(ns: NS): Promise<void> {
     ns.tprintf(`INFO hacking target: ${target}`);
     if (typeof target === 'string') {
         const max = ns.getServerMaxMoney(target)
-        while (true) {
+        while (max != 0) {
+                
             const current = ns.getServerMoneyAvailable(target)
-            ns.tprintf(`${target} money, curr:${current} max:${max}`)
-            if ((current / max) < 0.6 && ns.growthAnalyze(target,2) <=5) {
+            const percent = current/max;
+            ns.tprintf(`${target} money, curr:${current} max:${max} ${percent}%%`)
+            if ((percent < 0.8 && ns.growthAnalyze(target,2) <=5) || percent < 0.4) {
                 ns.tprintf(`INFO 🎈: ${target}`)
 
                 await growServer(ns, target);
@@ -23,5 +25,6 @@ export async function main(ns: NS): Promise<void> {
                 await attack(ns, target); 
             }
         }
+        ns.tprint(`WARN: ${target} doesnt have any cash.`)
     }
 }
