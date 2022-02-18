@@ -20,7 +20,8 @@ export async function weakenServer(ns: NS, target: string): Promise<void> {
 }
 
 export async function attack(ns: NS, target: string): Promise<void> {
-    await ns.hack(target, createHGWoptions(ns,target))
+    const earnings = await ns.hack(target, createHGWoptions(ns,target));
+    ns.tprintf(`${target} attack complete. Earned ${earnings}`)
 }
 
 export const scripts = new Map<string, number>([
