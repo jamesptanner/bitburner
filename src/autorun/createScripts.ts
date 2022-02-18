@@ -10,12 +10,12 @@ export async function main(ns: NS): Promise<void> {
             const script = iterator[0];
             const cost = iterator[1];
             if (!ns.fileExists(script) && player.hacking >= cost) {
-                if (!ns.isBusy()) {
-                    ns.tprintf(`INFO: starting work on new script: ${script}`);
-                    //ns.createProgram(script);
-                }
+                //if (!ns.isBusy()) {
+                    ns.tprintf(`INFO: You should work on new script: ${script}`);
+                   // ns.createProgram(script);
+                //} 
             }
         }
-        await ns.sleep(5 * 60 * 1000);
+        await ns.sleep(1 * 60 * 1000);
     }
 }
