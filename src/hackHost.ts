@@ -21,7 +21,6 @@ export async function main(ns: NS): Promise<void> {
                 await weakenServer(ns, target);
             }
             else {
-                ns.tprintf(`INFO 🐱‍💻: ${target}`)
                 await attack(ns, target); 
             }
         }

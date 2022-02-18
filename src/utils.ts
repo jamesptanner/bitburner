@@ -13,7 +13,6 @@ export async function walk(ns: NS, start: string, func: (ns: NS, host: string | 
         if (alreadyScanned.indexOf(currentHost) != -1) {
             continue;
         }
-        ns.tprintf(`Scanning ${currentHost}`);
         hosts.push(...ns.scan(currentHost));
         const cont = await func(ns, currentHost, ...args);
         if (!cont)
