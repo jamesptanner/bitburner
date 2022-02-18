@@ -23,15 +23,17 @@ export async function main(ns: NS): Promise<void> {
                     ns.tprintf(`INFO not able to hack host: ${currentHost}(${targethacklevel})`)
                 }
                 else {
-                    ns.exec("infiltrate.js", "home",1,currentHost);
-                    toBackdoor.push(currentHost)
+                    if(!serverInfo.purchasedByPlayer){
+                        ns.exec("infiltrate.js", "home",1,currentHost);
+                        toBackdoor.push(currentHost)
+                    }
                 }
             }
             else if(serverInfo.backdoorInstalled && currentHost ){
                 await ns.scp(["HGW.js","hackHost.js"],currentHost);
                 const memReq = ns.getScriptRam("hackHost.js");
                 const avalibleRam = serverInfo.maxRam -serverInfo.ramUsed;
-                ns.tprintf(`Mem: avalible:${avalibleRam}, total:${serverInfo.maxRam}, needed:${memReq}`)
+                ns.tprintf(`Mem: avalible:${avalibleRam}, total:${serverInfo.maxRam}, needed:${memReq} threads=${Math.max(1,Math.floor(avalibleRam/memReq)-1)}`)
                 if(ns.exec("hackHost.js",currentHost,Math.max(1,Math.floor(avalibleRam/memReq)-1),currentHost)==0){
                     ns.tprintf(`failed to launch script on ${currentHost}`)
                 }
