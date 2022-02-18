@@ -18,9 +18,14 @@ export async function main(ns: NS): Promise<void> {
             const serverInfo = ns.getServer(currentHost)
             if(!serverInfo.backdoorInstalled && currentHost && currentHost){
                 ns.tprintf(`💣 ${currentHost}`);
-
-                ns.exec("infiltrate.js", "home",1,currentHost);
-                toBackdoor.push(currentHost)
+                const targethacklevel = ns.getServerRequiredHackingLevel(currentHost)
+                if (targethacklevel > ns.getHackingLevel()) {
+                    ns.tprintf(`INFO not able to hack host: ${currentHost}(${targethacklevel})`)
+                }
+                else {
+                    ns.exec("infiltrate.js", "home",1,currentHost);
+                    toBackdoor.push(currentHost)
+                }
             }
             else if(serverInfo.backdoorInstalled && currentHost ){
                 await ns.scp(["HGW.js","hackHost.js"],currentHost);
@@ -34,7 +39,7 @@ export async function main(ns: NS): Promise<void> {
             alreadyScanned.push(currentHost);
             await ns.sleep(1000);
         }
-        await ns.write("toBackdoor",toBackdoor,"w");
+        await ns.write("toBackdoor.txt",JSON.stringify(toBackdoor),"w");
     }
 
 }
