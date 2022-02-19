@@ -13,16 +13,16 @@ export async function main(ns: NS): Promise<void> {
             const current = ns.getServerMoneyAvailable(target)
             const percent = current/max;
             // ns.tprintf(`${target} money, curr:${current} max:${max} ${percent}%%`)
-            if ((percent < 0.8 && ns.growthAnalyze(target,2) <=5) || percent < 0.10) {
-                ns.tprintf(`INFO 🎈: ${target}. ${ns.getGrowTime(target).toFixed(2)}s`)
-                await growServer(ns, target);
-            }
-            else if (!(ns.getServerSecurityLevel(target) < ns.getServerMinSecurityLevel(target)+1)) {
-                ns.tprintf(`INFO 😷: ${target}. ${ns.getWeakenTime(target).toFixed(2)}s`)
+            if (!(ns.getServerSecurityLevel(target) < ns.getServerMinSecurityLevel(target)+1)) {
+                ns.print(`INFO 😷: ${target}. ${(ns.getWeakenTime(target)/1000).toFixed(2)}s`)
                 await weakenServer(ns, target);
             }
+            else if ((percent < 0.8 && ns.growthAnalyze(target,2) <=5) || percent < 0.10) {
+                ns.print(`INFO 🎈: ${target}. ${(ns.getGrowTime(target)/1000).toFixed(2)}s`)
+                await growServer(ns, target);
+            }
             else {
-                ns.tprintf(`INFO 🤖: ${target}. ${ns.getHackTime(target).toFixed(2)}s`)
+                ns.print(`INFO 🤖: ${target}. ${(ns.getHackTime(target)/1000).toFixed(2)}s`)
                 await attack(ns, target); 
             }
         }
