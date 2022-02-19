@@ -28,7 +28,8 @@
         "src/**/*",
     ],
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "build"
     ],
     "typedocOptions":{
       "entryPoints": ["NetscriptDefinitions.d.ts"],
