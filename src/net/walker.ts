@@ -18,19 +18,20 @@ export async function main(ns: NS): Promise<void> {
 async function backdoor(ns: NS, currentHost: string | undefined, toBackdoor: string[]) :Promise<boolean> {
     const serverInfo = ns.getServer(currentHost);
     if (!serverInfo.backdoorInstalled && currentHost && currentHost) {
-        ns.tprintf(`💣 ${currentHost}`);
         const targetHackLevel = ns.getServerRequiredHackingLevel(currentHost);
         if (targetHackLevel > ns.getHackingLevel()) {
-            ns.tprintf(`INFO not able to hack host: ${currentHost}(${targetHackLevel})`);
+            // ns.tprintf(`INFO not able to hack host: ${currentHost}(${targetHackLevel})`);
         }
         else {
+            ns.tprintf(`INFO 💣 ${currentHost}`);
+
             if (!serverInfo.purchasedByPlayer) {
                 ns.exec(infiltratePath, "home", 1, currentHost);
                 toBackdoor.push(currentHost);
             }
         }
     }
-    else if (serverInfo.backdoorInstalled && currentHost) {
+    else if (serverInfo.backdoorInstalled && currentHost && !scriptIsRunning(ns,currentHost,hackHostPath)) {
         await ns.scp([HGWPath, hackHostPath], currentHost);
         const memReq = ns.getScriptRam(hackHostPath);
         const avalibleRam = serverInfo.maxRam - serverInfo.ramUsed;
@@ -40,4 +41,8 @@ async function backdoor(ns: NS, currentHost: string | undefined, toBackdoor: str
         }
     }
     return true;
+}
+
+const scriptIsRunning = function(ns:NS, host: string, script: string): boolean{
+    return ns.ps(host).filter(process => process.filename == script).length > 0;
 }
