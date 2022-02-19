@@ -39,12 +39,12 @@ export const scripts = new Map<string, number>([
     ["Formulas.exe",1000],
 ]);
 
-export const breachscripts = [
+export const breachScripts = [
     "BruteSSH.exe","FTPCrack.exe","relaySMTP.exe","HTTPWorm.exe","SQLInject.exe"
 ];
 
 export function getNumberOfTools(ns: NS): number {
-    return breachscripts.filter(x => ns.fileExists(x)).length
+    return breachScripts.filter(x => ns.fileExists(x)).length
 }
 
 export function hasSSH(ns: NS): boolean{
