@@ -1,8 +1,17 @@
 import { NS } from '@ns';
 
-export function asString(val: any): string | null{
+export function asString(val: (string | number | boolean)): string{
     if (typeof val === "string") return val;
-    return null;
+    return String(val);
+}
+export function asNumber(val: (string | number | boolean)): number{
+    if (typeof val === "number") return val;
+    return NaN;
+}
+
+export function asBoolean(val: (string | number | boolean)): boolean{
+    if (typeof val === "boolean") return val;
+    return false;
 }
 
 export async function walk(ns: NS, start: string, func: (ns: NS, host: string | undefined, ...args: any[]) => Promise<boolean>, ...args: any[]): Promise<void> {
