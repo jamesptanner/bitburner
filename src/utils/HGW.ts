@@ -36,6 +36,7 @@ export const scripts = new Map<string, number>([
     ["DeepscanV2.exe", 400],
     ["HTTPWorm.exe", 500],
     ["SQLInject.exe", 750],
+    ["Formulas.exe",1000],
 ]);
 
 export const breachscripts = [
