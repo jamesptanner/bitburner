@@ -5,12 +5,17 @@
       "body": [
         "import { NS } from '@ns'",
         "",
-        "export const ${TM_FILENAME_BASE}Path =\"${RELATIVE_FILEPATH/([\\\\\\\/])|([\\w]*\\.ts)//gm}/${TM_FILENAME_BASE}.ts\"",
+        "export const ${TM_FILENAME_BASE}Path =\"${RELATIVE_FILEPATH/(src[\\\\\\\/])|([\\\\\\\/][\\w]*\\.ts)|([\\\\\\\/])/\\//gm}${TM_FILENAME_BASE}.js\";",
         "",
         "export async function main(ns : NS) : Promise<void> {",
         "\t//",
         "}"
       ]
+    },
+    "myPath":{
+      "scope": "typescript",
+      "prefix":"mypath",
+      "body":["export const ${TM_FILENAME_BASE}Path =\"${RELATIVE_FILEPATH/(src[\\\\\\\/])|([\\\\\\\/][\\w]*\\.ts)|([\\\\\\\/])/\\//gm}${TM_FILENAME_BASE}.js\";"]
     },
     "autocomplete": {
       "scope": "typescript",
