@@ -1,13 +1,15 @@
 import { NS } from '@ns'
-import { getNumberOfTools, hasFTP, hasHTTP, hasSSH, hasSMTP, hasSQL } from './HGW';
+import { getNumberOfTools, hasFTP, hasHTTP, hasSSH, hasSMTP, hasSQL } from '/utils/HGW';
+
+export const scriptPath = "hosts/infiltrate.js";
 
 export async function main(ns: NS): Promise<void> {
     const target = ns.args[0];
     ns.tprintf(`INFO infiltrating target: ${target}`)
     if (typeof target === 'string') {
-        const targethacklevel = ns.getServerRequiredHackingLevel(target)
-        if (targethacklevel > ns.getHackingLevel()) {
-            ns.tprintf(`INFO not able to hack host: ${target}(${targethacklevel})`)
+        const targetHackLevel = ns.getServerRequiredHackingLevel(target)
+        if (targetHackLevel > ns.getHackingLevel()) {
+            ns.tprintf(`INFO not able to hack host: ${target}(${targetHackLevel})`)
             return
         }
         const server = ns.getServer(target)

@@ -1,5 +1,7 @@
 import { NS } from "@ns";
-import { growServer, weakenServer, attack } from "./HGW";
+import { growServer, weakenServer, attack } from "/utils/HGW";
+
+export const scriptPath = "host/hackHost.js"
 
 export async function main(ns: NS): Promise<void> {
     const target = ns.args[0];
@@ -24,6 +26,6 @@ export async function main(ns: NS): Promise<void> {
                 await attack(ns, target); 
             }
         }
-        ns.tprint(`WARN: ${target} doesnt have any cash.`)
+        ns.tprintf(`WARN: ${target} doesn't have any cash.`)
     }
 }

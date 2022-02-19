@@ -1,6 +1,6 @@
 import { NS } from '@ns'
 
-import { scripts } from '/HGW';
+import { scripts } from '/utils/HGW';
 
 export async function main(ns: NS): Promise<void> {
     const player = ns.getPlayer();

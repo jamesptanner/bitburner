@@ -1,5 +1,8 @@
 import { NS } from '@ns'
-import { walk } from './utils';
+import { walk } from '/utils/utils';
+import { scriptPath as infiltrateSP} from '/hosts/infiltrate';
+import { scriptPath as hgwSP } from '/utils/HGW';
+import {scriptPath as hackHostSP} from '/hosts/hackHost';
 
 export async function main(ns: NS): Promise<void> {
     //
@@ -16,23 +19,23 @@ async function backdoor(ns: NS, currentHost: string | undefined, toBackdoor: str
     const serverInfo = ns.getServer(currentHost);
     if (!serverInfo.backdoorInstalled && currentHost && currentHost) {
         ns.tprintf(`💣 ${currentHost}`);
-        const targethacklevel = ns.getServerRequiredHackingLevel(currentHost);
-        if (targethacklevel > ns.getHackingLevel()) {
-            ns.tprintf(`INFO not able to hack host: ${currentHost}(${targethacklevel})`);
+        const targetHackLevel = ns.getServerRequiredHackingLevel(currentHost);
+        if (targetHackLevel > ns.getHackingLevel()) {
+            ns.tprintf(`INFO not able to hack host: ${currentHost}(${targetHackLevel})`);
         }
         else {
             if (!serverInfo.purchasedByPlayer) {
-                ns.exec("infiltrate.js", "home", 1, currentHost);
+                ns.exec(infiltrateSP, "home", 1, currentHost);
                 toBackdoor.push(currentHost);
             }
         }
     }
     else if (serverInfo.backdoorInstalled && currentHost) {
-        await ns.scp(["HGW.js", "hackHost.js"], currentHost);
-        const memReq = ns.getScriptRam("hackHost.js");
+        await ns.scp([hgwSP, hackHostSP], currentHost);
+        const memReq = ns.getScriptRam(hackHostSP);
         const avalibleRam = serverInfo.maxRam - serverInfo.ramUsed;
         ns.tprintf(`Mem: avalible:${avalibleRam}, total:${serverInfo.maxRam}, needed:${memReq} threads=${Math.max(1, Math.floor(avalibleRam / memReq) - 1)}`);
-        if (ns.exec("hackHost.js", currentHost, Math.max(1, Math.floor(avalibleRam / memReq) - 1), currentHost) == 0) {
+        if (ns.exec(hackHostSP, currentHost, Math.max(1, Math.floor(avalibleRam / memReq) - 1), currentHost) == 0) {
             ns.tprintf(`failed to launch script on ${currentHost}`);
         }
     }

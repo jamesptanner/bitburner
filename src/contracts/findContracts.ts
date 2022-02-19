@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { walk } from '/utils'
+import { walk } from '/utils/utils'
 
 export async function main(ns : NS) : Promise<void> {
     const contracts = {};
