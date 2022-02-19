@@ -17,7 +17,8 @@
             "*"
           ],
           "@ns": [
-            "../NetscriptDefinitions.d.ts"
+            "../NetscriptDefinitions.d.ts",
+            "../global.d.ts",
           ]
         }
     },
