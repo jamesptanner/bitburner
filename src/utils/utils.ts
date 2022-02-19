@@ -27,6 +27,6 @@ export async function walk(ns: NS, start: string, func: (ns: NS, host: string | 
         if (!cont)
             break;
         alreadyScanned.push(currentHost);
-        await ns.sleep(100);
+        await ns.sleep(50);
     }
 }
