@@ -12,5 +12,4 @@ export async function main(ns : NS) : Promise<void> {
     if (!hasFormulas(ns)){
         ns.exec(simpleNodesPath,"home")
     }
-    ns.formulas.hacknetNodes.coreUpgradeCost()
 }
