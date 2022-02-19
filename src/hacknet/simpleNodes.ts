@@ -13,6 +13,12 @@ const nodeMaxedOut = function(ns:NS, nodeId: number): boolean{
 
 export async function main(ns : NS) : Promise<void> {
 let currentNode = 0;
+if(ns.hacknet.numNodes() == 0){
+    while (ns.getPlayer().money < ns.hacknet.getPurchaseNodeCost()){
+        await ns.sleep(60*1000)
+    }
+    ns.hacknet.purchaseNode()
+}
 while(true){
     while(!nodeMaxedOut(ns,currentNode)){
 
@@ -33,7 +39,7 @@ while(true){
                 ns.hacknet.upgradeLevel(currentNode,1)
             }
         }
-        await ns.sleep(60*1000);
+        await ns.sleep(30*1000);
     }
     currentNode++;
     if(currentNode == ns.hacknet.numNodes()){
