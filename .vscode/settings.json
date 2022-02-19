@@ -2,5 +2,9 @@
     "bitburner.fileWatcher.enable": true,
     "bitburner.scriptRoot": "./build",
     "bitburner.showFileWatcherEnabledNotification": true,
-    "bitburner.showPushSuccessNotification": true
+    "bitburner.showPushSuccessNotification": true,
+    "cSpell.words": [
+        "tprintf"
+    ],
+    "jshint.enable": false
 }

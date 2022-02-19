@@ -3,25 +3,26 @@ module.exports = {
     env: {
         browser: true,
         commonjs: true,
-        es6: false,
+        es6: true
     },
     extends: [
         "eslint:recommended",
-        "plugin:@typescript-eslint/recommended"],
+        "plugin:@typescript-eslint/recommended"
+    ],
     parser: "@typescript-eslint/parser",
     parserOptions: {
         ecmaVersion: 8,
         sourceType: "module",
         ecmaFeatures: {
-            experimentalObjectRestSpread: true,
+            experimentalObjectRestSpread: true
         },
         project: ['./tsconfig.json'],
-        tsconfigRootDir: __dirname,
+        tsconfigRootDir: __dirname
     },
     plugins: ["@typescript-eslint"],
-    ignorePatterns: ['*.d.ts', '*.js'],
+    ignorePatterns: ['*.d.ts', '*.js','build/*'],
     rules: {
         'no-constant-condition': ['off'],
-        "@typescript-eslint/no-floating-promises": "error",
-    }
-}
+        "@typescript-eslint/no-floating-promises": "error"
+    },
+};
