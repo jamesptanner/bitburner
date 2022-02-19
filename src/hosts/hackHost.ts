@@ -13,7 +13,7 @@ export async function main(ns: NS): Promise<void> {
             const current = ns.getServerMoneyAvailable(target)
             const percent = current/max;
             // ns.tprintf(`${target} money, curr:${current} max:${max} ${percent}%%`)
-            if ((percent < 0.8 && ns.growthAnalyze(target,2) <=5) || percent < 0.4) {
+            if ((percent < 0.8 && ns.growthAnalyze(target,2) <=5) || percent < 0.04) {
                 // ns.tprintf(`INFO 🎈: ${target}`)
 
                 await growServer(ns, target);
