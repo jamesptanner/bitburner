@@ -1,7 +1,7 @@
 import { NS } from '@ns'
 import { getNumberOfTools, hasFTP, hasHTTP, hasSSH, hasSMTP, hasSQL } from '/utils/HGW';
 
-export const scriptPath = "hosts/infiltrate.js";
+export const infiltratePath ="/hosts/infiltrate.js";
 
 export async function main(ns: NS): Promise<void> {
     const target = ns.args[0];

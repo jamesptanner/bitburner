@@ -1,6 +1,6 @@
 import { BasicHGWOptions, NS } from "@ns";
 
-export const scriptPath = "/utils/HGW.js";
+export const HGWPath ="/utils/HGW.js";
 
 function createHGWoptions(ns: NS, target: string): BasicHGWOptions {
     const defaultHGWOptions: BasicHGWOptions =
