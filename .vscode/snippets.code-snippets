@@ -5,6 +5,8 @@
       "body": [
         "import { NS } from '@ns'",
         "",
+        "export const ${TM_FILENAME_BASE}Path =\"${RELATIVE_FILEPATH/([\\\\\\\/])|([\\w]*\\.ts)//gm}/${TM_FILENAME_BASE}.ts\"",
+        "",
         "export async function main(ns : NS) : Promise<void> {",
         "\t//",
         "}"
