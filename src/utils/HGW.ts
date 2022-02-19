@@ -62,3 +62,7 @@ export function hasHTTP(ns: NS): boolean{
 export function hasSQL(ns: NS): boolean{
     return ns.fileExists("SQLInject.exe");
 }
+
+export function hasFormulas(ns: NS): boolean{
+    return ns.fileExists("Formulas.exe");
+}
