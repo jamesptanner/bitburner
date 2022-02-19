@@ -42,22 +42,22 @@ export const breachscripts = [
     "BruteSSH.exe","FTPCrack.exe","relaySMTP.exe","HTTPWorm.exe","SQLInject.exe"
 ];
 
-export function getNumberOfTools(ns: NS) {
+export function getNumberOfTools(ns: NS): number {
     return breachscripts.filter(x => ns.fileExists(x)).length
 }
 
-export function hasSSH(ns: NS){
+export function hasSSH(ns: NS): boolean{
     return ns.fileExists("BruteSSH.exe");
 }
-export function hasFTP(ns: NS){
+export function hasFTP(ns: NS): boolean{
     return ns.fileExists("FTPCrack.exe");
 }
-export function hasSMTP(ns: NS){
+export function hasSMTP(ns: NS): boolean{
     return ns.fileExists("relaySMTP.exe");
 }
-export function hasHTTP(ns: NS){
+export function hasHTTP(ns: NS): boolean{
     return ns.fileExists("HTTPWorm.exe");
 }
-export function hasSQL(ns: NS){
+export function hasSQL(ns: NS): boolean{
     return ns.fileExists("SQLInject.exe");
 }
