@@ -85,7 +85,7 @@ export function UniquePath2(ns: NS, data: any): number | string[] | undefined {
                 if(x==0 && y==0){
                     map[x][y]=1
                 }
-                else if (x == 0 ^ y == 0) {
+                else if (x == 0 || y == 0) {
                     if(x>0){
                         map[x][y] = map[x-1][y] == 0 ? 0:1
                     }
