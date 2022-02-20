@@ -1,4 +1,4 @@
-import { unimplemented } from '/contracts/solveContract';
+import { unimplemented } from '/contracts/contractUtils';
 // "Algorithmic Stock Trader I"
 
 // You are given an array of numbers representing stock prices, where the

@@ -1,4 +1,4 @@
-import { unimplemented } from '/contracts/solveContract';
+import { unimplemented } from '/contracts/contractUtils';
 // "Generate IP Addresses"
 
 // Given a string containing only digits, return an array with all possible

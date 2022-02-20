@@ -1,4 +1,4 @@
-import { unimplemented } from '/contracts/solveContract';
+import { unimplemented } from '/contracts/contractUtils';
 // "Spiralize Matrix"
 
 // Given an array of array of numbers representing a 2D matrix, return the

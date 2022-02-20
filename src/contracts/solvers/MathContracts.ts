@@ -1,4 +1,4 @@
-import { unimplemented } from '/contracts/solveContract';
+import { unimplemented } from '/contracts/contractUtils';
 // "Find Largest Prime Factor"
 
 // Given a number, find its largest prime factor. A prime factor

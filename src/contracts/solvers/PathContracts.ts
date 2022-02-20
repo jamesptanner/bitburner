@@ -1,4 +1,4 @@
-import { unimplemented } from '/contracts/solveContract';
+import { unimplemented } from '/contracts/contractUtils';
 // "Minimum Path Sum in a Triangle"
 
 // You are given a 2D array of numbers (array of array of numbers) that represents a
