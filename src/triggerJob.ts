@@ -6,6 +6,7 @@ export async function main(ns : NS) : Promise<void> {
     const args = ns.args
     const interval = args.shift()
     const script = args.shift()
+    await ns.asleep(Math.random()*1000*60)
     ns.tprintf(`INFO: setting up cronjob: ${script}`)
     while(true){
         ns.run(script,1,...args)
