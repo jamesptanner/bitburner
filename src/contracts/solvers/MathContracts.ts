@@ -14,7 +14,7 @@ export function MaxSubArray(ns:NS,data:any):number|string[]|undefined{
     const numberArray: number[] = data
     ns.print(`${numberArray}`)
 
-    let subArray: number[]
+    let subArray: number[] = []
     let subArrayTotal = -Infinity
     for (let start = 0; start < numberArray.length; start++) {
         for (let length = 1; length < numberArray.length-start; length++) {

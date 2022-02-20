@@ -65,7 +65,7 @@ export async function main(ns: NS): Promise<void> {
             ns.alert(`Failed Contract: ${host}.${filename}`)
         }
         else {
-            ns.tprintf(result)
+            ns.tprintf(`${result}`)
         }
     }
     else {

@@ -21,27 +21,47 @@ export function SpiralMatrix(ns:NS,data:any):number|string[]|undefined{
     {
         switch(state%4){
         case 0: //top
-            output.push(...numberArray.shift())
+        {
+            const row = numberArray.shift()
+            if(row){
+                output.push(...row)
+            }
             break;
+        }
         case 1: //right
+        {
             for (let row = 0; row < numberArray.length; row++) {
-                output.push(numberArray[row].pop())
+                const val = numberArray[row].pop()
+                if(val){
+                    output.push(val)
+                }
             }
             break;
+        }
         case 2: //bottom
-            output.push(...(numberArray.pop().reverse()))
-            break;
-        case 3: //left
-            for (let row = numberArray.length-1; row>= 0 ; row--) {
-                output.push(numberArray[row].shift())
+        {
+            const row = numberArray.pop()
+            if(row){
+                output.push(...(row.reverse()))
             }
             break;
-    }
+        }
+        case 3: //left
+        {
+            for (let row = numberArray.length-1; row>= 0 ; row--) {
+                const val = numberArray[row].shift()
+                if(val){
+                output.push(val)
+                }
+            }
+            break;
+        }
+        }
         state++
     }
     //may have undefined entries which we can remove.
     ns.tprintf(`SpiralMatrix Result: ${JSON.stringify(output.filter(x=> x))}`)
-    return JSON.stringify(output.filter(x=> x))
+    return output.filter(x=> x).map<string>(x => x.toString())
 }
 
 // "Array Jumping Game"
