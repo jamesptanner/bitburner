@@ -13,6 +13,11 @@ const jobs: Job[] = [
         script:"/net/walker.js",
         args:[],
         interval:1000*60*5
+    },
+    {
+        script:"contracts/findContracts.js",
+        args:[],
+        interval:1000*60
     }
 ]
 
