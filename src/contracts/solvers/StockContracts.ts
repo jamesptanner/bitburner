@@ -8,7 +8,7 @@ import { unimplemented } from '/contracts/contractUtils';
 // transaction (i.e. you can buy an sell the stock once). If no profit
 // can be made, then the answer should be 0. Note that you must buy the stock
 // before you can sell it.
-export function StockTrader1(data:any):number|string[]|undefined{return unimplemented(data)}
+export function StockTrader1(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
 
 
 // "Algorithmic Stock Trader II"
@@ -21,7 +21,7 @@ export function StockTrader1(data:any):number|string[]|undefined{return unimplem
 // share of the stock. Note that you cannot engage in multiple transactions at
 // once. In other words, you must sell the stock before you buy it again. If no
 // profit can be made, then the answer should be 0.
-export function StockTrader2(data:any):number|string[]|undefined{return unimplemented(data)}
+export function StockTrader2(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
 
 // "Algorithmic Stock Trader III"
 
@@ -33,7 +33,7 @@ export function StockTrader2(data:any):number|string[]|undefined{return unimplem
 // of the stock. Note that you cannot engage in multiple transactions at once.
 // In other words, you must sell the stock before you buy it again. If no profit
 // can be made, then the answer should be 0.
-export function StockTrader3(data:any):number|string[]|undefined{return unimplemented(data)}
+export function StockTrader3(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
 
 // "Algorithmic Stock Trader IV"
 
@@ -46,4 +46,4 @@ export function StockTrader3(data:any):number|string[]|undefined{return unimplem
 // Note that you cannot engage in multiple transactions at once. In other words,
 // you must sell the stock before you can buy it. If no profit can be made, then
 // the answer should be 0.
-export function StockTrader4(data:any):number|string[]|undefined{return unimplemented(data)}
+export function StockTrader4(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}

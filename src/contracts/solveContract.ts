@@ -9,11 +9,7 @@ import { MinTrianglePath, UniquePath1, UniquePath2 } from '/contracts/solvers/Pa
 export const solveContractPath = "/contracts/solveContract.js";
 
 interface ContractFunction {
-    (data: any): (number | string[] | undefined)
-}
-interface ContractProcessor {
-    contractType: string
-    contractFunction: ContractFunction
+    (ns:NS, data: any): (number | string[] | undefined)
 }
 
 const processors = new Map<string, ContractFunction>([
@@ -36,12 +32,9 @@ const processors = new Map<string, ContractFunction>([
 
 ])
 
-
-
 export async function main(ns: NS): Promise<void> {
-
-    const usage = `solveContract.ts USAGE: ${solveContractPath} <contract filename> <host> <contract type> <contract data>`;
-    if (ns.args.length != 4) {
+    const usage = `solveContract.ts USAGE: ${solveContractPath} <contract filename> <host>`;
+    if (ns.args.length != 2) {
         ns.tprintf(`Invalid number of arguments`)
         ns.tprintf(usage)
         ns.exit()
@@ -49,8 +42,6 @@ export async function main(ns: NS): Promise<void> {
 
     const filename: string = asString(ns.args[0])
     const host: string = asString(ns.args[1])
-    const type: string = asString(ns.args[2])
-    const data: string[] | number = JSON.parse(asString(ns.args[3]))
 
     if (!ns.serverExists(host)) {
         ns.tprintf(`Invalid server: ${host}`)
@@ -58,19 +49,27 @@ export async function main(ns: NS): Promise<void> {
         ns.exit()
     }
 
-    if (!ns.fileExists(filename, host)) {
-        ns.tprintf(`Invalid file ${filename}`)
+    if (!ns.codingcontract.getDescription(filename, host)) {
+        ns.tprintf(`Invalid file ${host}:${filename}`)
         ns.tprintf(usage)
         ns.exit()
     }
 
-    const answer = processors.get(type)?.(data);
+    const type = ns.codingcontract.getContractType(filename,host);
+    const data = ns.codingcontract.getData(filename,host)
+
+    const answer = processors.get(type)?.(ns,data);
     if (answer) {
-        if (!ns.codingcontract.attempt(answer, filename, host)) {
-            alert(`Failed Contract: ${host}.${filename}`)
+            result = ns.codingcontract.attempt(answer, filename, host,{returnReward:true})
+        if (result === "") {
+            ns.alert(`Failed Contract: ${host}.${filename}`)
+        }
+        else {
+            ns.tprintf(result)
         }
     }
     else {
         ns.tprintf(`unable to process contract: ${host}.${filename} - ${type}`)
+        ns.tprintf(`${ns.codingcontract.getDescription(filename,host)}\n\n`)
     }
 }

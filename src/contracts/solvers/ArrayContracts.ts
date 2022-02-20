@@ -11,7 +11,7 @@ import { unimplemented } from '/contracts/contractUtils';
 // [9, 10, 11, 12]
 
 // is [1, 2, 3, 4, 8, 12, 11, 10, 9, 5, 6, 7]
-export function SpiralMatrix(data:any):number|string[]|undefined{return unimplemented(data)}
+export function SpiralMatrix(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
 
 // "Array Jumping Game"
 
@@ -22,7 +22,7 @@ export function SpiralMatrix(data:any):number|string[]|undefined{return unimplem
 
 // Assuming you are initially positioned at the start of the array, determine
 // whether you are able to reach the last index of the array.
-export function ArrayJump(data:any):number|string[]|undefined{return unimplemented(data)}
+export function ArrayJump(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
 
 // "Merge Overlapping Intervals"
 
@@ -35,4 +35,4 @@ export function ArrayJump(data:any):number|string[]|undefined{return unimplement
 // Example:
 // [[1, 3], [8, 10], [2, 6], [10, 16]]
 // merges into [[1, 6], [8, 16]]
-export function MergeOverlapping(data:any):number|string[]|undefined{return unimplemented(data)}
+export function MergeOverlapping(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}

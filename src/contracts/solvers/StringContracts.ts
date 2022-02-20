@@ -10,7 +10,7 @@ import { unimplemented } from '/contracts/contractUtils';
 // Examples:
 // 25525511135 -> [255.255.11.135, 255.255.111.35]
 // 1938718066 -> [193.87.180.66]
-export function GenerateIPAddresses(data:any):number|string[]|undefined{return unimplemented(data)}
+export function GenerateIPAddresses(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
 
 // "Sanitize Parentheses in Expression"
 
@@ -25,7 +25,7 @@ export function GenerateIPAddresses(data:any):number|string[]|undefined{return u
 // ()())() -> [()()(), (())()]
 // (a)())() -> [(a)()(), (a())()]
 // )( -> [“”]
-export function SanitizeParentheses(data:any):number|string[]|undefined{return unimplemented(data)}
+export function SanitizeParentheses(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
 
 // "Find All Valid Math Expressions"
 // You are given a string which contains only digits between 0 and 9 as well as a target
@@ -42,4 +42,4 @@ export function SanitizeParentheses(data:any):number|string[]|undefined{return u
 
 // Input: digits = “105”, target = 5
 // Output: [1*0+5, 10-5]
-export function FindValidMathExpressions(data:any):number|string[]|undefined{return unimplemented(data)}
+export function FindValidMathExpressions(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}

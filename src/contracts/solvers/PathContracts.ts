@@ -6,7 +6,7 @@ import { unimplemented } from '/contracts/contractUtils';
 // the one before it, forming a triangle). Find the minimum path sum from the top to the
 // bottom of the triangle. In each step of the path, you may only move to adjacent
 // numbers in the row below.
-export function MinTrianglePath(data:any):number|string[]|undefined{return unimplemented(data)}
+export function MinTrianglePath(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
 
 
 // "Unique Paths in a Grid I"
@@ -17,7 +17,7 @@ export function MinTrianglePath(data:any):number|string[]|undefined{return unimp
 // you may only move down or to the right.
 
 // Determine how many unique paths there are from start to finish.
-export function UniquePath1(data:any):number|string[]|undefined{return unimplemented(data)}
+export function UniquePath1(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
 
 
 // "Unique Paths in a Grid II"
@@ -31,4 +31,4 @@ export function UniquePath1(data:any):number|string[]|undefined{return unimpleme
 // or to the right. Furthermore, you cannot move onto spaces which have obstacles.
 
 // Determine how many unique paths there are from start to finish.
-export function UniquePath2(data:any):number|string[]|undefined{return unimplemented(data)}
+export function UniquePath2(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
