@@ -1,13 +1,23 @@
 import { NS } from "@ns";
 import { growServer, weakenServer, attack } from "/utils/HGW";
+import { getAllServers } from "/utils/utils";
 
 export const hackHostPath ="/hosts/hackHost.js";
 
 export async function main(ns: NS): Promise<void> {
-    const target = ns.args[0];
+    let target = ns.args[0];
     ns.tprintf(`INFO hacking target: ${target}`);
     if (typeof target === 'string') {
         const max = ns.getServerMaxMoney(target)
+
+        if (max==0){
+            ns.tprintf(`WARN: ${target} doesn't have any cash.`)
+            const oldtarget  = target
+            target = findBestTarget(ns)
+            ns.tprintf(`INFO: ${oldtarget} attacking ${target} instead.`)
+
+        }
+
         while (max != 0) {
                 
             const current = ns.getServerMoneyAvailable(target)
@@ -26,6 +36,18 @@ export async function main(ns: NS): Promise<void> {
                 await attack(ns, target); 
             }
         }
-        ns.tprintf(`WARN: ${target} doesn't have any cash.`)
     }
+}
+
+const findBestTarget = function(ns:NS): string{
+    let maxFunds = 0;
+    let bestServer ="";
+    getAllServers(ns).forEach(server =>{
+        const serverDetails = ns.getServer(server)
+        if(serverDetails.backdoorInstalled && serverDetails.moneyMax > maxFunds){
+            bestServer = server;
+            maxFunds = serverDetails.moneyMax
+        }
+    })
+    return bestServer
 }

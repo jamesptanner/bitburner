@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { walk } from '/utils/utils';
+import { walk,utilsPath} from '/utils/utils';
 import { infiltratePath} from '/hosts/infiltrate';
 import { HGWPath } from '/utils/HGW';
 import {hackHostPath} from '/hosts/hackHost';
@@ -32,11 +32,11 @@ async function backdoor(ns: NS, currentHost: string | undefined, toBackdoor: str
         }
     }
     else if (serverInfo.backdoorInstalled && currentHost && !scriptIsRunning(ns,currentHost,hackHostPath)) {
-        await ns.scp([HGWPath, hackHostPath], currentHost);
+        await ns.scp([HGWPath, hackHostPath,utilsPath], currentHost);
         const memReq = ns.getScriptRam(hackHostPath);
         const availableRam = serverInfo.maxRam - serverInfo.ramUsed;
-        ns.tprintf(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${memReq} threads=${Math.max(1, Math.floor(availableRam / memReq) - 1)}`);
-        if (ns.exec(hackHostPath, currentHost, Math.max(1, Math.floor(availableRam / memReq) - 1), currentHost) == 0) {
+        ns.tprintf(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${memReq} threads=${Math.max(1, Math.floor(availableRam / memReq))}`);
+        if (ns.exec(hackHostPath, currentHost, Math.max(1, Math.floor(availableRam / memReq)), currentHost) == 0) {
             ns.tprintf(`failed to launch script on ${currentHost}`);
         }
     }

@@ -7,7 +7,7 @@ function createHGWoptions(ns: NS, target: string): BasicHGWOptions {
     {
         threads:2
     };
-    const process = ns.ps().find(x =>x.filename==ns.getScriptName()&& x.args[0]==target);
+    const process = ns.ps().find(x =>x.filename==ns.getScriptName());
     if(process){
         defaultHGWOptions.threads = process.threads;
     }
