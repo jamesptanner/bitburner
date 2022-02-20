@@ -53,7 +53,29 @@ export function SpiralMatrix(ns:NS,data:any):number|string[]|undefined{
 
 // Assuming you are initially positioned at the start of the array, determine
 // whether you are able to reach the last index of the array.
-export function ArrayJump(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
+export function ArrayJump(ns:NS,data:any):number|string[]|undefined{
+    ns.print(`${JSON.stringify(data)} type:${typeof data}`)
+    const numberArray: number[] = data
+
+    const result = checkPosition(ns,numberArray,0)
+    ns.tprintf(`${result}`)
+    if(result){
+        return 1
+    }
+    return 0
+}
+
+function checkPosition(ns:NS, array:number[], pos:number):boolean{
+    ns.print(`${array}: checking position ${pos}`)
+    if (pos == array.length-1) return true
+    for (let jumpDist = 1; jumpDist <= array[pos]; jumpDist++) {
+        ns.print(`Jumping ${jumpDist}`)
+        if(checkPosition(ns,array,pos+jumpDist)){
+            return true;
+        }
+    }
+    return false;
+}
 
 // "Merge Overlapping Intervals"
 

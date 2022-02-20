@@ -59,7 +59,7 @@ export async function main(ns: NS): Promise<void> {
     const data = ns.codingcontract.getData(filename,host)
 
     const answer = processors.get(type)?.(ns,data);
-    if (answer) {
+    if (answer !== undefined) {
         const result = ns.codingcontract.attempt(answer, filename, host,{returnReward:true})
         if (result === "") {
             ns.alert(`Failed Contract: ${host}.${filename}`)
