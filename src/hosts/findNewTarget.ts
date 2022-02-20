@@ -1,12 +1,18 @@
 import { NS } from '@ns'
-import { asString, getAllServers } from '/utils/utils';
-import { hackHostPath } from '/hosts/files';
+import { asString, getAllServers } from "/utils/utils";
+import { hackHostPath } from "/hosts/files";
 
 export async function main(ns : NS) : Promise<void> {
     const oldTarget = asString(ns.args[0])
     const target = findBestTarget(ns)
+    const serverInfo = ns.getServer(oldTarget);
+
     ns.tprintf(`INFO: ${oldTarget} attacking ${target} instead.`)
-    ns.spawn(hackHostPath,1,target)
+    const memReq = ns.getScriptRam(hackHostPath);
+    const availableRam = serverInfo.maxRam - serverInfo.ramUsed;
+    if(ns.exec(hackHostPath,oldTarget,Math.floor(availableRam / memReq),target) ==0 ){
+        ns.tprintf(`failed to launch script on ${oldTarget}`);
+    }
 }
 
 const findBestTarget = function(ns:NS): string{

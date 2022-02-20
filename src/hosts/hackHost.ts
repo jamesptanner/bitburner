@@ -1,6 +1,6 @@
 import { NS } from "@ns";
 import { growServer, weakenServer, attack } from "/utils/HGW";
-import { findNewTargetPath } from '/hosts/files';
+import { findNewTargetPath } from "/hosts/files";
 
 export async function main(ns: NS): Promise<void> {
     const target = ns.args[0];
@@ -10,7 +10,7 @@ export async function main(ns: NS): Promise<void> {
 
         if (max==0){
             ns.tprintf(`WARN: ${target} doesn't have any cash.`)
-            ns.exec(findNewTargetPath,target,1,target);
+            ns.exec(findNewTargetPath,"home",1,target);
             ns.exit()
         }
 
