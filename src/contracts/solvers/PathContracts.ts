@@ -17,7 +17,25 @@ export function MinTrianglePath(ns:NS,data:any):number|string[]|undefined{return
 // you may only move down or to the right.
 
 // Determine how many unique paths there are from start to finish.
-export function UniquePath1(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
+export function UniquePath1(ns:NS,data:any):number|string[]|undefined{
+    ns.tprintf(`${JSON.stringify(data)} type:${typeof data}`)
+    const maxX: number = data[0]
+    const maxY: number = data[1]
+
+    const map: number[][] = []
+
+    for (let x = 0; x < maxX; x++) {
+        map[x]=[]
+        for (let y = 0; y < maxY; y++) {
+            if(x==0 || y==0){
+                map[x][y] = 1
+            }
+            map[x][y]= map[x-1][y] + map[x][y-1];
+        }
+    }
+    ns.tprintf(`paths: ${map[maxX-1][maxY-1]}`)
+    return map[maxX-1][maxY-1]
+}
 
 
 // "Unique Paths in a Grid II"
