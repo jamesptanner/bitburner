@@ -26,7 +26,7 @@ const processors = new Map<string, ContractFunction>([
     ["Algorithmic Stock Trader IV", StockTrader4],                  //Stocks
     ["Minimum Path Sum in a Triangle", MinTrianglePath],            //Paths     DONE
     ["Unique Paths in a Grid I", UniquePath1],                      //Paths     DONE
-    ["Unique Paths in a Grid II", UniquePath2],                     //Paths     UNTESTED
+    ["Unique Paths in a Grid II", UniquePath2],                     //Paths     DONE
     ["Sanitize Parentheses in Expression", SanitizeParentheses],    //Strings
     ["Find All Valid Math Expressions", FindValidMathExpressions],  //Strings
 

@@ -82,8 +82,16 @@ export function UniquePath2(ns: NS, data: any): number | string[] | undefined {
                 map[x][y] = 0
             }
             else{
-                if (x == 0 || y == 0) {
-                    map[x][y] = 1
+                if(x==0 && y==0){
+                    map[x][y]=1
+                }
+                else if (x == 0 ^ y == 0) {
+                    if(x>0){
+                        map[x][y] = map[x-1][y] == 0 ? 0:1
+                    }
+                    else if(y>0){
+                        map[x][y] = map[x][y-1] == 0 ? 0:1
+                    }
                 }
                 else {
                     map[x][y] = map[x - 1][y] + map[x][y - 1];
@@ -91,7 +99,9 @@ export function UniquePath2(ns: NS, data: any): number | string[] | undefined {
             }
         }
     }
-    ns.tprintf(`paths: ${map[maxX - 1][maxY - 1]}`)
+    ns.print(`${JSON.stringify(map)} type:${typeof data}`)
+    ns.tprintf(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`)
     return map[maxX - 1][maxY - 1]
     return unimplemented(data) 
+
 }
