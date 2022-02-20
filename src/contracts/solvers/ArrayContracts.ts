@@ -11,7 +11,38 @@ import { unimplemented } from '/contracts/contractUtils';
 // [9, 10, 11, 12]
 
 // is [1, 2, 3, 4, 8, 12, 11, 10, 9, 5, 6, 7]
-export function SpiralMatrix(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
+export function SpiralMatrix(ns:NS,data:any):number|string[]|undefined{
+
+    ns.print(`${JSON.stringify(data)} type:${typeof data}`)
+    const numberArray: number[][] = data
+    const output: number[] = []
+    let state = 0
+    while (numberArray.length> 0)
+    {
+        switch(state%4){
+        case 0: //top
+            output.push(...numberArray.shift())
+            break;
+        case 1: //right
+            for (let row = 0; row < numberArray.length; row++) {
+                output.push(numberArray[row].pop())
+            }
+            break;
+        case 2: //bottom
+            output.push(...(numberArray.pop().reverse()))
+            break;
+        case 3: //left
+            for (let row = numberArray.length-1; row>= 0 ; row--) {
+                output.push(numberArray[row].shift())
+            }
+            break;
+    }
+        state++
+    }
+    //may have undefined entries which we can remove.
+    ns.tprintf(`SpiralMatrix Result: ${JSON.stringify(output.filter(x=> x))}`)
+    return JSON.stringify(output.filter(x=> x))
+}
 
 // "Array Jumping Game"
 

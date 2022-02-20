@@ -60,7 +60,7 @@ export async function main(ns: NS): Promise<void> {
 
     const answer = processors.get(type)?.(ns,data);
     if (answer) {
-            result = ns.codingcontract.attempt(answer, filename, host,{returnReward:true})
+        const result = ns.codingcontract.attempt(answer, filename, host,{returnReward:true})
         if (result === "") {
             ns.alert(`Failed Contract: ${host}.${filename}`)
         }
@@ -69,7 +69,7 @@ export async function main(ns: NS): Promise<void> {
         }
     }
     else {
-        ns.tprintf(`unable to process contract: ${host}.${filename} - ${type}`)
-        ns.tprintf(`${ns.codingcontract.getDescription(filename,host)}\n\n`)
+        ns.tprintf(`unable to process contract: ${host}.${filename} - '${type}'`)
+        // ns.tprintf(`${ns.codingcontract.getDescription(filename,host)}\n\n`)
     }
 }
