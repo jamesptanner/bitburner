@@ -14,6 +14,7 @@
     "bitburner.showFileWatcherEnabledNotification": true,
     "bitburner.showPushSuccessNotification": true,
     "cSpell.words": [
+        "Deepscan",
         "hacknet",
         "tprintf"
     ],

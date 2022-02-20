@@ -32,7 +32,6 @@ export function MaxSubArray(ns:NS,data:any):number|string[]|undefined{
     }
     ns.tprintf(`Best: ${subArray}: ${subArrayTotal}`)
     return subArrayTotal
-    return unimplemented(data)
 
 }
 
