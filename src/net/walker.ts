@@ -1,48 +1,37 @@
 import { NS } from '@ns'
-import { walk,utilsPath} from '/utils/utils';
-import { infiltratePath} from '/hosts/infiltrate';
+import { utilsPath, getAllServers } from '/utils/utils';
 import { HGWPath } from '/utils/HGW';
-import {hackHostPath} from '/hosts/hackHost';
+import { hackHostPath,infiltratePath } from '/hosts/files';
 
 export async function main(ns: NS): Promise<void> {
     //
-    const parent = ns.args?.[0] || "home";
-    if (typeof parent === "string") {
-        const toBackdoor: string[] = []
-        await walk(ns,parent,backdoor,toBackdoor);
-        await ns.write("toBackdoor.txt",JSON.stringify(toBackdoor),"w");
-    }
+    const toBackdoor: string[] = []
+    getAllServers(ns).forEach(async server => {
+        const serverInfo = ns.getServer(server);
+        if (!serverInfo.backdoorInstalled) {
+            const targetHackLevel = ns.getServerRequiredHackingLevel(server);
+            if (targetHackLevel <= ns.getHackingLevel()) {
+                ns.tprintf(`INFO 💣 ${server}`);
 
-}
-
-async function backdoor(ns: NS, currentHost: string | undefined, toBackdoor: string[]) :Promise<boolean> {
-    const serverInfo = ns.getServer(currentHost);
-    if (!serverInfo.backdoorInstalled && currentHost && currentHost) {
-        const targetHackLevel = ns.getServerRequiredHackingLevel(currentHost);
-        if (targetHackLevel > ns.getHackingLevel()) {
-            // ns.tprintf(`INFO not able to hack host: ${currentHost}(${targetHackLevel})`);
-        }
-        else {
-            ns.tprintf(`INFO 💣 ${currentHost}`);
-
-            if (!serverInfo.purchasedByPlayer) {
-                ns.exec(infiltratePath, "home", 1, currentHost);
-                toBackdoor.push(currentHost);
+                if (!serverInfo.purchasedByPlayer) {
+                    ns.exec(infiltratePath, "home", 1, server);
+                    toBackdoor.push(server);
+                }
             }
         }
-    }
-    else if (serverInfo.backdoorInstalled && currentHost && !scriptIsRunning(ns,currentHost,hackHostPath)) {
-        await ns.scp([HGWPath, hackHostPath,utilsPath], currentHost);
-        const memReq = ns.getScriptRam(hackHostPath);
-        const availableRam = serverInfo.maxRam - serverInfo.ramUsed;
-        ns.tprintf(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${memReq} threads=${Math.max(1, Math.floor(availableRam / memReq))}`);
-        if (ns.exec(hackHostPath, currentHost, Math.max(1, Math.floor(availableRam / memReq)), currentHost) == 0) {
-            ns.tprintf(`failed to launch script on ${currentHost}`);
+        else if (serverInfo.backdoorInstalled && server && !scriptIsRunning(ns, server, hackHostPath)) {
+            await ns.scp([HGWPath, hackHostPath, utilsPath], server);
+            const memReq = ns.getScriptRam(hackHostPath);
+            const availableRam = serverInfo.maxRam - serverInfo.ramUsed;
+            ns.tprintf(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${memReq} threads=${Math.floor(availableRam / memReq)}`);
+            if (ns.exec(hackHostPath, server, Math.floor(availableRam / memReq), server) == 0) {
+                ns.tprintf(`failed to launch script on ${server}`);
+            }
         }
-    }
-    return true;
+    });
+    await ns.write("toBackdoor.txt", JSON.stringify(toBackdoor), "w");
 }
 
-const scriptIsRunning = function(ns:NS, host: string, script: string): boolean{
+const scriptIsRunning = function (ns: NS, host: string, script: string): boolean {
     return ns.ps(host).filter(process => process.filename == script).length > 0;
 }
