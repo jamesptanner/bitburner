@@ -48,7 +48,9 @@ export function UniquePath1(ns: NS, data: any): number | string[] | undefined {
             if (x == 0 || y == 0) {
                 map[x][y] = 1
             }
-            map[x][y] = map[x - 1][y] + map[x][y - 1];
+            else {
+                map[x][y] = map[x - 1][y] + map[x][y - 1];
+            }
         }
     }
     ns.tprintf(`paths: ${map[maxX - 1][maxY - 1]}`)
