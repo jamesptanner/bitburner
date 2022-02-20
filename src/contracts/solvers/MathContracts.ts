@@ -30,7 +30,7 @@ export function MaxSubArray(ns:NS,data:any):number|string[]|undefined{
     let subArray: number[] = []
     let subArrayTotal = -Infinity
     for (let start = 0; start < numberArray.length; start++) {
-        for (let length = 1; length < numberArray.length-start; length++) {
+        for (let length = 1; length <= numberArray.length-start; length++) {
             const testSubArray = numberArray.slice(start,start+length)
 
             const testSubArrayTotal = testSubArray.reduce((prev,curr) =>{return prev+curr})
@@ -45,7 +45,7 @@ export function MaxSubArray(ns:NS,data:any):number|string[]|undefined{
     }
     ns.tprintf(`Best: ${subArray}: ${subArrayTotal}`)
     return subArrayTotal
-
+    // return undefined
 }
 
 // "Total Ways to Sum"
