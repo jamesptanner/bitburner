@@ -1,4 +1,7 @@
 import { NS } from '@ns'
+import { solveContractPath } from '/contracts/solveContract';
+
+export const processContractsPath ="/contracts/processContracts.js";
 
 interface Contract {
     type: string
@@ -28,6 +31,9 @@ export async function main(ns : NS) : Promise<void> {
             }
         }
     }
-    ns.alert(`${JSON.stringify(contractsByType)}`)
     await ns.write("processedContracts.txt",JSON.stringify(contractsByType),"w")
+    contractsByType.forEach( contract => {
+        ns.exec(solveContractPath,"home",1,contract.name,contract.host,contract.type,JSON.stringify(contract.data))
+    });
+
 }
