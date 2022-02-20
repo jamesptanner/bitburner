@@ -11,7 +11,6 @@
     "typescript.preferences.importModuleSpecifier": "non-relative",
     "bitburner.fileWatcher.enable": true,
     "bitburner.scriptRoot": "./build",
-    "bitburner.showFileWatcherEnabledNotification": true,
     "bitburner.showPushSuccessNotification": true,
     "cSpell.words": [
         "Deepscan",
