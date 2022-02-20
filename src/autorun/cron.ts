@@ -18,6 +18,11 @@ const jobs: Job[] = [
         script:"contracts/findContracts.js",
         args:[],
         interval:1000*60
+    },
+    {
+        script:"autorun/createScripts.js",
+        args:[],
+        interval:10*1000*60
     }
 ]
 

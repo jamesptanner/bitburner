@@ -12,6 +12,5 @@ export async function main(ns: NS): Promise<void> {
                 ns.tprintf(`INFO: You should work on new script: ${script}`);
             }
         }
-        await ns.sleep(1 * 60 * 1000); 
     }
 }
