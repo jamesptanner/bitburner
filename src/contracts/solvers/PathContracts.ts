@@ -36,7 +36,7 @@ export function MinTrianglePath(ns: NS, data: any): number | string[] | undefine
 
 // Determine how many unique paths there are from start to finish.
 export function UniquePath1(ns: NS, data: any): number | string[] | undefined {
-    ns.tprintf(`${JSON.stringify(data)} type:${typeof data}`)
+    ns.print(`${JSON.stringify(data)} type:${typeof data}`)
     const maxX: number = data[0]
     const maxY: number = data[1]
 
