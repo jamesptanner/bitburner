@@ -19,6 +19,6 @@ const jobs: Job[] = [
 export async function main(ns : NS) : Promise<void> {
     ns.ps().filter(proc =>{ return proc.filename.indexOf("triggerJob.js")!=-1 }).forEach(proc => ns.kill(proc.pid))
     jobs.forEach(job => {
-        ns.run("triggerJob.js",1,[job.interval, job.script, ...job.args])
+        ns.run("triggerJob.js",1,job.interval, job.script, ...job.args)
     });
 }
