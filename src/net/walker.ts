@@ -1,7 +1,7 @@
 import { NS } from '@ns'
 import { HGWPath } from "/utils/HGW";
 import { utilsPath, getAllServers } from "/utils/utils";
-import { filesPath, hackHostPath, infiltratePath,findNewTargetPath } from "/hosts/files";
+import { filesPath, hackHostPath, infiltratePath,findNewTargetPath,hackHostLitePath } from "/hosts/files";
 
 export async function main(ns: NS): Promise<void> {
     const toBackdoor: string[] = []
@@ -21,13 +21,28 @@ export async function main(ns: NS): Promise<void> {
             }
         }
         else if (serverInfo.backdoorInstalled && server && !scriptIsRunning(ns, server, hackHostPath)) {
-            await ns.scp([HGWPath, hackHostPath, utilsPath,filesPath,findNewTargetPath], server);
             const memReq = ns.getScriptRam(hackHostPath);
             const availableRam = serverInfo.maxRam - serverInfo.ramUsed;
             ns.tprintf(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${memReq} threads=${Math.floor(availableRam / memReq)}`);
             if (Math.floor(availableRam / memReq) != 0) {
+                await ns.scp([HGWPath, hackHostPath, utilsPath,filesPath,findNewTargetPath], server);
                 if (ns.exec(hackHostPath, server, Math.floor(availableRam / memReq), server) == 0) {
                     ns.tprintf(`failed to launch script on ${server}`);
+                }
+            }
+            else {
+                ns.tprintf(`WARN Switching to lite hack script. for ${server}`)
+
+                const liteMemReq = ns.getScriptRam(hackHostLitePath);
+                ns.tprintf(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${liteMemReq} threads=${Math.floor(availableRam / liteMemReq)}`);
+                if (Math.floor(availableRam / liteMemReq) != 0) {
+                    await ns.scp([HGWPath, hackHostLitePath, utilsPath,filesPath], server);
+                    if (ns.exec(hackHostLitePath, server, Math.floor(availableRam / liteMemReq), server) == 0) {
+                        ns.tprintf(`failed to launch script on ${server}`);
+                    }
+                }
+                else{
+                    ns.tprintf(`ERROR Unable to run either hack script.`)
                 }
             }
         }
