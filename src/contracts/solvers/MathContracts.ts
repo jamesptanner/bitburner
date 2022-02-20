@@ -4,7 +4,7 @@ import { unimplemented } from '/contracts/contractUtils';
 // Given a number, find its largest prime factor. A prime factor
 // is a factor that is a prime number.
 export function largestPrimeFactor(ns:NS,data:any):number|string[]|undefined{
-    ns.tprintf(`${JSON.stringify(data)} type:${typeof data}`)
+    ns.print(`${JSON.stringify(data)} type:${typeof data}`)
     let num: number = data
     let factor = 2
     do{
