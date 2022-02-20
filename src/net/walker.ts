@@ -20,7 +20,7 @@ export async function main(ns: NS): Promise<void> {
                 }
             }
         }
-        else if (serverInfo.backdoorInstalled && server && !scriptIsRunning(ns, server, hackHostPath)) {
+        else if (serverInfo.backdoorInstalled && server && !scriptIsRunning(ns, server, hackHostPath) && !scriptIsRunning(ns, server, hackHostLitePath)) {
             const memReq = ns.getScriptRam(hackHostPath);
             const availableRam = serverInfo.maxRam - serverInfo.ramUsed;
             ns.tprintf(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${memReq} threads=${Math.floor(availableRam / memReq)}`);
