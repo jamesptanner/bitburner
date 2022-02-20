@@ -69,4 +69,29 @@ export function UniquePath1(ns: NS, data: any): number | string[] | undefined {
 // or to the right. Furthermore, you cannot move onto spaces which have obstacles.
 
 // Determine how many unique paths there are from start to finish.
-export function UniquePath2(ns: NS, data: any): number | string[] | undefined { return unimplemented(data) }
+export function UniquePath2(ns: NS, data: any): number | string[] | undefined { 
+    ns.print(`${JSON.stringify(data)} type:${typeof data}`)
+    const maxX: number = data.length
+    const maxY: number = data[0].length
+
+    const map: number[][] = data
+
+    for (let x = 0; x < maxX; x++) {
+        for (let y = 0; y < maxY; y++) {
+            if (map[x][y] == 1) {
+                map[x][y] = 0
+            }
+            else{
+                if (x == 0 || y == 0) {
+                    map[x][y] = 1
+                }
+                else {
+                    map[x][y] = map[x - 1][y] + map[x][y - 1];
+                }
+            }
+        }
+    }
+    ns.tprintf(`paths: ${map[maxX - 1][maxY - 1]}`)
+    return map[maxX - 1][maxY - 1]
+    return unimplemented(data) 
+}

@@ -108,4 +108,21 @@ function checkPosition(ns:NS, array:number[], pos:number):boolean{
 // Example:
 // [[1, 3], [8, 10], [2, 6], [10, 16]]
 // merges into [[1, 6], [8, 16]]
-export function MergeOverlapping(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
+export function MergeOverlapping(ns:NS,data:any):number|string[]|undefined{
+    ns.tprintf(`${JSON.stringify(data)} type:${typeof data}`)
+    const numberArray: number[][] = data
+
+    numberArray.sort((a,b) => a[0] - b[0])
+    for (let i = 0; i < numberArray.length-1; i++) {
+        if(numberArray[i][1] < numberArray[i+1][0]){
+            const newElement = [numberArray[i][0],numberArray[i+1][1]]
+            numberArray.shift()
+            numberArray.shift()
+            numberArray.unshift(newElement)
+            i--
+        }
+    }
+
+    ns.tprintf(`${JSON.stringify(numberArray)}`)
+    return numberArray.map<string>(x => x.toString())
+}

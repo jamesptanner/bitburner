@@ -13,20 +13,20 @@ interface ContractFunction {
 }
 
 const processors = new Map<string, ContractFunction>([
-    ["Find Largest Prime Factor", largestPrimeFactor],              //Maths
-    ["Subarray with Maximum Sum", MaxSubArray],                     //Maths
+    ["Find Largest Prime Factor", largestPrimeFactor],              //Maths     DONE
+    ["Subarray with Maximum Sum", MaxSubArray],                     //Maths     DONE
     ["Total Ways to Sum", TotalSums],                               //Maths
-    ["Spiralize Matrix", SpiralMatrix],                             //Arrays
-    ["Array Jumping Game", ArrayJump],                              //Arrays
-    ["Merge Overlapping Intervals", MergeOverlapping],              //Arrays
-    ["Generate IP Addresses", GenerateIPAddresses],                 //Strings
+    ["Spiralize Matrix", SpiralMatrix],                             //Arrays    DONE
+    ["Array Jumping Game", ArrayJump],                              //Arrays    DONE
+    ["Merge Overlapping Intervals", MergeOverlapping],              //Arrays    UNTESTED
+    ["Generate IP Addresses", GenerateIPAddresses],                 //Strings   DONE
     ["Algorithmic Stock Trader I", StockTrader1],                   //Stocks
     ["Algorithmic Stock Trader II", StockTrader2],                  //Stocks
     ["Algorithmic Stock Trader III", StockTrader3],                 //Stocks
     ["Algorithmic Stock Trader IV", StockTrader4],                  //Stocks
-    ["Minimum Path Sum in a Triangle", MinTrianglePath],            //Paths
-    ["Unique Paths in a Grid I", UniquePath1],                      //Paths
-    ["Unique Paths in a Grid II", UniquePath2],                     //Paths
+    ["Minimum Path Sum in a Triangle", MinTrianglePath],            //Paths     DONE
+    ["Unique Paths in a Grid I", UniquePath1],                      //Paths     DONE
+    ["Unique Paths in a Grid II", UniquePath2],                     //Paths     UNTESTED
     ["Sanitize Parentheses in Expression", SanitizeParentheses],    //Strings
     ["Find All Valid Math Expressions", FindValidMathExpressions],  //Strings
 
