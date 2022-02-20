@@ -1,10 +1,10 @@
 import { NS } from '@ns'
 import { asString } from '/utils/utils';
-import { largestPrimeFactor, TotalSums, MaxSubArray } from './solvers/MathContracts';
-import { SpiralMatrix, MergeOverlapping, ArrayJump } from './solvers/ArrayContracts';
-import { GenerateIPAddresses, FindValidMathExpressions, SanitizeParentheses } from './solvers/StringContracts';
-import { StockTrader1, StockTrader2, StockTrader3, StockTrader4 } from './solvers/StockContracts';
-import { MinTrianglePath, UniquePath1, UniquePath2 } from './solvers/PathContracts';
+import { largestPrimeFactor, TotalSums, MaxSubArray } from '/contracts/solvers/MathContracts';
+import { SpiralMatrix, MergeOverlapping, ArrayJump } from '/contracts/solvers/ArrayContracts';
+import { GenerateIPAddresses, FindValidMathExpressions, SanitizeParentheses } from '/contracts/solvers/StringContracts';
+import { StockTrader1, StockTrader2, StockTrader3, StockTrader4 } from '/contracts/solvers/StockContracts';
+import { MinTrianglePath, UniquePath1, UniquePath2 } from '/contracts/solvers/PathContracts';
 
 export const solveContractPath = "/contracts/solveContract.js";
 
@@ -14,10 +14,6 @@ interface ContractFunction {
 interface ContractProcessor {
     contractType: string
     contractFunction: ContractFunction
-}
-
-export const unimplemented = function (data: any): (number | string[] | undefined) {
-    return undefined;
 }
 
 const processors = new Map<string, ContractFunction>([
@@ -46,6 +42,7 @@ export async function main(ns: NS): Promise<void> {
 
     const usage = `solveContract.ts USAGE: ${solveContractPath} <contract filename> <host> <contract type> <contract data>`;
     if (ns.args.length != 4) {
+        ns.tprintf(`Invalid number of arguments`)
         ns.tprintf(usage)
         ns.exit()
     }
@@ -56,11 +53,13 @@ export async function main(ns: NS): Promise<void> {
     const data: string[] | number = JSON.parse(asString(ns.args[3]))
 
     if (!ns.serverExists(host)) {
+        ns.tprintf(`Invalid server: ${host}`)
         ns.tprintf(usage)
         ns.exit()
     }
 
     if (!ns.fileExists(filename, host)) {
+        ns.tprintf(`Invalid file ${filename}`)
         ns.tprintf(usage)
         ns.exit()
     }
@@ -70,5 +69,8 @@ export async function main(ns: NS): Promise<void> {
         if (!ns.codingcontract.attempt(answer, filename, host)) {
             alert(`Failed Contract: ${host}.${filename}`)
         }
+    }
+    else {
+        ns.tprintf(`unable to process contract: ${host}.${filename} - ${type}`)
     }
 }
