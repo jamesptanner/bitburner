@@ -20,10 +20,10 @@ const processors = new Map<string, ContractFunction>([
     ["Array Jumping Game", ArrayJump],                              //Arrays    DONE
     ["Merge Overlapping Intervals", MergeOverlapping],              //Arrays    UNTESTED
     ["Generate IP Addresses", GenerateIPAddresses],                 //Strings   DONE
-    ["Algorithmic Stock Trader I", StockTrader1],                   //Stocks
-    ["Algorithmic Stock Trader II", StockTrader2],                  //Stocks
-    ["Algorithmic Stock Trader III", StockTrader3],                 //Stocks
-    ["Algorithmic Stock Trader IV", StockTrader4],                  //Stocks
+    ["Algorithmic Stock Trader I", StockTrader1],                   //Stocks    DONE
+    ["Algorithmic Stock Trader II", StockTrader2],                  //Stocks    DONE
+    ["Algorithmic Stock Trader III", StockTrader3],                 //Stocks    DONE
+    ["Algorithmic Stock Trader IV", StockTrader4],                  //Stocks    DONE
     ["Minimum Path Sum in a Triangle", MinTrianglePath],            //Paths     DONE
     ["Unique Paths in a Grid I", UniquePath1],                      //Paths     DONE
     ["Unique Paths in a Grid II", UniquePath2],                     //Paths     DONE

@@ -8,7 +8,21 @@ import { unimplemented } from '/contracts/contractUtils';
 // transaction (i.e. you can buy an sell the stock once). If no profit
 // can be made, then the answer should be 0. Note that you must buy the stock
 // before you can sell it.
-export function StockTrader1(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
+export function StockTrader1(ns:NS,data:any):number|string[]|undefined{
+
+    const stocks: number[] = data
+    let bestProfit = 0
+    let maxCur = 0
+    for (let i = 1; i < stocks.length; ++i) {
+        maxCur = Math.max(0,(maxCur += stocks[i]-stocks[i-1]))
+        bestProfit = Math.max(bestProfit,maxCur)
+    }
+    
+    ns.tprintf(`Stock1 Best profit: ${bestProfit}`)
+
+    return unimplemented(data)
+    return bestProfit > 0 ? bestProfit : 0
+}
 
 
 // "Algorithmic Stock Trader II"
@@ -21,7 +35,18 @@ export function StockTrader1(ns:NS,data:any):number|string[]|undefined{return un
 // share of the stock. Note that you cannot engage in multiple transactions at
 // once. In other words, you must sell the stock before you buy it again. If no
 // profit can be made, then the answer should be 0.
-export function StockTrader2(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
+export function StockTrader2(ns:NS,data:any):number|string[]|undefined{
+    const stocks: number[] = data
+    let profit = 0
+
+    for (let i = 1; i < stocks.length; ++i) {
+        profit += Math.max(0,stocks[i]-stocks[i-1])
+    }
+    ns.tprintf(`Stock2 Best profit: ${profit}`)
+
+    return profit > 0 ? profit : 0
+    return unimplemented(data)
+}
 
 // "Algorithmic Stock Trader III"
 
@@ -33,7 +58,22 @@ export function StockTrader2(ns:NS,data:any):number|string[]|undefined{return un
 // of the stock. Note that you cannot engage in multiple transactions at once.
 // In other words, you must sell the stock before you buy it again. If no profit
 // can be made, then the answer should be 0.
-export function StockTrader3(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
+export function StockTrader3(ns:NS,data:any):number|string[]|undefined{
+
+    let hold1 = Number.MIN_SAFE_INTEGER
+    let hold2 = Number.MIN_SAFE_INTEGER
+    let release1 = 0
+    let release2 = 0
+    for (let _i = 0, data_1 = data; _i < data_1.length; _i++) {
+        const price = data_1[_i]
+        release2 = Math.max(release2, hold2 + price)
+        hold2 = Math.max(hold2, release1 - price)
+        release1 = Math.max(release1, hold1 + price)
+        hold1 = Math.max(hold1, price * -1)
+    }
+    return release2
+    return unimplemented(data)
+}
 
 // "Algorithmic Stock Trader IV"
 
@@ -46,4 +86,36 @@ export function StockTrader3(ns:NS,data:any):number|string[]|undefined{return un
 // Note that you cannot engage in multiple transactions at once. In other words,
 // you must sell the stock before you can buy it. If no profit can be made, then
 // the answer should be 0.
-export function StockTrader4(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
+export function StockTrader4(ns:NS,data:any):number|string[]|undefined{
+    const k = data[0]
+    const prices = data[1]
+    const len = prices.length
+    if (len < 2) {
+        return 0
+    }
+    if (k > len / 2) {
+        let res = 0
+        for (let i = 1; i < len; ++i) {
+            res += Math.max(prices[i] - prices[i - 1], 0)
+        }
+        return res
+    }
+    const hold = []
+    const rele = []
+    hold.length = k + 1
+    rele.length = k + 1
+    for (let i = 0; i <= k; ++i) {
+        hold[i] = Number.MIN_SAFE_INTEGER
+        rele[i] = 0
+    }
+    let cur
+    for (let i = 0; i < len; ++i) {
+        cur = prices[i]
+        for (let j = k; j > 0; --j) {
+            rele[j] = Math.max(rele[j], hold[j] + cur)
+            hold[j] = Math.max(hold[j], rele[j - 1] - cur)
+        }
+    }
+    return rele[k]
+    return unimplemented(data)
+}
