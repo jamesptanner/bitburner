@@ -1,4 +1,3 @@
-import { unimplemented } from '/contracts/contractUtils';
 // "Find Largest Prime Factor"
 
 // Given a number, find its largest prime factor. A prime factor
@@ -52,4 +51,26 @@ export function MaxSubArray(ns:NS,data:any):number|string[]|undefined{
 
 // Given a number, how many different ways can that number be written as
 // a sum of at least two positive integers?
-export function TotalSums(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
+export function TotalSums(ns:NS,data:any):number|string[]|undefined{
+    ns.tprintf(`${JSON.stringify(data)} type:${typeof data}`)
+
+    const value:number  = data;
+    // An array to store a partition
+    const sums = new Array(value+1); 
+         
+    sums[0] = 1; 
+    sums.fill(0,1)
+    for (let i = 1; i < value; ++i) {
+        for (let j = i; j <= value; ++j) {
+            sums[j] += sums[j - i]
+        }
+    }
+
+    //ns.tprintf(`${partitions}`)
+    ns.tprintf(`total Sums: ${sums[value]}`)
+    ns.tprintf(`total Sums: ${sums}`)
+
+    return sums[value]
+
+}
+

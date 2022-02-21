@@ -15,7 +15,7 @@ interface ContractFunction {
 const processors = new Map<string, ContractFunction>([
     ["Find Largest Prime Factor", largestPrimeFactor],              //Maths     DONE
     ["Subarray with Maximum Sum", MaxSubArray],                     //Maths     DONE
-    ["Total Ways to Sum", TotalSums],                               //Maths
+    ["Total Ways to Sum", TotalSums],                               //Maths     DONE
     ["Spiralize Matrix", SpiralMatrix],                             //Arrays    DONE
     ["Array Jumping Game", ArrayJump],                              //Arrays    DONE
     ["Merge Overlapping Intervals", MergeOverlapping],              //Arrays    UNTESTED
