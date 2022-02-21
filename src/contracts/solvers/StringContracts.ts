@@ -14,26 +14,31 @@ export function GenerateIPAddresses(ns:NS,data:any):number|string[]|undefined{
 
     ns.print(`${JSON.stringify(data)} type:${typeof data}`)
     const baseAddress: string = data
-    const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+    const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)$/
     const validAddresses: string[] = []
+    const expectedLength = baseAddress.length+3
     for (let octalSize1 = 1; octalSize1 <= 3; octalSize1++) {
     for (let octalSize2 = 1; octalSize2 <= 3; octalSize2++) {
     for (let octalSize3 = 1; octalSize3 <= 3; octalSize3++) {
     for (let octalSize4 = 1; octalSize4 <= 3; octalSize4++) {
         let addressCopy = baseAddress
         let addrString = ""
-        addrString = addressCopy.substring(0,octalSize1) + "."
+        addrString = (parseInt(addressCopy.substring(0,octalSize1))) + "."
         addressCopy = addressCopy.slice(octalSize1)
-        addrString = addrString + addressCopy.substring(0,octalSize2) + "."
+        addrString = addrString + (parseInt(addressCopy.substring(0,octalSize2))) + "."
         addressCopy = addressCopy.slice(octalSize2)
-        addrString = addrString + addressCopy.substring(0,octalSize3) + "."
+        addrString = addrString + (parseInt(addressCopy.substring(0,octalSize3))) + "."
         addressCopy = addressCopy.slice(octalSize3)
-        addrString = addrString + addressCopy.substring(0,octalSize4) 
+        addrString = addrString + (parseInt(addressCopy.substring(0,octalSize4)))
         addressCopy = addressCopy.slice(octalSize4)
 
-        ns.print(`addr: ${addrString}, leftover string: ${addressCopy}`)
         if(addressCopy.length> 0){
-            ns.print("invalid addr, leftover numbers")
+            //ns.tprintf("ERROR invalid addr, leftover numbers")
+            continue
+        }
+        ns.print(`addr: ${addrString}, leftover string: ${addressCopy}`)
+        if(addrString.length != expectedLength){
+            ns.print("ERROR invalid addr, probably leading zeros.")
             continue
         }
         if (ipv4Regex.test(addrString)){
@@ -47,8 +52,8 @@ export function GenerateIPAddresses(ns:NS,data:any):number|string[]|undefined{
     }
     }
     }
-    ns.tprintf(`INFO Valid Addresses ${validAddresses}`)
-    return validAddresses;
+    ns.tprintf(`INFO Valid Addresses ${validAddresses.filter((v,i,self)=>{return self.indexOf(v)===i})}`)
+    return validAddresses.filter((v,i,self)=>{return self.indexOf(v)===i});
 }
 
 // "Sanitize Parentheses in Expression"
