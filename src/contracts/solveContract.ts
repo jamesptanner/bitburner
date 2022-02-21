@@ -62,7 +62,8 @@ export async function main(ns: NS): Promise<void> {
     if (answer !== undefined) {
         const result = ns.codingcontract.attempt(answer, filename, host,{returnReward:true})
         if (result === "") {
-            ns.alert(`Failed Contract: ${host}.${filename}`)
+            ns.alert(`Failed Contract: ${host}.${filename} - '${type}'`)
+            ns.tprintf(`Failed Contract: ${host}.${filename} - '${type}'`)
         }
         else {
             ns.tprintf(`${result}`)

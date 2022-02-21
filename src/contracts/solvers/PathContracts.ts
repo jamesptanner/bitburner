@@ -1,4 +1,3 @@
-import { unimplemented } from '/contracts/contractUtils';
 // "Minimum Path Sum in a Triangle"
 
 // You are given a 2D array of numbers (array of array of numbers) that represents a
@@ -7,11 +6,11 @@ import { unimplemented } from '/contracts/contractUtils';
 // bottom of the triangle. In each step of the path, you may only move to adjacent
 // numbers in the row below.
 export function MinTrianglePath(ns: NS, data: any): number | string[] | undefined {
-    ns.tprintf(`${JSON.stringify(data)} type:${typeof data}`);
-    const numberArray = data;
+    ns.print(`${JSON.stringify(data)} type:${typeof data}`);
+    const numberArray:number[][] = data;
 
     for (let row = 1; row < numberArray.length; row++) {
-        for (let col = 1; col < numberArray[row].length; col++) {
+        for (let col = 0; col < numberArray[row].length; col++) {
 
             if (col === 0) {
                 numberArray[row][col] += numberArray[row - 1][col]
@@ -24,6 +23,10 @@ export function MinTrianglePath(ns: NS, data: any): number | string[] | undefine
             }
         }
     }
+    ns.print(`${JSON.stringify(numberArray)}`)
+    // return unimplemented(data) 
+    ns.tprintf(`MinPath: ${Math.min(...numberArray[numberArray.length - 1])}`)
+
     return Math.min(...numberArray[numberArray.length - 1]);
 }
 
@@ -102,6 +105,5 @@ export function UniquePath2(ns: NS, data: any): number | string[] | undefined {
     ns.print(`${JSON.stringify(map)} type:${typeof data}`)
     ns.tprintf(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`)
     return map[maxX - 1][maxY - 1]
-    return unimplemented(data) 
 
 }
