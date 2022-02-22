@@ -23,6 +23,11 @@ const jobs: Job[] = [
         script:"createScripts.js",
         args:[],
         interval:10*1000*60
+    },
+    {
+        script:"killscript.js",
+        args:["hack"],
+        interval:30*60*1000
     }
 ]
 
