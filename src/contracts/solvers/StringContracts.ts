@@ -69,7 +69,66 @@ export function GenerateIPAddresses(ns:NS,data:any):number|string[]|undefined{
 // ()())() -> [()()(), (())()]
 // (a)())() -> [(a)()(), (a())()]
 // )( -> [“”]
-export function SanitizeParentheses(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
+export function SanitizeParentheses(ns:NS,data:any):number|string[]|undefined{
+    
+    ns.print(`${JSON.stringify(data)} type:${typeof data}`)
+    const parentheses: string = data 
+
+    function isValid(parens:string):boolean {
+        ns.print(`Testing ${parens}`)
+        let opens = 0
+        for (let index = 0; index < parens.length; index++) {
+            if(parens.charAt(index) === '('){
+                opens++
+            }
+            else if(parens.charAt(index) === ')'){
+                opens--
+            }
+            if(opens < 0){
+                return false
+            }
+        }
+        if (opens===0){
+            ns.print("👍")
+        }
+        return opens === 0
+    }
+
+    function removeChar(str:string, depth:number,ans:string[]){
+        for (let index = 0, strcpy=str; index < str.length; index++,strcpy=str) {
+            strcpy = strcpy.substring(0,index)+strcpy.substring(index+1)
+            if(depth===0){
+                if(isValid(strcpy)){
+                    ans.push(strcpy)
+                }
+            }
+            else {
+                removeChar(strcpy,depth-1,ans)
+            }
+        }
+    }
+
+
+    const answers:string[]=[]
+
+    if(isValid(parentheses)) {
+        answers.push(parentheses)
+    }
+    let n = 0
+    while(answers.length ==0){
+        ns.print(`at depth ${n}`)
+        if (n === parentheses.length){
+            answers.push("")
+        }
+        else{
+            removeChar(parentheses,n,answers)
+        }
+        n++
+    }
+
+    ns.tprintf(`${JSON.stringify(answers.filter((v,i,self)=>{return self.indexOf(v)===i}))}`)
+    return answers.filter((v,i,self)=>{return self.indexOf(v)===i})
+}
 
 // "Find All Valid Math Expressions"
 // You are given a string which contains only digits between 0 and 9 as well as a target
