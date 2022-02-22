@@ -23,6 +23,6 @@ export async function main(ns : NS) : Promise<void> {
     while(interval && script){
         ns.run(script,1,...args)
         await ns.asleep(interval)
-        ns.tprintf(`INFO cronjob triggered.`)
+        ns.print(`INFO cronjob triggered.`)
     }
 }
