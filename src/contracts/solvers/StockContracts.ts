@@ -20,8 +20,8 @@ export function StockTrader1(ns:NS,data:any):number|string[]|undefined{
     
     ns.tprintf(`Stock1 Best profit: ${bestProfit}`)
 
-    return unimplemented(data)
     return bestProfit > 0 ? bestProfit : 0
+    return unimplemented(data)
 }
 
 
