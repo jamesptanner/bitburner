@@ -1,15 +1,15 @@
 import { NS } from '@ns'
-import { walk } from '/utils/utils'
 import { processContractsPath } from '/contracts/processContracts';
+import { getAllServers } from '/utils/utils';
 
 export async function main(ns : NS) : Promise<void> {
-    const contracts = {};
-    await walk(ns, "home",async (ns,host,contracts): Promise<boolean> => {
+    const contracts: Map<string,string[]> = new Map<string,string[]>();
+    ns.tprintf(`INFO searching for contracts.`)
+    getAllServers(ns).forEach(host =>{
         if (typeof host === 'string') {
-            contracts[host] = ns.ls(host, ".cct")
+            contracts.set(host, ns.ls(host, ".cct"))
         }
-    return true;
-    },contracts);
-    await ns.write("contracts.txt",JSON.stringify(contracts),"w");
+    });
+    await ns.write("contracts.txt",JSON.stringify(Object.fromEntries<string[]>(contracts)),"w");
     ns.spawn(processContractsPath)
 }
