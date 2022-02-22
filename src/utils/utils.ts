@@ -33,8 +33,12 @@ export async function walk(ns: NS, start: string, func: (ns: NS, host: string | 
 }
 
 export function getAllServers(ns:NS): string[]{
+     return JSON.parse(ns.read("hosts.txt"))
+}
+
+export async function cacheAllServers(ns:NS): Promise<string[]>{
     const alreadyScanned = [];
-    const allHosts = ns.scan("home")
+    let allHosts = ns.scan("home")
     const hosts = ns.scan("home");
     while (hosts.length > 0) {
         const currentHost = hosts.pop();
@@ -46,7 +50,11 @@ export function getAllServers(ns:NS): string[]{
         allHosts.push(...scanned)
         alreadyScanned.push(currentHost);
     }
-    return allHosts.filter((v,i,self) =>{
-        return self.indexOf(v) === i;
+    allHosts = allHosts.filter((v,i,self) =>{
+        return self.indexOf(v) === i && v !== "home";
     })
+
+    ns.tprintf(`${Array.from(allHosts)}`)
+    await ns.write("hosts.txt",JSON.stringify(Array.from(allHosts)),"w")
+    return allHosts
 }
