@@ -125,7 +125,7 @@ export function MergeOverlapping(ns:NS,data:any):number|string[]|undefined{
         }
     }
 
-    ns.tprintf(`${JSON.stringify(numberArray)}`)
-    return numberArray.map(x => x.toString())
+    ns.tprintf(`${(numberArray.length != 1) ? numberArray.map(x => x.toString()) : JSON.stringify(numberArray[0])}`)
+    return (numberArray.length != 1) ? numberArray.map(x => x.toString()) : JSON.stringify(numberArray[0])
     return undefined
 }

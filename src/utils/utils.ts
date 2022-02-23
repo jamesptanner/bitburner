@@ -58,3 +58,17 @@ export async function cacheAllServers(ns:NS): Promise<string[]>{
     await ns.write("hosts.txt",JSON.stringify(Array.from(allHosts)),"w")
     return allHosts
 }
+
+
+const findBestTarget = function(ns:NS): string{
+    let maxFunds = 0;
+    let bestServer ="";
+    getAllServers(ns).forEach(server =>{
+        const serverDetails = ns.getServer(server)
+        if(serverDetails.backdoorInstalled && serverDetails.moneyMax > maxFunds){
+            bestServer = server;
+            maxFunds = serverDetails.moneyMax
+        }
+    })
+    return bestServer
+}

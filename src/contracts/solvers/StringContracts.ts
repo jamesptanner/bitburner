@@ -145,4 +145,19 @@ export function SanitizeParentheses(ns:NS,data:any):number|string[]|undefined{
 
 // Input: digits = “105”, target = 5
 // Output: [1*0+5, 10-5]
-export function FindValidMathExpressions(ns:NS,data:any):number|string[]|undefined{return unimplemented(data)}
+export function FindValidMathExpressions(ns:NS,data:any):number|string[]|undefined{
+    
+    ns.print(`${JSON.stringify(data)} type:${typeof data}`)
+    const parentheses: string = data 
+
+    function isValid(equ:string):boolean {
+        ns.print(`Testing ${equ}`)
+        if(/[\+\-\*]0[1-9]/.test(equ))
+        {
+            return false
+        }
+        return true;
+    }
+
+    return unimplemented(data)
+}
