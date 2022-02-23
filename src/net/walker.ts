@@ -6,7 +6,8 @@ import { filesPath, hackHostPath, infiltratePath,findNewTargetPath,hackHostLiteP
 export async function main(ns: NS): Promise<void> {
     const toBackdoor: string[] = []
     const servers = getAllServers(ns)
-    for(const server of servers)
+    const ignoreHosts:string[] = JSON.parse(ns.read("ignoreHosts.txt")||"[]");
+    for(const server of servers.filter(x => ignoreHosts.indexOf(x)==-1))
     {
         const serverInfo = ns.getServer(server);
         if (!serverInfo.backdoorInstalled) {
@@ -20,10 +21,10 @@ export async function main(ns: NS): Promise<void> {
                 }
             }
         }
-        else if (serverInfo.backdoorInstalled && server && !scriptIsRunning(ns, server, hackHostPath) && !scriptIsRunning(ns, server, hackHostLitePath)) {
+        else if (serverInfo.backdoorInstalled && server && !scriptIsRunning(ns, server, hackHostPath) && !scriptIsRunning(ns, server, hackHostLitePath) && serverInfo.maxRam != 0) {
             const memReq = ns.getScriptRam(hackHostPath);
             const availableRam = serverInfo.maxRam - serverInfo.ramUsed;
-            ns.tprintf(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${memReq} threads=${Math.floor(availableRam / memReq)}`);
+            ns.print(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${memReq} threads=${Math.floor(availableRam / memReq)}`);
             if (Math.floor(availableRam / memReq) != 0) {
                 await ns.scp([HGWPath, hackHostPath, utilsPath,filesPath,findNewTargetPath], server);
                 if (ns.exec(hackHostPath, server, Math.floor(availableRam / memReq), server) == 0) {
@@ -34,7 +35,7 @@ export async function main(ns: NS): Promise<void> {
                 ns.tprintf(`WARN Switching to lite hack script. for ${server}`)
 
                 const liteMemReq = ns.getScriptRam(hackHostLitePath);
-                ns.tprintf(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${liteMemReq} threads=${Math.floor(availableRam / liteMemReq)}`);
+                ns.print(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${liteMemReq} threads=${Math.floor(availableRam / liteMemReq)}`);
                 if (Math.floor(availableRam / liteMemReq) != 0) {
                     await ns.scp([HGWPath, hackHostLitePath, utilsPath,filesPath], server);
                     if (ns.exec(hackHostLitePath, server, Math.floor(availableRam / liteMemReq), server) == 0) {
@@ -42,7 +43,10 @@ export async function main(ns: NS): Promise<void> {
                     }
                 }
                 else{
-                    ns.tprintf(`ERROR Unable to run either hack script.`)
+                    ns.tprintf(`ERROR Unable to run either hack script.`) 
+                    // TODO skip the host next time.
+                    ignoreHosts.push(server)
+                    await ns.write("ignoreHosts.txt",JSON.stringify(ignoreHosts),"w")
                 }
             }
         }
