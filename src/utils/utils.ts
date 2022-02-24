@@ -60,7 +60,7 @@ export async function cacheAllServers(ns:NS): Promise<string[]>{
 }
 
 
-const findBestTarget = function(ns:NS): string{
+export const findBestTarget = function(ns:NS): string{
     let maxFunds = 0;
     let bestServer ="";
     getAllServers(ns).forEach(server =>{

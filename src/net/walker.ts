@@ -7,8 +7,17 @@ export async function main(ns: NS): Promise<void> {
     const toBackdoor: string[] = []
     const servers = getAllServers(ns)
     const ignoreHosts:string[] = JSON.parse(ns.read("ignoreHosts.txt")||"[]");
+    const preferredTarget:string =ns.read("target.txt")||""
+
+    if(preferredTarget){
+        ns.tprintf(`INFO coordinating attack on ${preferredTarget}`)
+    }
+
     for(const server of servers.filter(x => ignoreHosts.indexOf(x)==-1))
     {
+        const target = preferredTarget || server
+        // ns.tprintf(`INFO ${server} attacking ${target}`)
+
         const serverInfo = ns.getServer(server);
         if (!serverInfo.backdoorInstalled) {
             const targetHackLevel = ns.getServerRequiredHackingLevel(server);
@@ -26,8 +35,8 @@ export async function main(ns: NS): Promise<void> {
             const availableRam = serverInfo.maxRam - serverInfo.ramUsed;
             ns.print(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${memReq} threads=${Math.floor(availableRam / memReq)}`);
             if (Math.floor(availableRam / memReq) != 0) {
-                await ns.scp([HGWPath, hackHostPath, utilsPath,filesPath,findNewTargetPath], server);
-                if (ns.exec(hackHostPath, server, Math.floor(availableRam / memReq), server) == 0) {
+                await ns.scp([HGWPath, hackHostPath, utilsPath,filesPath,findNewTargetPath], target);
+                if (ns.exec(hackHostPath, server, Math.floor(availableRam / memReq), target) == 0) {
                     ns.tprintf(`failed to launch script on ${server}`);
                 }
             }
@@ -38,13 +47,12 @@ export async function main(ns: NS): Promise<void> {
                 ns.print(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${liteMemReq} threads=${Math.floor(availableRam / liteMemReq)}`);
                 if (Math.floor(availableRam / liteMemReq) != 0) {
                     await ns.scp([HGWPath, hackHostLitePath, utilsPath,filesPath], server);
-                    if (ns.exec(hackHostLitePath, server, Math.floor(availableRam / liteMemReq), server) == 0) {
+                    if (ns.exec(hackHostLitePath, server, Math.floor(availableRam / liteMemReq), target) == 0) {
                         ns.tprintf(`failed to launch script on ${server}`);
                     }
                 }
                 else{
                     ns.tprintf(`ERROR Unable to run either hack script.`) 
-                    // TODO skip the host next time.
                     ignoreHosts.push(server)
                     await ns.write("ignoreHosts.txt",JSON.stringify(ignoreHosts),"w")
                 }
