@@ -1,6 +1,8 @@
 import { NS } from '@ns'
 import { getAllServers } from '/utils/utils';
 
+export const killscriptPath ="/killscript.js";
+
 export async function main(ns : NS) : Promise<void> {
     const target = ns.args[0] || "";
     ns.tprintf(`INFO killing script: ${target}`)

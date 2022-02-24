@@ -25,11 +25,6 @@ const jobs: Job[] = [
         interval:10*1000*60
     },
     {
-        script:"killscript.js",
-        args:["hack"],
-        interval:30*60*1000
-    },
-    {
         script:"cron/updateBestHost.js",
         args:["hack"],
         interval:5*60*1000
