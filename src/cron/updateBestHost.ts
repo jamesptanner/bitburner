@@ -9,6 +9,6 @@ export async function main(ns : NS) : Promise<void> {
     const target = findBestTarget(ns)  
     if(currentBest != target){
         await ns.write("target.txt",target,"w")
-        ns.exec(killscriptPath,"home",1,["hack"])
+        ns.exec(killscriptPath,"home",1,"hack")
     }
 }

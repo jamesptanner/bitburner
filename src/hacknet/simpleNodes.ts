@@ -39,12 +39,12 @@ while(true){
                 ns.hacknet.upgradeLevel(currentNode,1)
             }
         }
-        await ns.sleep(30*1000);
+        await ns.sleep(5*1000);
     }
     currentNode++;
     if(currentNode == ns.hacknet.numNodes()){
         while (ns.getPlayer().money < ns.hacknet.getPurchaseNodeCost()){
-            await ns.sleep(60*1000)
+            await ns.sleep(15*1000)
         }
         ns.hacknet.purchaseNode()
     }
