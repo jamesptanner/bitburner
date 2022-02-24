@@ -146,18 +146,40 @@ export function SanitizeParentheses(ns:NS,data:any):number|string[]|undefined{
 // Input: digits = “105”, target = 5
 // Output: [1*0+5, 10-5]
 export function FindValidMathExpressions(ns:NS,data:any):number|string[]|undefined{
+    ns.tprintf(`${JSON.stringify(data)} type:${typeof data}`)
     
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`)
-    const parentheses: string = data 
+    const num = data[0]
+    const target = data[1]
 
-    function isValid(equ:string):boolean {
-        ns.print(`Testing ${equ}`)
-        if(/[\+\-\*]0[1-9]/.test(equ))
-        {
-            return false
+    function helper(res:string[], path:string, num:string, target:number, pos:number, evaluated:number, multed:number) {
+        if (pos === num.length) {
+            if (target === evaluated) {
+                res.push(path)
+            }
+            return
         }
-        return true;
+        for (let i = pos; i < num.length; ++i) {
+            if (i != pos && num[pos] == '0') {
+                break
+            }
+            const cur = parseInt(num.substring(pos, i + 1))
+            if (pos === 0) {
+                helper(res, path + cur, num, target, i + 1, cur, cur)
+            } else {
+                helper(res, path + '+' + cur, num, target, i + 1, evaluated + cur, cur)
+                helper(res, path + '-' + cur, num, target, i + 1, evaluated - cur, -cur)
+                helper(res, path + '*' + cur, num, target, i + 1, evaluated - multed + multed * cur, multed * cur)
+            }
+        }
     }
 
+    if (num == null || num.length === 0) {
+        return []
+    }
+    const result:string[] = []
+    helper(result, '', num, target, 0, 0, 0)
+    
+    ns.tprintf(`${Array.from<string>(result)}`)
+    return result
     return unimplemented(data)
 }
