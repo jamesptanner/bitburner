@@ -1,7 +1,7 @@
 import { NS } from '@ns'
 import { HGWPath } from "/utils/HGW";
-import { utilsPath, getAllServers } from "/utils/utils";
-import { filesPath, hackHostPath, infiltratePath, findNewTargetPath, hackHostLitePath } from "/hosts/files";
+import { getAllServers } from "/utils/utils";
+import { hackHostPath, infiltratePath } from "/hosts/files";
 
 export async function main(ns: NS): Promise<void> {
     const toBackdoor: string[] = []
@@ -12,7 +12,6 @@ export async function main(ns: NS): Promise<void> {
     if (preferredTarget) {
         ns.tprintf(`INFO coordinating attack on ${preferredTarget}`)
     }
-
     for (const server of servers.filter(x => ignoreHosts.indexOf(x) == -1)) {
         const target = preferredTarget || server
 
@@ -36,28 +35,12 @@ export async function main(ns: NS): Promise<void> {
         else if (serverInfo.backdoorInstalled && server && !scriptIsRunning(ns, server, hackHostPath) && !scriptIsRunning(ns, server, hackHostLitePath) && serverInfo.maxRam != 0) {
             const memReq = ns.getScriptRam(hackHostPath);
             const availableRam = serverInfo.maxRam - serverInfo.ramUsed;
-            ns.print(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${memReq} threads=${Math.floor(availableRam / memReq)}`);
+            const threads = Math.floor(availableRam / memReq) 
+            ns.tprintf(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${memReq} threads=${threads}`);
             if (Math.floor(availableRam / memReq) != 0) {
-                await ns.scp([HGWPath, hackHostPath, utilsPath, filesPath, findNewTargetPath], target);
-                if (ns.exec(hackHostPath, server, Math.floor(availableRam / memReq), target) == 0) {
+                await ns.scp([HGWPath, hackHostPath], server);
+                if (ns.exec(hackHostPath, server, threads, target) == 0) {
                     ns.tprintf(`failed to launch script on ${server}`);
-                }
-            }
-            else {
-                ns.tprintf(`WARN Switching to lite hack script. for ${server}`)
-
-                const liteMemReq = ns.getScriptRam(hackHostLitePath);
-                ns.print(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${liteMemReq} threads=${Math.floor(availableRam / liteMemReq)}`);
-                if (Math.floor(availableRam / liteMemReq) != 0) {
-                    await ns.scp([HGWPath, hackHostLitePath, utilsPath, filesPath], server);
-                    if (ns.exec(hackHostLitePath, server, Math.floor(availableRam / liteMemReq), target) == 0) {
-                        ns.tprintf(`failed to launch script on ${server}`);
-                    }
-                }
-                else {
-                    ns.tprintf(`ERROR Unable to run either hack script.`)
-                    ignoreHosts.push(server)
-                    await ns.write("ignoreHosts.txt", JSON.stringify(ignoreHosts), "w")
                 }
             }
         }
