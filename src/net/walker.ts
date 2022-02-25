@@ -32,7 +32,7 @@ export async function main(ns: NS): Promise<void> {
                 ns.tprintf(`WARN 💻 Backdoor ${server}`);
             }
         }
-        else if (serverInfo.backdoorInstalled && server && !scriptIsRunning(ns, server, hackHostPath) && !scriptIsRunning(ns, server, hackHostLitePath) && serverInfo.maxRam != 0) {
+        else if (serverInfo.backdoorInstalled && server && !scriptIsRunning(ns, server, hackHostPath) && serverInfo.maxRam != 0) {
             const memReq = ns.getScriptRam(hackHostPath);
             const availableRam = serverInfo.maxRam - serverInfo.ramUsed;
             const threads = Math.floor(availableRam / memReq) 
