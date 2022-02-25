@@ -72,3 +72,7 @@ export const findBestTarget = function(ns:NS): string{
     })
     return bestServer
 }
+
+export const canUseSingularity = function(ns:NS){
+    return (ns.getOwnedSourceFiles().filter(x => { return x.n === 4 }).length !== 0)
+}
