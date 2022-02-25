@@ -1,4 +1,3 @@
-import { unimplemented } from '/contracts/contractUtils';
 // "Generate IP Addresses"
 
 // Given a string containing only digits, return an array with all possible
@@ -181,5 +180,4 @@ export function FindValidMathExpressions(ns:NS,data:any):number|string[]|undefin
     
     ns.tprintf(`${Array.from<string>(result)}`)
     return result
-    return unimplemented(data)
 }

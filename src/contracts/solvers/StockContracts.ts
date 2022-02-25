@@ -1,4 +1,3 @@
-import { unimplemented } from '/contracts/contractUtils';
 // "Algorithmic Stock Trader I"
 
 // You are given an array of numbers representing stock prices, where the
@@ -21,7 +20,6 @@ export function StockTrader1(ns:NS,data:any):number|string[]|undefined{
     ns.tprintf(`Stock1 Best profit: ${bestProfit}`)
 
     return bestProfit > 0 ? bestProfit : 0
-    return unimplemented(data)
 }
 
 
@@ -45,7 +43,6 @@ export function StockTrader2(ns:NS,data:any):number|string[]|undefined{
     ns.tprintf(`Stock2 Best profit: ${profit}`)
 
     return profit > 0 ? profit : 0
-    return unimplemented(data)
 }
 
 // "Algorithmic Stock Trader III"
@@ -72,7 +69,6 @@ export function StockTrader3(ns:NS,data:any):number|string[]|undefined{
         hold1 = Math.max(hold1, price * -1)
     }
     return release2
-    return unimplemented(data)
 }
 
 // "Algorithmic Stock Trader IV"
@@ -117,5 +113,4 @@ export function StockTrader4(ns:NS,data:any):number|string[]|undefined{
         }
     }
     return rele[k]
-    return unimplemented(data)
 }
