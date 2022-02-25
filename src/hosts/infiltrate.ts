@@ -8,7 +8,7 @@ export async function main(ns: NS): Promise<void> {
     if (typeof target === 'string') {
         const targetHackLevel = ns.getServerRequiredHackingLevel(target)
         if (targetHackLevel > ns.getHackingLevel()) {
-            ns.tprintf(`INFO not able to hack host: ${target}(${targetHackLevel})`)
+            ns.tprintf(`WARN not able to hack host: ${target}(${targetHackLevel})`)
             return
         }
         const server = ns.getServer(target)
@@ -31,7 +31,7 @@ export async function main(ns: NS): Promise<void> {
                 }
             }
             else {
-                ns.tprintf(`INFO not enough tools to hack host: ${target}`)
+                ns.tprintf(`WARN not enough tools to hack host: ${target}`)
                 return;
             }
         }
