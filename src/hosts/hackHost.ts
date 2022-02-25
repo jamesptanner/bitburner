@@ -23,7 +23,7 @@ export async function main(ns: NS): Promise<void> {
                 ns.print(`INFO 😷: ${target}. ${(ns.getWeakenTime(target)/1000).toFixed(2)}s`)
                 await weakenServer(ns, target);
             }
-            else if ((percent < 0.8 && ns.growthAnalyze(target,2) <=5) || percent < 0.10) {
+            else if (percent < 0.8 ) {
                 ns.print(`INFO 🎈: ${target}. ${(ns.getGrowTime(target)/1000).toFixed(2)}s`)
                 await growServer(ns, target);
             }
