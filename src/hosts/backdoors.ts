@@ -2,7 +2,7 @@ import { NS } from '@ns'
 import { canUseSingularity } from '/utils/utils';
 
 export async function main(ns: NS): Promise<void> {
-    if (canUseSingularity()) {
+    if (canUseSingularity(ns)) {
         const hosts: Array<string> = JSON.parse(ns.read("toBackdoor.txt"))
         hosts.forEach(async host => {
             ns.tprintf(`INFO: installing backdoor ${host}`)
