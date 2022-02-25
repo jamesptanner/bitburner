@@ -36,7 +36,7 @@ export async function main(ns: NS): Promise<void> {
             const memReq = ns.getScriptRam(hackHostPath);
             const availableRam = serverInfo.maxRam - serverInfo.ramUsed;
             const threads = Math.floor(availableRam / memReq) 
-            ns.tprintf(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${memReq} threads=${threads}`);
+            ns.print(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${memReq} threads=${threads}`);
             if (Math.floor(availableRam / memReq) != 0) {
                 await ns.scp([HGWPath, hackHostPath], server);
                 if (ns.exec(hackHostPath, server, threads, target) == 0) {
