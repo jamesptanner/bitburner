@@ -115,17 +115,15 @@ export function MergeOverlapping(ns:NS,data:any):number|string[]|undefined{
     ns.print(`${JSON.stringify(numberArray)}`)
 
     for (let i = 0; i < numberArray.length-1; i++) {
-        if(numberArray[i][1] > numberArray[i+1][0]){
+        if(numberArray[i][1] >= numberArray[i+1][0]){
             const newElement = [numberArray[i][0],Math.max(numberArray[i+1][1],numberArray[i][1])]
-            numberArray.shift()
-            numberArray.shift()
-            numberArray.unshift(newElement)
-    ns.print(`${JSON.stringify(numberArray)}`)
+            numberArray.splice(i,2,newElement)
+            ns.print(`${JSON.stringify(numberArray)}`)
             i--
         }
     }
 
-    ns.tprintf(`${(numberArray.length != 1) ? numberArray.map(x => x.toString()) : JSON.stringify(numberArray[0])}`)
-    return (numberArray.length != 1) ? numberArray.map(x => x.toString()) : JSON.stringify(numberArray[0])
+    ns.tprintf(`${JSON.stringify((numberArray.length != 1)? numberArray:numberArray[0])}`)
+    return JSON.stringify((numberArray.length != 1)? numberArray:numberArray[0])
     return undefined
 }
