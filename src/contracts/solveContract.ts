@@ -12,6 +12,12 @@ interface ContractFunction {
     (ns:NS, data: any): (number | string[] | undefined)
 }
 
+interface FailedContract {
+    type:string
+    data: any
+    answer:number | string[]
+}
+
 const processors = new Map<string, ContractFunction>([
     ["Find Largest Prime Factor", largestPrimeFactor],              //Maths     DONE
     ["Subarray with Maximum Sum", MaxSubArray],                     //Maths     DONE
@@ -64,6 +70,13 @@ export async function main(ns: NS): Promise<void> {
         if (result === "") {
             ns.alert(`Failed Contract: ${host}.${filename} - '${type}'`)
             ns.tprintf(`Failed Contract: ${host}.${filename} - '${type}'`)
+            const failed:FailedContract = {
+                answer: answer,
+                type: type,
+                data: data
+            }
+            
+            await ns.write("failedContracts.txt",failed+"\n","a")
         }
         else {
             ns.tprintf(`${result}`)
