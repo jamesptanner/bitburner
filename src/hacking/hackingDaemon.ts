@@ -1,0 +1,18 @@
+import { NS } from '@ns'
+import { prepareHostPath } from '/hacking/prepareHost';
+import { findBestTarget, getAllServers } from '/utils/utils';
+
+export const hackingDaemonPath = "/hacking/hackingDaemon.js";
+
+export async function main(ns: NS): Promise<void> {
+    const target = findBestTarget(ns)
+    const servers = getAllServers(ns)
+    // prepare the server for attack. max mon, min sec.
+    //throw everything we have at it and wait for the threads to finish.
+    const prepPid = servers.map(server => { return ns.exec(prepareHostPath, server, 1, target) })
+    do {
+        const finished = prepPid.filter(pid => !ns.isRunning(pid))
+        finished.forEach(pid => prepPid.splice(prepPid.indexOf(pid),1))
+        await ns.sleep(30*1000)
+    } while (prepPid.length > 0)
+}
