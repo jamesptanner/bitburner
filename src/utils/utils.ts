@@ -76,3 +76,9 @@ export const findBestTarget = function(ns:NS): string{
 export const canUseSingularity = function(ns:NS){
     return (ns.getOwnedSourceFiles().filter(x => { return x.n === 4 }).length !== 0)
 }
+
+export interface ServerInfo {
+    cores: number
+    maxMoney: number
+    minSecurity: number
+}
