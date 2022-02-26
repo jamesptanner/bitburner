@@ -8,7 +8,7 @@
         "export const ${TM_FILENAME_BASE}Path =\"${RELATIVE_FILEPATH/(src[\\\\\\\/])|([\\\\\\\/][\\w]*\\.ts)|([\\\\\\\/])/\\//gm}${TM_FILENAME_BASE}.js\";",
         "",
         "export async function main(ns : NS) : Promise<void> {",
-        "\t//",
+        "\t$0",
         "}"
       ]
     },
