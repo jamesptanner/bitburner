@@ -73,7 +73,7 @@ export const findBestTarget = function(ns:NS): string{
     return bestServer
 }
 
-export const canUseSingularity = function(ns:NS){
+export const canUseSingularity = function(ns:NS):boolean {
     return (ns.getOwnedSourceFiles().filter(x => { return x.n === 4 }).length !== 0)
 }
 
@@ -81,4 +81,9 @@ export interface ServerInfo {
     cores: number
     maxMoney: number
     minSecurity: number
+}
+
+export const getConstServerInfo = function(ns:NS, host:string): ServerInfo{
+    const servers = new Map<string,ServerInfo>(JSON.parse(ns.read("servers.txt")))
+    return servers.get(host)
 }
