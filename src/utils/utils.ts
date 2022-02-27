@@ -16,7 +16,7 @@ export function asBoolean(val: (string | number | boolean)): boolean{
     return false;
 }
 
-export async function walk(ns: NS, start: string, func: (ns: NS, host: string | undefined, ...args: any[]) => Promise<boolean>, ...args: any[]): Promise<void> {
+export async function walk(ns: NS, start: string, func: (host: string | undefined) => Promise<boolean>): Promise<void> {
     const alreadyScanned = [];
     const hosts = ns.scan(start);
     while (hosts.length > 0) {
@@ -25,7 +25,7 @@ export async function walk(ns: NS, start: string, func: (ns: NS, host: string | 
             continue;
         }
         hosts.push(...ns.scan(currentHost));
-        const cont = await func(ns, currentHost, ...args);
+        const cont = await func(currentHost);
         if (!cont)
             break;
         alreadyScanned.push(currentHost);
