@@ -23,4 +23,5 @@ export async function main(ns : NS) : Promise<void> {
 
     dotText = dotText + "}"
     ns.tprintf(dotText)
+    await ns.write("dot.txt",dotText,"w")
 }
