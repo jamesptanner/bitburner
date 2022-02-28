@@ -8,7 +8,7 @@ export async function main(ns : NS) : Promise<void> {
     const currentBest = ns.read("target.txt")
     const target = findBestTarget(ns)  
     if(currentBest != target){
-        ns.tprintf(`Updating target old:${currentBest} new:${best}`)
+        ns.tprintf(`Updating target old:${currentBest} new:${target}`)
         await ns.write("target.txt",target,"w")
         ns.exec(killscriptPath,"home",1,"hack")
     }
