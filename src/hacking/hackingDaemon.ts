@@ -11,7 +11,7 @@ export async function main(ns: NS): Promise<void> {
     //throw everything we have at it and wait for the threads to finish.
     const prepPid = servers.map(server => { return ns.exec(prepareHostPath, server, 1, target) })
     do {
-        const finished = prepPid.filter(pid => !ns.isRunning(pid))
+        const finished = prepPid.filter(pid => !ns.isRunning(pid,""))
         finished.forEach(pid => prepPid.splice(prepPid.indexOf(pid),1))
         await ns.sleep(30*1000)
     } while (prepPid.length > 0)

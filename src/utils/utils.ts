@@ -82,7 +82,7 @@ export interface ServerInfo {
     minSecurity: number
 }
 
-export const getConstServerInfo = function(ns:NS, host:string): ServerInfo{
+export const getConstServerInfo = function(ns:NS, host:string): ServerInfo | undefined{
     const servers = new Map<string,ServerInfo>(JSON.parse(ns.read("servers.txt")))
     return servers.get(host)
 }
