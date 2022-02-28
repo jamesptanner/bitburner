@@ -54,7 +54,6 @@ export async function cacheAllServers(ns:NS): Promise<string[]>{
         return self.indexOf(v) === i && v !== "home";
     })
 
-    ns.tprintf(`${Array.from(allHosts)}`)
     await ns.write("hosts.txt",JSON.stringify(Array.from(allHosts)),"w")
     return allHosts
 }
