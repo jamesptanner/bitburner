@@ -11,7 +11,7 @@ export async function main(ns : NS) : Promise<void> {
 
     servers.forEach(host => {
         const serverInfo = ns.getServer(host)
-        dotText = dotText + `nd_${servers.indexOf(host)} [label = "${host}" color=${serverInfo.backdoorInstalled?"green":"red"}]\n`
+        dotText = dotText + `nd_${servers.indexOf(host)} [label = "${host}\n${serverInfo.requiredHackingSkill}" color=${serverInfo.backdoorInstalled||serverInfo.purchasedByPlayer?"green":(serverInfo.openPortCount>=serverInfo.numOpenPortsRequired? "yellow":"red")}]\n`
         serverMap.set(host, `nd_${servers.indexOf(host)}`)
     })
     servers.forEach(host => {
