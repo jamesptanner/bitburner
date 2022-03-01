@@ -14,16 +14,19 @@ function createHGWoptions(ns: NS, target: string): BasicHGWOptions {
     return defaultHGWOptions;
 }
 export async function growServer(ns: NS, target: string): Promise<void> {
-    await ns.grow(target,createHGWoptions(ns,target))
+    const success = await ns.grow(target,createHGWoptions(ns,target))
+    ns.toast(`🎈 ${target}`,success > 0 ?"success":"warning")
 }
 
 export async function weakenServer(ns: NS, target: string): Promise<void> {
-    await ns.weaken(target, createHGWoptions(ns,target))
+    const success = await ns.weaken(target, createHGWoptions(ns,target))
+    ns.toast(`😷 ${target}`,success > 0 ?"success":"warning")
+
 }
 
 export async function attack(ns: NS, target: string): Promise<void> {
     const earnings = await ns.hack(target, createHGWoptions(ns,target));
-    ns.print(`INFO 🐱‍💻: ${target} Earned ${earnings}`)
+    ns.toast(`🤖: ${target} Earned ${earnings}`,earnings >0?"success":"warning")
 }
 
 export const scripts = new Map<string, number>([

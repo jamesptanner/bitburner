@@ -4,7 +4,7 @@ import { getAllServers } from '/utils/utils';
 
 export async function main(ns : NS) : Promise<void> {
     const contracts: Map<string,string[]> = new Map<string,string[]>();
-    ns.tprintf(`INFO searching for contracts.`)
+    ns.print(`INFO searching for contracts.`)
     getAllServers(ns).forEach(host =>{
         if (typeof host === 'string') {
             contracts.set(host, ns.ls(host, ".cct"))

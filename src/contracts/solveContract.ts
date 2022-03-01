@@ -68,7 +68,7 @@ export async function main(ns: NS): Promise<void> {
     if (answer !== undefined) {
         const result = ns.codingcontract.attempt(answer, filename, host,{returnReward:true})
         if (result === "") {
-            ns.alert(`Failed Contract: ${host}.${filename} - '${type}'`)
+            ns.toast(`Failed Contract: ${host}.${filename} - '${type}'`,"error")
             ns.tprintf(`Failed Contract: ${host}.${filename} - '${type}'`)
             const failed:FailedContract = {
                 answer: answer,
@@ -79,11 +79,11 @@ export async function main(ns: NS): Promise<void> {
             await ns.write("failedContracts.txt",failed+"\n","a")
         }
         else {
-            ns.tprintf(`${result}`)
+            ns.toast(`${result}`,"success")
         }
     }
     else {
-        ns.tprintf(`unable to process contract: ${host}.${filename} - '${type}'`)
+        ns.toast(`unable to process contract: ${host}.${filename} - '${type}'`,"warning")
         // ns.tprintf(`${ns.codingcontract.getDescription(filename,host)}\n\n`)
     }
 }
