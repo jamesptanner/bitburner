@@ -1,52 +1,65 @@
 import { NS } from '@ns'
 
-export const simpleNodesPath ="/hacknet/simpleNodes.js";
+export const simpleNodesPath = "/hacknet/simpleNodes.js";
 
-const maxLevel = 200;
-const maxRam = 64;//gb
-const maxCores = 16;
-
-const nodeMaxedOut = function(ns:NS, nodeId: number): boolean{
-    const nodeDetails = ns.hacknet.getNodeStats(nodeId);
-    return nodeDetails.cores ==maxCores && nodeDetails.level === maxLevel && nodeDetails.ram===maxRam;
+const nodeMaxedOut = function (node: PurchaseOption): boolean {
+    return node.coreCost == null && node.ramCost === null && node.levelCost=== null;
 }
 
-export async function main(ns : NS) : Promise<void> {
-let currentNode = 0;
-if(ns.hacknet.numNodes() == 0){
-    while (ns.getPlayer().money < ns.hacknet.getPurchaseNodeCost()){
-        await ns.sleep(60*1000)
-    }
-    ns.hacknet.purchaseNode()
+type PurchaseOption = {
+    nodeID: number
+    coreCost: number
+    ramCost: number
+    levelCost: number
+    nodeStat: NodeStats
 }
-while(true){
-    while(!nodeMaxedOut(ns,currentNode)){
 
-        //we will just order the cheapest.
-        //in the future with formulas.exe we can caculate the best ROI.
-        const coreCost = ns.hacknet.getCoreUpgradeCost(currentNode,1)
-        const ramCost = ns.hacknet.getRamUpgradeCost(currentNode,1)
-        const levelCost = ns.hacknet.getLevelUpgradeCost(currentNode,1);
-        const lowestCost = Math.min(coreCost,ramCost,levelCost)
-        if (ns.getPlayer().money > lowestCost){
-            if(lowestCost === coreCost){
-                ns.hacknet.upgradeCore(currentNode,1)
-            }
-            if(lowestCost === ramCost){
-                ns.hacknet.upgradeRam(currentNode,1)
-            }
-            if(lowestCost === levelCost){
-                ns.hacknet.upgradeLevel(currentNode,1)
-            }
-        }
-        await ns.sleep(5*1000);
-    }
-    currentNode++;
-    if(currentNode == ns.hacknet.numNodes()){
-        while (ns.getPlayer().money < ns.hacknet.getPurchaseNodeCost()){
-            await ns.sleep(15*1000)
+export async function main(ns: NS): Promise<void> {
+    const currentNode = 0;
+    if (ns.hacknet.numNodes() == 0) {
+        while (ns.getPlayer().money < ns.hacknet.getPurchaseNodeCost()) {
+            await ns.sleep(60 * 1000)
         }
         ns.hacknet.purchaseNode()
     }
-}
+    while (true) {
+        const purchaseOptions: PurchaseOption[] = []
+        for (let index = 0; index < ns.hacknet.numNodes(); index++) {
+            const option: PurchaseOption = {
+                nodeID: index,
+                coreCost: ns.hacknet.getCoreUpgradeCost(index, 1),
+                ramCost: ns.hacknet.getRamUpgradeCost(index, 1),
+                levelCost: ns.hacknet.getLevelUpgradeCost(index, 1),
+                nodeStat: ns.hacknet.getNodeStats(index)
+            }
+            purchaseOptions.push(option)
+        }
+
+        const bestOption = purchaseOptions.reduce((prev, curr) => {
+            ns.print(`${JSON.stringify(prev)} :  ${JSON.stringify(curr)}`)
+            if (prev==null || nodeMaxedOut(prev)) { return curr }
+            else if (curr==null ||nodeMaxedOut(curr)) { return prev }
+            else {
+                if (Math.min(prev.coreCost, prev.levelCost, prev.ramCost) < Math.min(curr.coreCost, curr.levelCost, curr.ramCost)) return prev
+                return curr
+            }
+        })
+
+        const lowestCost = Math.min(bestOption.coreCost, bestOption.ramCost, bestOption.levelCost, ns.hacknet.getPurchaseNodeCost())
+        if (ns.getPlayer().money > lowestCost) {
+            if (lowestCost === bestOption.coreCost) {
+                ns.hacknet.upgradeCore(bestOption.nodeID, 1)
+            }
+            if (lowestCost === bestOption.ramCost) {
+                ns.hacknet.upgradeRam(bestOption.nodeID, 1)
+            }
+            if (lowestCost === bestOption.levelCost) {
+                ns.hacknet.upgradeLevel(bestOption.nodeID, 1)
+            }
+            if (lowestCost === ns.hacknet.getPurchaseNodeCost()) {
+                ns.hacknet.purchaseNode()
+            }
+        }
+        await ns.sleep(500);
+    }
 }
