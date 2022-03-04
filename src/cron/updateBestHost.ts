@@ -11,5 +11,6 @@ export async function main(ns : NS) : Promise<void> {
         ns.tprintf(`Updating target old:${currentBest} new:${target}`)
         await ns.write("target.txt",target,"w")
         ns.exec(killscriptPath,"home",1,"hack")
+        ns.exec("net/walker.js","home")
     }
 }
