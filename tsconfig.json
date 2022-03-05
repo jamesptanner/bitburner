@@ -9,8 +9,8 @@
         "sourceRoot": "http://localhost:8000/sources/",
         "strict": true,
         "rootDir": "src/",
-        "outDir": "build/",
         "baseUrl": "src/",
+        "noEmitOnError":true,
         "paths": {
           "/*": [
             "*"
