@@ -1,4 +1,4 @@
-import { NS } from '@ns'
+import { NodeStats, NS } from '@ns'
 
 export const simpleNodesPath = "/hacknet/simpleNodes.js";
 
