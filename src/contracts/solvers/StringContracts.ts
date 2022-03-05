@@ -1,3 +1,4 @@
+import { NS } from '@ns'
 // "Generate IP Addresses"
 
 // Given a string containing only digits, return an array with all possible

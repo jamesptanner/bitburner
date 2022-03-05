@@ -3,6 +3,7 @@
 // You are given an array of numbers representing stock prices, where the
 // i-th element represents the stock price on day i.
 
+import { NS } from '@ns'
 // Determine the maximum possible profit you can earn using at most one
 // transaction (i.e. you can buy an sell the stock once). If no profit
 // can be made, then the answer should be 0. Note that you must buy the stock

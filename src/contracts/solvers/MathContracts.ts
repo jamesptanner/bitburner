@@ -1,3 +1,4 @@
+import { NS } from '@ns'
 // "Find Largest Prime Factor"
 
 // Given a number, find its largest prime factor. A prime factor
