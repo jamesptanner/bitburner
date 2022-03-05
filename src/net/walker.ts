@@ -1,7 +1,8 @@
 import { NS } from '@ns'
-import { HGWPath } from "/utils/HGW";
 import { getAllServers } from "/utils/utils";
-import { hackHostPath, infiltratePath } from "/hosts/files";
+
+import {infiltratePath} from "/hosts/infiltrate"
+import {hackHostPath} from "/hosts/hackHost"
 
 export async function main(ns: NS): Promise<void> {
     const toBackdoor: string[] = []
@@ -38,7 +39,7 @@ export async function main(ns: NS): Promise<void> {
             const threads = Math.floor(availableRam / memReq) 
             ns.print(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${memReq} threads=${threads}`);
             if (Math.floor(availableRam / memReq) != 0) {
-                await ns.scp([HGWPath, hackHostPath], server);
+                await ns.scp([hackHostPath], server);
                 if (ns.exec(hackHostPath, server, threads, target) == 0) {
                     ns.tprintf(`failed to launch script on ${server}`);
                 }

@@ -1,7 +1,5 @@
 import { NS } from '@ns';
 
-export const utilsPath = "/utils/utils.js";
-
 export function asString(val: (string | number | boolean)): string{
     if (typeof val === "string") return val;
     return String(val);

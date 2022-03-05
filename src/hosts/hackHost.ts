@@ -1,6 +1,8 @@
 import { NS } from "@ns";
 import { growServer, weakenServer, attack } from "/utils/HGW";
 
+export const hackHostPath ="/hosts/hackHost.js";
+
 export async function main(ns: NS): Promise<void> {
     const target = ns.args[0];
     ns.tprintf(`INFO hacking target: ${target}`);
