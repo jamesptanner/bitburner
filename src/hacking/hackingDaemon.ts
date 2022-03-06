@@ -1,6 +1,6 @@
 import { NS } from '@ns'
 import { prepareHostPath } from '/hacking/prepareHost';
-import { findBestTarget, getAllServers } from '/utils/utils';
+import { findBestTarget, getAllServers } from '/shared/utils';
 
 export const hackingDaemonPath = "/hacking/hackingDaemon.js";
 

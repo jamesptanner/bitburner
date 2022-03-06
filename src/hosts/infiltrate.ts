@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { getNumberOfTools, hasFTP, hasHTTP, hasSSH, hasSMTP, hasSQL } from '/utils/HGW';
+import { getNumberOfTools, hasFTP, hasHTTP, hasSSH, hasSMTP, hasSQL } from '/shared/HGW';
 
 export const infiltratePath ="/hosts/infiltrate.js";
 

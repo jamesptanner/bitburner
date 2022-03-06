@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { asString } from '/utils/utils';
+import { asString } from '/shared/utils';
 import { largestPrimeFactor, TotalSums, MaxSubArray } from '/contracts/solvers/MathContracts';
 import { SpiralMatrix, MergeOverlapping, ArrayJump } from '/contracts/solvers/ArrayContracts';
 import { GenerateIPAddresses, FindValidMathExpressions, SanitizeParentheses } from '/contracts/solvers/StringContracts';

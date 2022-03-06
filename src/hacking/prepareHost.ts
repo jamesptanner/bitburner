@@ -1,5 +1,5 @@
 import { NS } from "@ns";
-import { growServer, weakenServer } from "/utils/HGW";
+import { growServer, weakenServer } from "/shared/HGW";
 
 export const prepareHostPath = "/hacking/prepareHost.js";
 

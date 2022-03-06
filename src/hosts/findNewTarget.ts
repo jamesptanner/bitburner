@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { asString, getAllServers } from "/utils/utils";
+import { asString, getAllServers } from "/shared/utils";
 import { hackHostPath } from "/hosts/hackHost";
 
 export async function main(ns : NS) : Promise<void> {

@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { getAllServers } from "/utils/utils";
+import { getAllServers } from "/shared/utils";
 
 import {infiltratePath} from "/hosts/infiltrate"
 import {hackHostPath} from "/hosts/hackHost"

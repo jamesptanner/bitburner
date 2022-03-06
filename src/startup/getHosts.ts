@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { cacheAllServers, getAllServers, ServerInfo } from '/utils/utils';
+import { cacheAllServers, getAllServers, ServerInfo } from '/shared/utils';
 
 export const getHostsPath = "/startup/getHosts.js";
 

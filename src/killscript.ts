@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { getAllServers } from '/utils/utils';
+import { getAllServers } from '/shared/utils';
 
 export const killscriptPath ="/killscript.js";
 

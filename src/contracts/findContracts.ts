@@ -1,6 +1,6 @@
 import { NS } from '@ns'
 import { processContractsPath } from '/contracts/processContracts';
-import { getAllServers } from '/utils/utils';
+import { getAllServers } from '/shared/utils';
 
 export async function main(ns : NS) : Promise<void> {
     const contracts: Map<string,string[]> = new Map<string,string[]>();

@@ -1,6 +1,6 @@
 import { NS } from '@ns'
 import { killscriptPath } from '/killscript';
-import {findBestTarget} from '/utils/utils'
+import {findBestTarget} from '/shared/utils'
 
 export const updateBestHostPath ="/cron/updateBestHost.js";
 

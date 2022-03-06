@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { hasFormulas } from '/utils/HGW';
+import { hasFormulas } from '/shared/HGW';
 import { simpleNodesPath } from '/hacknet/simpleNodes';
 
 export const hacknetPath ="/autorun/hacknet.js";

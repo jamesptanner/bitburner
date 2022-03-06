@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { canUseSingularity } from '/utils/utils';
+import { canUseSingularity } from '/shared/utils';
 
 export async function main(ns: NS): Promise<void> {
     if (canUseSingularity(ns)) {

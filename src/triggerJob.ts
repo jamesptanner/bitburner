@@ -1,6 +1,5 @@
 import { NS } from '@ns'
-import { asString } from '/utils/utils';
-import { asNumber } from './utils/utils';
+import { asString,asNumber } from '/shared/utils';
 
 export const triggerJobPath ="/triggerJob.js";
 
