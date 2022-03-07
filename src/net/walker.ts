@@ -17,7 +17,7 @@ export async function main(ns: NS): Promise<void> {
         const target = preferredTarget || server
 
         const serverInfo = ns.getServer(server);
-        if (!serverInfo.backdoorInstalled) {
+        if (!serverInfo.backdoorInstalled && !serverInfo.purchasedByPlayer) {
             if (!serverInfo.hasAdminRights) {
                 const targetHackLevel = ns.getServerRequiredHackingLevel(server);
                 if (targetHackLevel <= ns.getHackingLevel()) {
@@ -33,7 +33,7 @@ export async function main(ns: NS): Promise<void> {
                 ns.tprintf(`WARN 💻 Backdoor ${server}`);
             }
         }
-        else if (serverInfo.backdoorInstalled && server && !scriptIsRunning(ns, server, hackHostPath) && serverInfo.maxRam != 0) {
+        else if (server && !scriptIsRunning(ns, server, hackHostPath) && serverInfo.maxRam != 0) {
             const memReq = ns.getScriptRam(hackHostPath);
             const availableRam = serverInfo.maxRam - serverInfo.ramUsed;
             const threads = Math.floor(availableRam / memReq) 
