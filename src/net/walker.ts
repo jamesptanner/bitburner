@@ -6,6 +6,7 @@ import {hackHostPath} from "/hosts/hackHost"
 
 export async function main(ns: NS): Promise<void> {
     const toBackdoor: string[] = []
+    const toInfiltrate: string[] = []
     const servers = getAllServers(ns)
     const ignoreHosts: string[] = JSON.parse(ns.read("ignoreHosts.txt") || "[]");
     const preferredTarget: string = ns.read("target.txt") || ""
@@ -24,8 +25,14 @@ export async function main(ns: NS): Promise<void> {
                     ns.tprintf(`INFO 💣 ${server}`);
 
                     if (!serverInfo.purchasedByPlayer) {
-                        ns.exec(infiltratePath, "home", 1, server);
-                        toBackdoor.push(server);
+                        if(ns.exec(infiltratePath, "home", 1, server) ===0){
+                            if(toInfiltrate.length == 0)ns.tprintf(`WARN: not enough memory to auto infiltrate. Waiting till end.`)
+                            toInfiltrate.push(server);
+
+                        }
+                        else{
+                            toBackdoor.push(server);
+                        }
                     }
                 }
             }
@@ -47,6 +54,10 @@ export async function main(ns: NS): Promise<void> {
         }
     }
     await ns.write("toBackdoor.txt", JSON.stringify(toBackdoor), "w");
+    if(toInfiltrate.length > 0){
+        await ns.write("toInfiltrate.txt", JSON.stringify(toInfiltrate), "w");
+        ns.spawn(infiltratePath,1)
+    }
 }
 
 const scriptIsRunning = function (ns: NS, host: string, script: string): boolean {
