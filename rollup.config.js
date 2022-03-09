@@ -11,8 +11,8 @@ const config = [
 ];
 
 function genConfig(file) {
-    console.log(file)
     if (/main\s*\(\s*ns\s*:\s*NS\s*\)\s*/.test(fs.readFileSync(file, { encoding: 'utf8' }))) {
+        console.log(file)
         //create list of additiona watch directories.
         const includes = ["src/shared/**"]
         includes.push(`${path.dirname(file)}/**`)
@@ -33,7 +33,9 @@ function addApp(path,includes) {
             sourcemap: false,
         },
         plugins: [
-            typescript(),
+            typescript({
+                
+            }),
             nodeResolve()
         ],
         watch: {

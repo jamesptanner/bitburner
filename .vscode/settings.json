@@ -13,8 +13,13 @@
     "bitburner.scriptRoot": "./dist/public",
     "bitburner.showPushSuccessNotification": false,
     "cSpell.words": [
+        "brutessh",
         "Deepscan",
+        "ftpcrack",
         "hacknet",
+        "httpworm",
+        "relaysmtp",
+        "sqlinject",
         "tprintf"
     ],
     "jshint.enable": false,

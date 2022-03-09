@@ -1,5 +1,7 @@
 import { NS } from '@ns';
 
+import { Graph, Node, Dijkstra } from 'dijkstra-pathfinder'
+
 export function asString(val: (string | number | boolean)): string{
     if (typeof val === "string") return val;
     return String(val);
@@ -83,4 +85,29 @@ export interface ServerInfo {
 export const getConstServerInfo = function(ns:NS, host:string): ServerInfo | undefined{
     const servers = new Map<string,ServerInfo>(JSON.parse(ns.read("servers.txt")))
     return servers.get(host)
+}
+
+export const routeToHost = function(ns: NS, start: string, end:string): string[] {
+    const graph = new Graph()
+    const servers = getAllServers(ns)
+    const nodes = new Map<string,Node>()
+    servers.forEach(server => {
+        const node = nodes.get(server) || new Node(server)
+        
+        const neighbours = ns.scan(server)
+        neighbours.forEach(neighbour => {
+            if(!nodes.has(neighbour)){
+                const neighbourNode = new Node(neighbour)
+                nodes.set(neighbour,neighbourNode)
+                graph.addArc(node,neighbourNode)
+            }
+        })
+
+    })
+    const startNode = nodes.get(start)
+    const endNode = nodes.get(end)
+    if(startNode && endNode) {
+        return new Dijkstra(graph,startNode).getPathTo(endNode)?.map(node => node.payload) || []
+    }
+    return []
 }

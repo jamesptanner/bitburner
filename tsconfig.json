@@ -6,11 +6,10 @@
         "noImplicitReturns": true,
         "noImplicitThis": true,
         "esModuleInterop": true,
-        "sourceRoot": "http://localhost:8000/sources/",
         "strict": true,
-        "rootDir": "src/",
+        "rootDir": "",
         "baseUrl": "src/",
-        "noEmitOnError":true,
+        "outDir": "build/",
         "paths": {
           "/*": [
             "*"
@@ -27,8 +26,8 @@
         "src/**/*",
     ],
     "exclude": [
-        "node_modules",
-        "build"
+      "node_modules",
+      "build"
     ],
     "typedocOptions":{
       "entryPoints": ["NetscriptDefinitions.d.ts"],

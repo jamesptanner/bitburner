@@ -28,6 +28,11 @@ const jobs: Job[] = [
         script:"cron/updateBestHost.js",
         args:[],
         interval:5*60*1000
+    },
+    {
+        script:"cron/processBackdoors.js",
+        args:[],
+        interval:5*60*1000
     }
 ]
 
