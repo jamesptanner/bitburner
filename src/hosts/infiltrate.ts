@@ -35,9 +35,7 @@ const infiltrate = function (ns:NS, host:string) {
             }
             ns.tprintf(`INFO nuking host: ${host}`)
             ns.nuke(host);
-            ns.tprintf(`INFO installing backdoor: ${host}`)
-            //await ns.installBackdoor()
-            ns.tprintf(`INFO host ready: ${host}`)
+            ns.tprintf(`INFO host ready to backdoor: ${host}`)
 }
 
 
@@ -51,7 +49,7 @@ export async function main(ns: NS): Promise<void> {
     }
     else {
         const targets: Array<string> = JSON.parse(ns.read("toInfiltrate.txt"))
-        targets.forEach(async target => {
+        targets.forEach(target => {
             ns.tprintf(`INFO infiltrating target: ${target}`)
             infiltrate(ns,target)
         })
