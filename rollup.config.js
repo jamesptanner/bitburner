@@ -3,6 +3,7 @@ import glob from "glob"
 import * as path from 'path'
 import typescript from '@rollup/plugin-typescript';
 import nodeResolve from '@rollup/plugin-node-resolve';
+import commonjs from '@rollup/plugin-commonjs';
 
 /**
  * @type {import('rollup').RollupOptions}
@@ -31,12 +32,12 @@ function addApp(path,includes) {
             file: path.replace('src/', 'dist/public/').replace('.ts', '.js'),
             format: 'esm',
             sourcemap: false,
+            interop: 'esModule'
         },
         plugins: [
-            typescript({
-                
-            }),
-            nodeResolve()
+            commonjs(),
+            nodeResolve(),
+            typescript(),
         ],
         watch: {
             include: includes,
