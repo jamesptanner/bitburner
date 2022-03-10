@@ -42,7 +42,7 @@ function addApp(path,includes) {
         watch: {
             include: includes,
         },
-        treeshake: 'recommended'
+        treeshake: 'smallest'
     });
 }
 export default config;
