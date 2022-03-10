@@ -30,14 +30,12 @@ export async function main(ns: NS): Promise<void> {
                             toInfiltrate.push(server);
 
                         }
-                        else{
-                            toBackdoor.push(server);
-                        }
                     }
                 }
             }
             else if(serverInfo.requiredHackingSkill <= ns.getPlayer().hacking){
                 ns.tprintf(`WARN 💻 Backdoor ${server}`);
+                toBackdoor.push(server);
             }
         }
         else if (server && !scriptIsRunning(ns, server, hackHostPath) && serverInfo.maxRam != 0) {

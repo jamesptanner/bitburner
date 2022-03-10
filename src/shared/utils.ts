@@ -90,24 +90,28 @@ export const getConstServerInfo = function(ns:NS, host:string): ServerInfo | und
 export const routeToHost = function(ns: NS, start: string, end:string): string[] {
     const graph = new Graph()
     const servers = getAllServers(ns)
-    const nodes = new Map<string,Node>()
+    servers.push("home")
     servers.forEach(server => {
-        const node = nodes.get(server) || new Node(server)
-        
+        if(!graph.findNodeByPayload(server)) {graph.addNode(new Node(server))}
         const neighbours = ns.scan(server)
         neighbours.forEach(neighbour => {
-            if(!nodes.has(neighbour)){
-                const neighbourNode = new Node(neighbour)
-                nodes.set(neighbour,neighbourNode)
-                graph.addArc(node,neighbourNode)
+            if(!graph.findNodeByPayload(neighbour)){
+                graph.addNode(new Node(neighbour))
             }
+            graph.addArc(graph.findNodeByPayload(server),graph.findNodeByPayload(neighbour))
         })
 
     })
-    const startNode = nodes.get(start)
-    const endNode = nodes.get(end)
+
+    const startNode = graph.findNodeByPayload(start)
+    const endNode =  graph.findNodeByPayload(end)
     if(startNode && endNode) {
-        return new Dijkstra(graph,startNode).getPathTo(endNode)?.map(node => node.payload) || []
+        const dijkstra = new Dijkstra(graph,startNode)
+        dijkstra.calculate();
+        const path =dijkstra.getPathTo(endNode)
+        if(path){
+            return path.map(node => node.payload) || []
+        }
     }
     return []
 }

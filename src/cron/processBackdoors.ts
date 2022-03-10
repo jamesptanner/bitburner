@@ -1,19 +1,28 @@
 import { NS } from '@ns'
-import { canUseSingularity, routeToHost } from '/shared/utils';
+import { routeToHost } from '/shared/utils';
 
-export const processBackdoorsPath ="/cron/processBackdoors.js";
+export const processBackdoorsPath = "/cron/processBackdoors.js";
 
-export async function main(ns : NS) : Promise<void> {
-    if (canUseSingularity(ns)) {
-        const hosts: Array<string> = JSON.parse(ns.read("toBackdoor.txt"))
-        hosts.forEach(async host => {
-            const hops = routeToHost(ns,ns.getHostname(),host)
-            if (hops){
+export async function main(ns: NS): Promise<void> {
+    const hosts: Array<string> = JSON.parse(ns.read("toBackdoor.txt"))
+    if (hosts.length > 0) {
+        ns.tprintf(`need to backdoor : ${hosts.join()}`)
+        for (const host of hosts) {
+            ns.tprintf(`backdooring ${host} starting at ${ns.getCurrentServer()}`)
+            const hops = routeToHost(ns, ns.getCurrentServer(), host)
+            if (hops && hops.length > 0) {
+                ns.tprintf(`routing via ${hops}`)
+
                 hops.forEach(hop => ns.connect(hop))
                 ns.tprintf(`INFO: installing backdoor ${host}`)
-                ns.connect(host)
                 await ns.installBackdoor();
             }
-        });
+        }
+        ns.printf(`returning home`)
+        const hops = routeToHost(ns, ns.getCurrentServer(), "home")
+        if (hops && hops.length > 0) {
+            ns.tprintf(`routing via ${hops}`)
+            hops.forEach(hop => ns.connect(hop))
+        }
     }
 }
