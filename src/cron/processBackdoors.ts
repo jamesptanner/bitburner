@@ -24,5 +24,6 @@ export async function main(ns: NS): Promise<void> {
             ns.tprintf(`routing via ${hops}`)
             hops.forEach(hop => ns.connect(hop))
         }
+        ns.rm("toBackdoor.txt","home");
     }
 }
