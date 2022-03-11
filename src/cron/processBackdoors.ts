@@ -1,5 +1,6 @@
 import { NS } from '@ns'
 import { routeToHost } from '/shared/utils';
+import { MapWindowPath } from '/ui/MapWindow';
 
 export const processBackdoorsPath = "/cron/processBackdoors.js";
 
@@ -25,5 +26,6 @@ export async function main(ns: NS): Promise<void> {
             hops.forEach(hop => ns.connect(hop))
         }
         ns.rm("toBackdoor.txt","home");
+        ns.spawn(MapWindowPath)
     }
 }
