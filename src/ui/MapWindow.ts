@@ -77,9 +77,11 @@ const renderer = (e: PanAndZoomRender) => {
 
 
 export async function main(ns: NS): Promise<void> {
-    const doc: Document = eval('document') //dont want to pay the toll for this one.
+    const eval2=eval
+    const doc: Document = eval2('document') //dont want to pay the toll for this one.
     if (!doc.getElementById("networkMap")) {
         const mapWin = doc.createElement('div')
+        mapWin.id = "mapWindow"
         mapWin.style.width = "34vh"
         mapWin.style.height = "54vh"
         mapWin.style.position = "fixed"
@@ -98,39 +100,40 @@ export async function main(ns: NS): Promise<void> {
         image.id = "networkMap"
         mapWin.appendChild(image)
         doc.getElementById("root")?.appendChild(mapWin)
-        const renderSettings:PanAndZoomRender ={
-            minScale:.1,
-            maxScale:50,
-            element:image,
-            scaleSensitivity:50,
-            transformation: {
-                originX:0,
-                originY:0,
-                translateX:0,
-                translateY:0,
-                scale:1
-            }
-        }
-        const instance = renderer(renderSettings);
-        mapWin.addEventListener("wheel", (event) => {
-            if (!event.ctrlKey) {
-                return;
-            }
-            event.preventDefault();
-            instance.zoom(event.pageX,event.pageY,Math.sign(event.deltaY) > 0 ? 1 : -1);
-        });
-        mapWin.addEventListener("dblclick", () => {
-            instance.panTo(0,0,1);
-        });
-        mapWin.addEventListener("mousemove", (event) => {
-            if (!event.shiftKey) {
-                return;
-            }
-            event.preventDefault();
-            instance.panBy(event.movementX,event.movementY);
-        })
+        
     }
+    const mapWin = doc.getElementById('mapWindow') as HTMLImageElement
     const image = doc.getElementById('networkMap') as HTMLImageElement
     image.src = `https://quickchart.io/graphviz?graph=${createDotGraph(ns)}`
-
+    const renderSettings:PanAndZoomRender ={
+        minScale:.1,
+        maxScale:50,
+        element:image,
+        scaleSensitivity:100,
+        transformation: {
+            originX:0,
+            originY:0,
+            translateX:0,
+            translateY:0,
+            scale:1
+        }
+    }
+    const instance = renderer(renderSettings);
+    mapWin.addEventListener("wheel", (event) => {
+        if (!event.ctrlKey) {
+            return;
+        }
+        event.preventDefault();
+        instance.zoom(event.pageX,event.pageY,Math.sign(event.deltaY) > 0 ? 1 : -1);
+    });
+    mapWin.addEventListener("dblclick", () => {
+        instance.panTo(0,0,1);
+    });
+    mapWin.addEventListener("mousemove", (event) => {
+        if (!event.shiftKey) {
+            return;
+        }
+        event.preventDefault();
+        instance.panBy(event.movementX,event.movementY);
+    })
 }
