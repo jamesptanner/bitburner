@@ -20,7 +20,7 @@ const jobs: Job[] = [
         interval:1000*60
     },
     {
-        script:"createScripts.js",
+        script:"cron/createScripts.js",
         args:[],
         interval:10*1000*60
     },
@@ -33,7 +33,8 @@ const jobs: Job[] = [
         script:"cron/processBackdoors.js",
         args:[],
         interval:5*60*1000
-    }
+    },
+
 ]
 
 export async function main(ns : NS) : Promise<void> {
