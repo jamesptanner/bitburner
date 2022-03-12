@@ -8,7 +8,15 @@ export async function main(ns: NS): Promise<void> {
         const script = iterator[0];
         const cost = iterator[1];
         if (!ns.fileExists(script) && player.hacking >= cost) {
-            ns.tprintf(`INFO: You should work on new script: ${script}`);
+            // ns.tprintf(`INFO: You should work on new script: ${script}`);
+            if(!ns.isBusy()){
+                ns.printf(`INFO: working on new script ${script}`)
+                ns.createProgram(script,true)
+            }
+            if(!ns.isFocused()){
+                ns.printf(`focusing on current work. ${ns.getPlayer().currentWorkFactionName}`)
+                ns.setFocus(true)
+            }
         }
     }
 }
