@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { triggerJobPath } from '/triggerJob';
+import { triggerJobPath } from '/cron/triggerJob';
 
 interface Job {
     script: string
@@ -28,12 +28,17 @@ const jobs: Job[] = [
         script:"cron/updateBestHost.js",
         args:[],
         interval:5*60*1000
+    },
+    {
+        script:"cron/processBackdoors.js",
+        args:[],
+        interval:5*60*1000
     }
 ]
 
 export async function main(ns : NS) : Promise<void> {
-    ns.ps().filter(proc =>{ return proc.filename.indexOf("triggerJob.js")!=-1 }).forEach(proc => ns.kill(proc.pid))
+    ns.ps().filter(proc =>{ return proc.filename.indexOf(triggerJobPath)!=-1 }).forEach(proc => ns.kill(proc.pid))
     jobs.forEach(job => {
-        ns.run("triggerJob.js",1,job.interval, job.script, ...job.args) 
+        ns.run(triggerJobPath,1,job.interval, job.script, ...job.args) 
     });
 }
