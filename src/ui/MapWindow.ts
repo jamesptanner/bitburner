@@ -119,21 +119,29 @@ export async function main(ns: NS): Promise<void> {
         }
     }
     const instance = renderer(renderSettings);
-    mapWin.addEventListener("wheel", (event) => {
-        if (!event.ctrlKey) {
-            return;
+    const wheelEvent = (event: WheelEvent) => {
+            if (!event.ctrlKey) {
+                return;
+            }
+            event.preventDefault();
+            instance.zoom(event.pageX, event.pageY, Math.sign(event.deltaY) > 0 ? 1 : -1);
         }
-        event.preventDefault();
-        instance.zoom(event.pageX,event.pageY,Math.sign(event.deltaY) > 0 ? 1 : -1);
-    });
-    mapWin.addEventListener("dblclick", () => {
+    mapWin.removeEventListener("wheel",wheelEvent);
+    mapWin.addEventListener("wheel", wheelEvent);
+
+    const dblclickEvent = () => {
         instance.panTo(0,0,1);
-    });
-    mapWin.addEventListener("mousemove", (event) => {
+    }
+    mapWin.removeEventListener("dblclick", dblclickEvent );
+    mapWin.addEventListener("dblclick", dblclickEvent );
+
+    const mouseMoveEvent = (event: MouseEvent) => {
         if (!event.shiftKey) {
             return;
         }
         event.preventDefault();
         instance.panBy(event.movementX,event.movementY);
-    })
+    }
+    mapWin.removeEventListener("mousemove", mouseMoveEvent )
+    mapWin.addEventListener("mousemove", mouseMoveEvent )
 }
