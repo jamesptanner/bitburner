@@ -9,12 +9,12 @@ export async function main(ns: NS): Promise<void> {
         const cost = iterator[1];
         if (!ns.fileExists(script) && player.hacking >= cost) {
             // ns.tprintf(`INFO: You should work on new script: ${script}`);
-            if(!ns.isBusy()){
+            if(!ns.isBusy() || ns.getPlayer().workType.includes('Program')){
                 ns.printf(`INFO: working on new script ${script}`)
                 ns.createProgram(script,true)
             }
             if(!ns.isFocused()){
-                ns.printf(`focusing on current work. ${ns.getPlayer().currentWorkFactionName}`)
+                ns.printf(`focusing on current work. ${ns.getPlayer().workType}`)
                 ns.setFocus(true)
             }
         }
