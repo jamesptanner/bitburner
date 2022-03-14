@@ -115,3 +115,8 @@ export const routeToHost = function(ns: NS, start: string, end:string): string[]
     }
     return []
 }
+
+export const needToFocus = function(ns:NS): boolean{
+    if(ns.getOwnedAugmentations(false).indexOf("Neuroreceptor Management Implant") !== -1) return false
+    return true
+}

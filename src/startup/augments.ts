@@ -21,7 +21,7 @@ const chooseAFaction = function (ns: NS, skipFactions:string[]): string {
         if (readyNow.length > 0) return readyNow[0]
     }
     return factionsToComplete.filter(faction =>{
-        if(skipFactions.indexOf(faction)===-1) return false
+        if(skipFactions.indexOf(faction)!==-1) return false
         const requirements = factionUnlockRequirements.get(faction)
         if(!requirements?.not) return true
         if(requirements.not.faction && intersection(requirements.not.faction,ns.getPlayer().factions).length > 0) return false
@@ -74,7 +74,7 @@ const purchaseAugments = async function (ns: NS, faction: string, augments: stri
 
 export async function main(ns: NS): Promise<void> {
     ns.disableLog("ALL")
-    const skippedFactions = []
+    const skippedFactions:string[] = []
     let faction = chooseAFaction(ns,skippedFactions);
     let unlocked = false
     do {
@@ -93,7 +93,11 @@ export async function main(ns: NS): Promise<void> {
         else {
             unlocked = true;
         }
-    } while(unlocked)
+        await ns.sleep(100)
+        if(faction === undefined){
+            ns.exit()
+        }
+    } while(!unlocked)
 
     ns.printf(`INFO: buying up all augments from ${faction}`)
     const augments = getUniqueAugmentsAvailableFromFaction(ns, faction)

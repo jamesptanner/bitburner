@@ -1,3 +1,5 @@
+import { needToFocus } from "/shared/utils";
+
 export const factionsPath ="/shared/factions.js";
 
 export const factions: string[] = [
@@ -248,8 +250,8 @@ export const getUniqueAugmentsAvailableFromFaction = function (ns: NS, faction: 
     })
 }
 
-export const unlockFaction = async function (ns: NS, faction: string):boolean {
-    if (ns.getPlayer().factions.indexOf(faction) !== -1) return
+export const unlockFaction = async function (ns: NS, faction: string): Promise<boolean> {
+    if (ns.getPlayer().factions.indexOf(faction) !== -1) return true
     if (getAvailableFactions(ns).indexOf(faction) !== -1) {
         return true
     }
@@ -266,43 +268,56 @@ export const unlockFaction = async function (ns: NS, faction: string):boolean {
                 return false;
             }
         }
-        if(requirements.location){
+        if(requirements.location && ns.getPlayer().location !== requirements.location){
             ns.travelToCity(requirements.location)
         }
-        if(requirements.cash){
+        if(requirements.cash && ns.getPlayer().money < requirements.cash){
             await ns.sleep(1000*60)
         }
-        // if(requirements.combatSkill){
-        //     await improveCombatSkills(ns,requirements.combatSkill)
-        // }
-        // if(requirements.hacking){
-        //     await improveHackingSkill(ns,requirements.hacking)
-        // }
-        // if(requirements.corp){
-        //     await improveCorporateReputation(ns,requirements.corp,requirements.corpRep)
-        // }
-        // if(requirements.hackingLevels || requirements.hackingRAM || requirements.hackingCPU){
-        //     await hacknetBuyAtLeast(ns,requirements.hackingLevels, requirements.hackingRAM, requirements.hackingCPU)
-        // }
-        // if(requirements.karma){
-        //     await workOnKarma(ns,requirements.karma)
-        // }
-        // if(requirements.backdoor){
-        //     await waitToBackdoor(ns,requirements.backdoor)
-        // }
+        if(requirements.combatSkill){
+            // await improveCombatSkills(ns,requirements.combatSkill)
+            return false
+
+        }
+        if(requirements.hacking){
+            // await improveHackingSkill(ns,requirements.hacking)
+            return false
+
+        }
+        if(requirements.corp){
+            // await improveCorporateReputation(ns,requirements.corp,requirements.corpRep)
+            return false
+
+        }
+        if(requirements.hackingLevels || requirements.hackingRAM || requirements.hackingCPU){
+            // await hacknetBuyAtLeast(ns,requirements.hackingLevels, requirements.hackingRAM, requirements.hackingCPU)
+            return false
+
+        }
+        if(requirements.karma){
+            // await workOnKarma(ns,requirements.karma)
+            return false
+
+        }
+        if(requirements.backdoor){
+            // await waitToBackdoor(ns,requirements.backdoor)
+            return false
+        }
+        ns.joinFaction(faction)
     }
     return true;
 }
 
 export const improveFactionReputation = async function (ns: NS, faction: string, reputation: number) {
-    while (reputation > ns.getFactionRep(faction) + ns.getPlayer().workRepGained) {
+    while (reputation > ns.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0)) {
         ns.tail()
-        ns.printf(`INFO: current faction relationship ${faction} is ${ns.nFormat(ns.getFactionRep(faction) + ns.getPlayer().workRepGained, "0,0.000")}, want ${reputation}. Remaining ${ns.tFormat(((reputation - (ns.getFactionRep(faction) + ns.getPlayer().workRepGained)) / (ns.getPlayer().workRepGainRate * 5)) * 1000, false)}`)
+        ns.printf(`INFO: current faction relationship ${faction} is ${ns.nFormat(ns.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0), "0,0.000")}, want ${reputation}.`)
+        ns.printf(`INFO: Time Remaining: ${(ns.getPlayer().currentWorkFactionName === faction ? ns.tFormat(((reputation - (ns.getFactionRep(faction) + ns.getPlayer().workRepGained)) / (ns.getPlayer().workRepGainRate * 5)) * 1000, false) : "unknown")}`)
         if (!ns.isBusy()) {
             ns.printf(`INFO: improving relationship with ${faction}`)
             ns.workForFaction(faction, "hacking", true)
         }
-        if (!ns.isFocused()) {
+        if (!ns.isFocused() && needToFocus(ns)) {
             ns.printf(`focusing on work. ${ns.getPlayer().currentWorkFactionName}`)
             ns.setFocus(true)
         }
