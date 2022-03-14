@@ -10,7 +10,7 @@ const intersection = function <T>(a: T[], b: T[]): T[] {
     })
 }
 
-const chooseAFaction = function (ns: NS): string {
+const chooseAFaction = function (ns: NS, skipFactions:string[]): string {
     const factionsToComplete = factions.filter(faction => {
         return getUniqueAugmentsAvailableFromFaction(ns, faction).length != 0
     })
@@ -21,6 +21,7 @@ const chooseAFaction = function (ns: NS): string {
         if (readyNow.length > 0) return readyNow[0]
     }
     return factionsToComplete.filter(faction =>{
+        if(skipFactions.indexOf(faction)===-1) return false
         const requirements = factionUnlockRequirements.get(faction)
         if(!requirements?.not) return true
         if(requirements.not.faction && intersection(requirements.not.faction,ns.getPlayer().factions).length > 0) return false
@@ -73,15 +74,28 @@ const purchaseAugments = async function (ns: NS, faction: string, augments: stri
 
 export async function main(ns: NS): Promise<void> {
     ns.disableLog("ALL")
-    const faction = chooseAFaction(ns);
+    const skippedFactions = []
+    let faction = chooseAFaction(ns,skippedFactions);
+    let unlocked = false
+    do {
+        if (ns.getPlayer().factions.indexOf(faction) === -1) {
+            ns.printf(`INFO: Unlocking faction ${faction}`)
+            unlocked = await unlockFaction(ns, faction)
+            if(unlocked) {
+                ns.joinFaction(faction)
+            }
+            else {
+                ns.printf(`ERROR: Cant faction ${faction}`)
+                skippedFactions.push(faction)
+                faction = chooseAFaction(ns,skippedFactions)
+            }  
+        }
+        else {
+            unlocked = true;
+        }
+    } while(unlocked)
+
     ns.printf(`INFO: buying up all augments from ${faction}`)
-
-    if (ns.getPlayer().factions.indexOf(faction) === -1) {
-        ns.printf(`INFO: Unlocking faction ${faction}`)
-        await unlockFaction(ns, faction)
-        ns.joinFaction(faction)
-
-    }
     const augments = getUniqueAugmentsAvailableFromFaction(ns, faction)
     ns.printf(`INFO: augments available [${augments}]`)
     const maxRepNeeded = augments.reduce((repNeeded, augment) => {

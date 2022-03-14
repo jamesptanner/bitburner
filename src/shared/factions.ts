@@ -248,44 +248,50 @@ export const getUniqueAugmentsAvailableFromFaction = function (ns: NS, faction: 
     })
 }
 
-export const unlockFaction = async function (ns: NS, faction: string) {
+export const unlockFaction = async function (ns: NS, faction: string):boolean {
     if (ns.getPlayer().factions.indexOf(faction) !== -1) return
     if (getAvailableFactions(ns).indexOf(faction) !== -1) {
-        return
+        return true
     }
 
     //need to put the work in to unlock the faction. 
     const requirements = factionUnlockRequirements.get(faction)
-    if (!requirements) return;
+    if (!requirements) return false;
 
-    // while(ns.getPlayer().factions.indexOf(faction) === -1){
-    //     if(requirements.location){
-    //         ns.travelToCity(location)
-    //     }
-    //     if(requirements.cash){
-    //         await ns.sleep(1000*60)
-    //     }
-    //     if(requirements.combatSkill){
-    //         await improveCombatSkills(ns,requirements.combatSkill)
-    //     }
-    //     if(requirements.hacking){
-    //         await improveHackingSkill(ns,requirements.hacking)
-    //     }
-    //     if(requirements.corp){
-    //         await improveCorporateReputation(ns,requirements.corp,requirements.corpRep)
-    //     }
-    //     if(requirements.hackingLevels || requirements.hackingRAM || requirements.hackingCPU){
-    //         await hacknetBuyAtLeast(ns,requirements.hackingLevels, requirements.hackingRAM, requirements.hackingCPU)
-    //     }
-    //     if(requirements.karma){
-    //         await workOnKarma(ns,requirements.karma)
-    //     }
-    //     backdoor?: string,
-
-
-    //     not?: FactionExclusions,
-    //     augments?: number,
-    // }
+    while(ns.getPlayer().factions.indexOf(faction) === -1){
+        
+        if(requirements.augments){
+            if (requirements.augments > ns.getOwnedAugmentations(false).length){
+                ns.printf(`Not enough augments installed ${ns.getOwnedAugmentations(false)}/${requirements.augments}`)
+                return false;
+            }
+        }
+        if(requirements.location){
+            ns.travelToCity(requirements.location)
+        }
+        if(requirements.cash){
+            await ns.sleep(1000*60)
+        }
+        // if(requirements.combatSkill){
+        //     await improveCombatSkills(ns,requirements.combatSkill)
+        // }
+        // if(requirements.hacking){
+        //     await improveHackingSkill(ns,requirements.hacking)
+        // }
+        // if(requirements.corp){
+        //     await improveCorporateReputation(ns,requirements.corp,requirements.corpRep)
+        // }
+        // if(requirements.hackingLevels || requirements.hackingRAM || requirements.hackingCPU){
+        //     await hacknetBuyAtLeast(ns,requirements.hackingLevels, requirements.hackingRAM, requirements.hackingCPU)
+        // }
+        // if(requirements.karma){
+        //     await workOnKarma(ns,requirements.karma)
+        // }
+        // if(requirements.backdoor){
+        //     await waitToBackdoor(ns,requirements.backdoor)
+        // }
+    }
+    return true;
 }
 
 export const improveFactionReputation = async function (ns: NS, faction: string, reputation: number) {
