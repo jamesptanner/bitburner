@@ -1,7 +1,7 @@
 import { NS } from '@ns'
 import { getAllServers } from '/shared/utils';
 
-export const killscriptPath ="/killscript.js";
+export const killscriptPath ="/utils/killscript.js";
 
 export async function main(ns : NS) : Promise<void> {
     const target = ns.args[0] || "";
