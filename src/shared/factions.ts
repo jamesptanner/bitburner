@@ -250,6 +250,24 @@ export const getUniqueAugmentsAvailableFromFaction = function (ns: NS, faction: 
     })
 }
 
+const waitToBackdoor = async function (ns:NS, server:string){
+    ns.printf(`Waiting for ${server} to be backdoored`)
+    while(!ns.getServer(server).backdoorInstalled)
+    {
+        if(ns.getPlayer().workType !== "Studying or Taking a class at university") {
+            ns.printf(`improving hacking skills at uni`)
+            //improve hacking skill
+            if(!ns.getPlayer().isWorking){
+                if(ns.travelToCity('Volhaven')){ ns.universityCourse("ZB Institute of Technology","Algorithms")}
+            }
+        }
+        await ns.sleep(60*1000)
+    }
+    if(ns.getPlayer().workType === "Studying or Taking a class at university"){
+        ns.stopAction()
+    }
+}
+
 export const unlockFaction = async function (ns: NS, faction: string): Promise<boolean> {
     if (ns.getPlayer().factions.indexOf(faction) !== -1) return true
     if (getAvailableFactions(ns).indexOf(faction) !== -1) {
@@ -300,15 +318,14 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
 
         }
         if(requirements.backdoor){
-            // await waitToBackdoor(ns,requirements.backdoor)
-            return false
+            await waitToBackdoor(ns,requirements.backdoor)
         }
         ns.joinFaction(faction)
     }
     return true;
 }
 
-export const improveFactionReputation = async function (ns: NS, faction: string, reputation: number) {
+export const improveFactionReputation = async function (ns: NS, faction: string, reputation: number): Promise<void> {
     while (reputation > ns.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0)) {
         ns.tail()
         ns.printf(`INFO: current faction relationship ${faction} is ${ns.nFormat(ns.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0), "0,0.000")}, want ${reputation}.`)
