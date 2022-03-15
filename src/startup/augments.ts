@@ -40,8 +40,12 @@ const purchaseAugment = async function (ns: NS, faction: string, augment: string
     ns.printf(`INFO: buying ${augment} from ${faction}`)
     let purchaseAttempt = 0
     while (!ns.purchaseAugmentation(faction, augment) && purchaseAttempt < 3) {
-
+        let lastMoneyCheck = ns.getPlayer().money
         while (ns.getPlayer().money < ns.getAugmentationPrice(augment)) {
+            const currentMoneyCheck = ns.getPlayer().money
+            const moneyDiff = currentMoneyCheck - lastMoneyCheck
+            ns.printf(`INFO:estimated time remaining: ${ns.tFormat((ns.getAugmentationPrice(augment) - currentMoneyCheck) / (60*1000 /moneyDiff))}`)
+            lastMoneyCheck = currentMoneyCheck
             await ns.sleep(1000 * 60)
         }
         purchaseAttempt++
