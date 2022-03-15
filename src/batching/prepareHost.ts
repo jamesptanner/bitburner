@@ -1,7 +1,7 @@
 import { NS } from "@ns";
 import { growServer, weakenServer } from "/shared/HGW";
 
-export const prepareHostPath = "/hacking/prepareHost.js";
+export const prepareHostPath ="/batching/prepareHost.js";
 
 export async function main(ns: NS): Promise<void> {
     const target = ns.args[0];

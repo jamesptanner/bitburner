@@ -1,5 +1,5 @@
 import { NS } from "@ns";
-import { growServer, weakenServer, attack } from "/shared/HGW";
+import { weakenServer, hackServer } from "/shared/HGW";
 
 export async function main(ns: NS): Promise<void> {
     const target = ns.args[0];
@@ -12,7 +12,7 @@ export async function main(ns: NS): Promise<void> {
             }
             else {
                 ns.print(`INFO 🤖: ${target}. ${(ns.getHackTime(target) / 1000).toFixed(2)}s`)
-                await attack(ns, target);
+                await hackServer(ns, target);
             }
         }
     }
