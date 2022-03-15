@@ -38,18 +38,6 @@ export async function main(ns: NS): Promise<void> {
                 toBackdoor.push(server);
             }
         }
-        else if (server && !scriptIsRunning(ns, server, hackHostPath) && serverInfo.maxRam != 0) {
-            const memReq = ns.getScriptRam(hackHostPath);
-            const availableRam = serverInfo.maxRam - serverInfo.ramUsed;
-            const threads = Math.floor(availableRam / memReq) 
-            ns.print(`Mem: available:${availableRam}, total:${serverInfo.maxRam}, needed:${memReq} threads=${threads}`);
-            if (Math.floor(availableRam / memReq) != 0) {
-                await ns.scp([hackHostPath], server);
-                if (ns.exec(hackHostPath, server, threads, target) == 0) {
-                    ns.tprintf(`failed to launch script on ${server}`);
-                }
-            }
-        }
     }
     await ns.write("toBackdoor.txt", JSON.stringify(toBackdoor), "w");
     if(toInfiltrate.length > 0){

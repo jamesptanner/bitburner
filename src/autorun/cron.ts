@@ -14,7 +14,7 @@ const jobs: Job[] = [
         script:"/net/walker.js",
         args:[],
         interval:1000*60,
-        disable:true
+        disable:false
     },
     {
         script:"contracts/findContracts.js",
