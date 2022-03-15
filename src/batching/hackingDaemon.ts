@@ -29,7 +29,7 @@ export async function main(ns: NS): Promise<void> {
     const hack_time = ns.getHackTime(target)
     const weak_time = ns.getWeakenTime(target)
     const grow_time = ns.getGrowTime(target)
-    const t0 = 1000
+    const t0 = 500
 
     let period = 0
     let depth = 0;
@@ -62,14 +62,14 @@ export async function main(ns: NS): Promise<void> {
     const startTime = Date.now()
     let event = 1
     while (event < 1000) {
-        if(event % 60 == 0 )
+        if(event % 120 == 0 )
         {
             await ns.sleep(60*1000)
         }
         const scheduleWorked = await ScheduleHackEvent(event, weak_time, hack_time, grow_time, startTime, depth, period, t0, ns,target);
         if(!scheduleWorked){
             ns.toast(`Unable to schedule batch task`,"error",null)
-            await ns.sleep((event%60)*1000)
+            await ns.sleep((event%120)*1000)
         }
         else {
             event++
