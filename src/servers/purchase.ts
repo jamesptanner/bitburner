@@ -14,4 +14,7 @@ export async function main(ns: NS): Promise<void> {
             ns.toast(`purchased server ${newHost} size: ${size}GB`)
         }
     }
+    else {
+        ns.toast(`Usage: ${purchasePath} name size`)
+    }
 }
