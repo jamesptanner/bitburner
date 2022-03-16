@@ -55,7 +55,7 @@ export async function main(ns: NS): Promise<void> {
         ns.exit()
     }
 
-    if (!ns.codingcontract.getDescription(filename, host)) {
+    if (!ns.codingcontract.getContractType(filename, host)) {
         ns.tprintf(`Invalid file ${host}:${filename}`)
         ns.tprintf(usage)
         ns.exit()
@@ -80,6 +80,7 @@ export async function main(ns: NS): Promise<void> {
         }
         else {
             ns.toast(`${result}`,"success")
+            ns.tprintf(`${result}`)
         }
     }
     else {
