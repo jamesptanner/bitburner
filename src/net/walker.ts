@@ -2,20 +2,14 @@ import { NS } from '@ns'
 import { getAllServers } from "/shared/utils";
 
 import {infiltratePath} from "/hosts/infiltrate"
-import {hackHostPath} from "/hosts/hackHost"
 
 export async function main(ns: NS): Promise<void> {
     const toBackdoor: string[] = []
     const toInfiltrate: string[] = []
     const servers = getAllServers(ns)
     const ignoreHosts: string[] = JSON.parse(ns.read("ignoreHosts.txt") || "[]");
-    const preferredTarget: string = ns.read("target.txt") || ""
 
-    if (preferredTarget) {
-        ns.tprintf(`INFO coordinating attack on ${preferredTarget}`)
-    }
     for (const server of servers.filter(x => ignoreHosts.indexOf(x) == -1)) {
-        const target = preferredTarget || server
 
         const serverInfo = ns.getServer(server);
         if (!serverInfo.backdoorInstalled && !serverInfo.purchasedByPlayer) {
@@ -44,8 +38,4 @@ export async function main(ns: NS): Promise<void> {
         await ns.write("toInfiltrate.txt", JSON.stringify(toInfiltrate), "w");
         ns.spawn(infiltratePath,1)
     }
-}
-
-const scriptIsRunning = function (ns: NS, host: string, script: string): boolean {
-    return ns.ps(host).filter(process => process.filename == script).length > 0;
 }
