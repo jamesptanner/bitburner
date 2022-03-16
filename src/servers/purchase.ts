@@ -1,4 +1,5 @@
 import { NS } from '@ns'
+import { getHostsPath } from '/startup/getHosts';
 
 export const purchasePath = "/servers/purchase.js";
 
@@ -12,6 +13,7 @@ export async function main(ns: NS): Promise<void> {
         }
         else {
             ns.toast(`purchased server ${newHost} size: ${size}GB`)
+            ns.spawn(getHostsPath)
         }
     }
     else {
