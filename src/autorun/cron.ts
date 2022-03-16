@@ -30,6 +30,12 @@ const jobs: Job[] = [
         disable:false
     },
     {
+        script:"cron/buyScripts.js",
+        args:[],
+        interval:10*1000*60,
+        disable:false
+    },
+    {
         script:"cron/updateBestHost.js",
         args:[],
         interval:5*60*1000,
