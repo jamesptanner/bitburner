@@ -17,10 +17,13 @@ export async function main(ns: NS): Promise<void> {
     }
     //throw everything we have at it and wait for the threads to finish.
     const prepPid = servers.map(server => {
-        return ns.exec(prepareHostPath, server, 1, target)
+        const ramAvalible = ns.getServer(server).maxRam - ns.getServer(server).ramUsed
+        if(ramAvalible/ns.getScriptRam(prepareHostPath) > 0)
+            return ns.exec(prepareHostPath, server, Math.floor(ramAvalible/ns.getScriptRam(prepareHostPath)), target)
+        return 0
     })
     do {
-        const finished = prepPid.filter(pid => !ns.isRunning(pid, ""))
+        const finished = prepPid.filter(pid => pid===0 || !ns.isRunning(pid, ""))
         finished.forEach(pid => prepPid.splice(prepPid.indexOf(pid), 1))
         ns.printf(`${prepPid.length} processes left`)
         await ns.sleep(30 * 1000)
@@ -61,7 +64,7 @@ export async function main(ns: NS): Promise<void> {
     //period - one full cycle
     const startTime = Date.now()
     let event = 1
-    while (event < 1000) {
+    while (true) {
         if(event % 120 == 0 )
         {
             await ns.sleep(60*1000)
@@ -101,7 +104,12 @@ async function ScheduleHackEvent(event: number, weak_time: number, hack_time: nu
             break;
     }
 
-    const script_start = startTime + (depth * period) - (event * t0 * -1) - event_time;
+    let script_start = startTime + (depth * period) - (event * t0 * -1) - event_time;
+    while(script_start < 0) {
+        //we have a negative start time, increase event by 4 until we are back positive.
+        event=event+4
+        script_start = startTime + (depth * period) - (event * t0 * -1) - event_time
+    }
     ns.printf(`${event_script}: To Complete ${new Date(script_start + event_time).toISOString()}`);
     return runTask(ns, event_script,target,script_start)
 }
