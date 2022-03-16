@@ -18,7 +18,7 @@ export async function main(ns: NS): Promise<void> {
     //throw everything we have at it and wait for the threads to finish.
     const prepPid = servers.map(server => {
         const ramAvalible = ns.getServer(server).maxRam - ns.getServer(server).ramUsed
-        if(ramAvalible/ns.getScriptRam(prepareHostPath) > 0)
+        if(ramAvalible/ns.getScriptRam(prepareHostPath) > 1)
             return ns.exec(prepareHostPath, server, Math.floor(ramAvalible/ns.getScriptRam(prepareHostPath)), target)
         return 0
     })
@@ -32,7 +32,7 @@ export async function main(ns: NS): Promise<void> {
     const hack_time = ns.getHackTime(target)
     const weak_time = ns.getWeakenTime(target)
     const grow_time = ns.getGrowTime(target)
-    const t0 = 500
+    const t0 = 1000
 
     let period = 0
     let depth = 0;
@@ -104,11 +104,11 @@ async function ScheduleHackEvent(event: number, weak_time: number, hack_time: nu
             break;
     }
 
-    let script_start = startTime + (depth * period) - (event * t0 * -1) - event_time;
-    while(script_start < 0) {
-        //we have a negative start time, increase event by 4 until we are back positive.
-        event=event+4
-        script_start = startTime + (depth * period) - (event * t0 * -1) - event_time
+    const script_start = startTime + (depth * period) - (event * t0 * -1) - event_time;
+    if(script_start < 0) {
+        ns.toast(`Wait time negative. restarting script.`,"error",null)
+        await ns.sleep(weak_time)
+        ns.spawn(hackingDaemonPath,1)
     }
     ns.printf(`${event_script}: To Complete ${new Date(script_start + event_time).toISOString()}`);
     return runTask(ns, event_script,target,script_start)
