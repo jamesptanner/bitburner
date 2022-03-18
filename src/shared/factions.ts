@@ -268,10 +268,42 @@ const waitToBackdoor = async function (ns:NS, server:string){
     }
 }
 
+const repForNextRole = function(ns:NS,corpName:string): number {
+  const charInfo = ns.getCharacterInformation()
+  switch(charInfo.jobTitle[charInfo.company.indexOf(corpName)])
+  {
+    case "Software Engineering Intern":
+    return 8e3
+    case "Junior Software Engineer":
+    return 40e3
+    case "Senior Software Engineer":
+    return 200e3
+    case "Lead Software Developer":
+    return 400e3
+    case "Head of Software":
+    return 800e3
+    case "Head of Engineering":
+    return 1.6e6
+    case "Vice President of Technology":
+    return 3.2e6
+
+  }
+  return Infinity
+}
+
 const improveCorporateReputation = async function(ns:NS,corpName: string, reputation:number){
     ns.printf(`Waiting to impove reputation with ${corpName}`)
     while(ns.getCompanyRep(corpName)< reputation){
         const appliedSuccessful = ns.applyToCompany(corpName,"software")
+        if(appliedSuccessful){
+            ns.workForCompany(corpName)
+            const currentRep = ns.getCompanyRep(corpName)
+            while(currentRep + (ns.getPlayer().workRepGained*2) < reputation ||
+            currentRep + (ns.getPlayer().workRepGained*2) < repForNextRole(ns,corpName) ){
+                await ns.sleep(60*1000)
+            }
+            ns.stopAction()
+        }
     }
 }
 
@@ -309,8 +341,7 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
             return false
 
         }
-        if(requirements.corp){
-            return false
+        if(typeof requirements.corp == 'string' && typeof requirements.corpRep == 'number'){
             await improveCorporateReputation(ns,requirements.corp,requirements.corpRep)
 
         }
