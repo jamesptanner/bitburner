@@ -121,7 +121,7 @@ async function runTask(ns:NS, script:string, ...args: (string | number | boolean
     const candidateServers = servers.filter(server =>{
         const serverInfo = ns.getServer(server)
         const memFree = serverInfo.maxRam - serverInfo.ramUsed
-        return memFree > scriptMem  
+        return (serverInfo.backdoorInstalled || serverInfo.purchasedByPlayer) && memFree > scriptMem  
     }) 
     if(candidateServers.length==0) return false
     await ns.scp(script,candidateServers[0])
