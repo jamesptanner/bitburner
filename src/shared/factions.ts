@@ -268,6 +268,13 @@ const waitToBackdoor = async function (ns:NS, server:string){
     }
 }
 
+const improveCorporateReputation = async function(ns:NS,corpName: string, reputation:number){
+    ns.printf(`Waiting to impove reputation with ${corpName}`)
+    while(ns.getCompanyRep(corpName)< reputation){
+        const appliedSuccessful = ns.applyToCompany(corpName,"software")
+    }
+}
+
 export const unlockFaction = async function (ns: NS, faction: string): Promise<boolean> {
     if (ns.getPlayer().factions.indexOf(faction) !== -1) return true
     if (getAvailableFactions(ns).indexOf(faction) !== -1) {
@@ -303,8 +310,8 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
 
         }
         if(requirements.corp){
-            // await improveCorporateReputation(ns,requirements.corp,requirements.corpRep)
             return false
+            await improveCorporateReputation(ns,requirements.corp,requirements.corpRep)
 
         }
         if(requirements.hackingLevels || requirements.hackingRAM || requirements.hackingCPU){
