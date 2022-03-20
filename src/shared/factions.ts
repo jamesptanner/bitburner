@@ -272,14 +272,23 @@ const repForNextRole = function(ns:NS,corpName:string): number {
   const charInfo = ns.getCharacterInformation()
   switch(charInfo.jobTitle[charInfo.company.indexOf(corpName)])
   {
+    case  "IT Intern":
+    return 7e3
     case "Software Engineering Intern":
+    case "Business Intern":
     return 8e3
+    case "IT Analyst":
+    return 35e3
     case "Junior Software Engineer":
+    case "Business Analyst":
     return 40e3
+    case "IT Manager":
+    return 175e3
     case "Senior Software Engineer":
     return 200e3
     case "Lead Software Developer":
     return 400e3
+    case "Systems Administrator":
     case "Head of Software":
     return 800e3
     case "Head of Engineering":
