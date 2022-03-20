@@ -294,16 +294,18 @@ const repForNextRole = function(ns:NS,corpName:string): number {
 const improveCorporateReputation = async function(ns:NS,corpName: string, reputation:number){
     ns.printf(`Waiting to impove reputation with ${corpName}`)
     while(ns.getCompanyRep(corpName)< reputation){
-        const appliedSuccessful = ns.applyToCompany(corpName,"software")
-        if(appliedSuccessful){
+        ns.applyToCompany(corpName,"software")
             ns.workForCompany(corpName)
             const currentRep = ns.getCompanyRep(corpName)
             while(currentRep + (ns.getPlayer().workRepGained*2) < reputation ||
             currentRep + (ns.getPlayer().workRepGained*2) < repForNextRole(ns,corpName) ){
                 await ns.sleep(60*1000)
+                if(!ns.isBusy()){
+                    ns.workForCompany(corpName)
+                }
+
             }
             ns.stopAction()
-        }
     }
 }
 
