@@ -1,4 +1,4 @@
-import { NS } from '@ns'
+import { NS, ProcessInfo } from '@ns'
 import { prepareHostPath } from '/batching/prepareHost';
 import { findBestTarget, getAllServers } from '/shared/utils';
 import { weakenPath } from './weaken';
@@ -11,6 +11,7 @@ export async function main(ns: NS): Promise<void> {
     ns.disableLog('ALL')
     const target = findBestTarget(ns)
     const servers = getAllServers(ns)
+    await waitForBatchedHackToFinish(ns);
     // prepare the server for attack. max mon, min sec.
     for (const server of servers) {
         await ns.scp([prepareHostPath,weakenPath,growPath,hackPath], server)
@@ -22,12 +23,7 @@ export async function main(ns: NS): Promise<void> {
             return ns.exec(prepareHostPath, server, Math.floor(ramAvalible/ns.getScriptRam(prepareHostPath)), target)
         return 0
     })
-    do {
-        const finished = prepPid.filter(pid => pid===0 || !ns.isRunning(pid, ""))
-        finished.forEach(pid => prepPid.splice(prepPid.indexOf(pid), 1))
-        ns.printf(`${prepPid.length} processes left`)
-        await ns.sleep(30 * 1000)
-    } while (prepPid.length > 0)
+    await waitForPids(prepPid, ns);
 
     const hack_time = ns.getHackTime(target)
     const weak_time = ns.getWeakenTime(target)
@@ -68,6 +64,13 @@ export async function main(ns: NS): Promise<void> {
         if(event % 120 == 0 )
         {
             await ns.sleep(60*1000)
+            // //check we are hacking the right target 
+            const newTarget = findBestTarget(ns)
+            if (newTarget!==target){
+                await waitForBatchedHackToFinish(ns);
+                //restart
+                ns.spawn(hackingDaemonPath)
+            }
         }
         const scheduleWorked = await ScheduleHackEvent(event, weak_time, hack_time, grow_time, startTime, depth, period, t0, ns,target);
         if(!scheduleWorked){
@@ -83,6 +86,30 @@ export async function main(ns: NS): Promise<void> {
     ns.printf(`length of cycle: ${period}`)
     ns.printf(`Number of cycles needed: ${depth}`)
 
+}
+
+async function waitForBatchedHackToFinish(ns: NS) {
+    ns.printf(`waiting for current hacking threads to finish.`);
+    const pids = getAllServers(ns).map(server => {
+            return ns.ps(server);
+        })
+        .reduce((prev: ProcessInfo[], curr: ProcessInfo[]) => {
+            return prev.concat(...curr);
+        }, [] as ProcessInfo[])
+        .filter(proc => {
+            return proc.filename == weakenPath || proc.filename == growPath || proc.filename === hackPath;
+        })
+        .map(procInfo => procInfo.pid);
+    await waitForPids(pids, ns);
+}
+
+async function waitForPids(pids: number[], ns: NS) {
+    do {
+        const finished = pids.filter(pid => pid === 0 || !ns.isRunning(pid, ""));
+        finished.forEach(pid => pids.splice(pids.indexOf(pid), 1));
+        ns.printf(`${pids.length} processes left`);
+        if(pids.length > 0) await ns.sleep(30 * 1000);
+    } while (pids.length > 0);
 }
 
 async function ScheduleHackEvent(event: number, weak_time: number, hack_time: number, grow_time: number, startTime: number, depth: number, period: number, t0: number, ns: NS,target:string):Promise<boolean> {
