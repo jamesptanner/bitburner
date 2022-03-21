@@ -17,6 +17,8 @@ jobs:
           node-version: 16.x
 
       - name: Build
+        env:
+          NODE_OPTIONS: "--max-old-space-size=8192"
         run: | 
           npm i
           npm run defs
