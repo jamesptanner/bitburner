@@ -6,6 +6,8 @@ on:
   pull_request_review:
   check_run:
     types: [completed]
+  release:
+    types: [published]
     
 jobs:
   build:
