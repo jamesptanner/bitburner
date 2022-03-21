@@ -19,8 +19,3 @@ jobs:
         tag-prefix: 'v'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: 'tag version'
-      uses: Klemensas/action-autotag@stable
-      with:
-        tag_prefix: "v"
-        GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
