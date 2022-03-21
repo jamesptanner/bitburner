@@ -1,5 +1,6 @@
 import { NS } from '@ns'
 import { scripts } from '/shared/HGW';
+import { getHostsPath } from '/startup/getHosts';
 
 export const buyScriptsPath ="/cron/buyScripts.js";
 
@@ -10,6 +11,7 @@ export async function main(ns : NS) : Promise<void> {
             ns.printf(`not enough money to buy tor router`)
             ns.exit()
         }
+        ns.run(getHostsPath)
     }
     for (const scriptInfo of scripts) {
         const script = scriptInfo[0];
