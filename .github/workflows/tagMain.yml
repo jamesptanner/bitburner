@@ -1,0 +1,26 @@
+name: Create Tag
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+        uses: actions/checkout@v2
+
+    - name: 'Automated Version Bump'
+        id: version-bump
+        uses: 'phips28/gh-action-bump-version@master'
+        with:
+          tag-prefix: 'v'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: 'tag version'
+        uses: Klemensas/action-autotag@stable
+        with:
+          tag_prefix: "v"
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
