@@ -15,6 +15,7 @@ const companies = [
     "Fulcrum Secret Technologies"
 ]
 export async function main(ns : NS) : Promise<void> {
+    ns.disableLog("ALL") 
     for (const company of companies){
         await unlockFaction(ns,company)
     }
