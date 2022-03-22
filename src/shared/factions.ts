@@ -269,8 +269,8 @@ const waitToBackdoor = async function (ns:NS, server:string){
 }
 
 const repForNextRole = function(ns:NS,corpName:string): number {
-  const charInfo = ns.getCharacterInformation()
-  switch(charInfo.jobTitle[charInfo.company.indexOf(corpName)])
+    const charInfo = ns.getCharacterInformation()
+  switch(charInfo.jobTitles[charInfo.jobs.indexOf(corpName)])
   {
     case  "IT Intern":
     return 7e3
@@ -311,7 +311,9 @@ const improveCorporateReputation = async function(ns:NS,corpName: string, reputa
                 await ns.sleep(60*1000)
                 if(!ns.isBusy()){
                     ns.workForCompany(corpName)
+                    
                 }
+                ns.printf(`INFO:estimated time remaining: ${ns.tFormat(((repForNextRole(ns,corpName) - (currentRep + (ns.getPlayer().workRepGained*2)) ) *1000)/ (ns.getPlayer().workRepGainRate))}`)
 
             }
             ns.stopAction()
