@@ -1,5 +1,6 @@
 import { NS } from '@ns'
-import {improveFactionReputation, unlockFaction,factionUnlockRequirements,getUniqueAugmentsAvailableFromFaction,factions} from 'shared/factions'
+import {improveFactionReputation, unlockFaction,factionUnlockRequirements,getUniqueAugmentsAvailableFromFaction,factions, getAvailableFactions} from 'shared/factions'
+import { getAugmentsAvailableFromFaction } from './../shared/factions';
 
 
 export const augmentsPath = "/cron/augments.js";
@@ -61,6 +62,11 @@ const purchaseAugments = async function (ns: NS, faction: string, augments: stri
         return ns.getAugmentationPrice(b) - ns.getAugmentationPrice(a) //prices change but the order wont.
     })
     for (const augment of sortedAugments) {
+        //double check we have the reputation for the augment
+        if(ns.getAugmentationRepReq(augment) < ns.getFactionRep(faction)){
+            await improveFactionReputation(ns,faction,ns.getAugmentationRepReq(augment))
+        }
+
         if (ns.getAugmentationPrereq(augment).length > 0) {//handle the augment pre requirements first.
             ns.printf(`WARN: getting prerequisite for ${augment} first`)
             const unownedPrerequisites = ns.getAugmentationPrereq(augment)
@@ -68,7 +74,7 @@ const purchaseAugments = async function (ns: NS, faction: string, augments: stri
                     return ns.getOwnedAugmentations(true).indexOf(preReq) === -1
                 })
                 for (const preReq of unownedPrerequisites) {
-                    await purchaseAugment(ns, faction, preReq)
+                    await purchaseAugments(ns, faction, [preReq])
                 }
         }
         await purchaseAugment(ns, faction, augment)
@@ -79,40 +85,83 @@ const purchaseAugments = async function (ns: NS, faction: string, augments: stri
 export async function main(ns: NS): Promise<void> {
     ns.disableLog("ALL")
     const skippedFactions:string[] = []
-    let faction = chooseAFaction(ns,skippedFactions);
-    let unlocked = false
+    //do we already have some factions we could buy from unlocked?
+    const availableAugments = getAvailableFactions(ns)
+        .map(faction => getUniqueAugmentsAvailableFromFaction(ns,faction))
+        .reduce((prev,augments) =>{
+            return prev.concat(...augments)
+        },[])
+        .filter((v,i,self)=>{return self.indexOf(v)===i})
+
+    if(availableAugments.length === 0) {
+        await unlockNewFactionAndBuyAugments(ns, skippedFactions);
+    }
+    else {
+        await buyExistingAugments(ns,availableAugments)
+    }
+}
+
+async function unlockNewFactionAndBuyAugments(ns: NS, skippedFactions: string[]) {
+    let faction = chooseAFaction(ns, skippedFactions);
+    let unlocked = false;
     do {
         if (ns.getPlayer().factions.indexOf(faction) === -1) {
-            ns.printf(`INFO: Unlocking faction ${faction}`)
-            unlocked = await unlockFaction(ns, faction)
-            if(unlocked) {
-                ns.joinFaction(faction)
+            ns.printf(`INFO: Unlocking faction ${faction}`);
+            unlocked = await unlockFaction(ns, faction);
+            if (unlocked) {
+                ns.joinFaction(faction);
             }
             else {
-                ns.printf(`ERROR: Cant faction ${faction}`)
-                skippedFactions.push(faction)
-                faction = chooseAFaction(ns,skippedFactions)
-            }  
+                ns.printf(`ERROR: Cant faction ${faction}`);
+                skippedFactions.push(faction);
+                faction = chooseAFaction(ns, skippedFactions);
+            }
         }
         else {
             unlocked = true;
         }
-        await ns.sleep(100)
-        if(faction === undefined){
-            ns.exit()
+        await ns.sleep(100);
+        if (faction === undefined) {
+            ns.exit();
         }
-    } while(!unlocked)
-
-    ns.printf(`INFO: buying up all augments from ${faction}`)
-    const augments = getUniqueAugmentsAvailableFromFaction(ns, faction)
-    ns.printf(`INFO: augments available [${augments}]`)
+    } while (!unlocked);
+    ns.printf(`INFO: buying up all augments from ${faction}`);
+    const augments = getUniqueAugmentsAvailableFromFaction(ns, faction);
+    ns.printf(`INFO: augments available [${augments}]`);
     const maxRepNeeded = augments.reduce((repNeeded, augment) => {
-        return Math.max(repNeeded, ns.getAugmentationRepReq(augment))
-    }, 0)
+        return Math.max(repNeeded, ns.getAugmentationRepReq(augment));
+    }, 0);
 
     if (ns.getFactionRep(faction) < maxRepNeeded) {
-        ns.printf(`INFO: improving reputation with ${faction}`)
-        await improveFactionReputation(ns, faction, maxRepNeeded)
+        ns.printf(`INFO: improving reputation with ${faction}`);
+        await improveFactionReputation(ns, faction, maxRepNeeded);
     }
-    await purchaseAugments(ns, faction, augments)
+    await purchaseAugments(ns, faction, augments);
+}
+
+async function buyExistingAugments(ns:NS,availableAugments:string[]){
+        //turn the augments we have available into pairs of aug/faction
+        const factionForAugment = availableAugments.map(augment =>{
+            for (const faction of getAvailableFactions(ns)){
+                if(getAugmentsAvailableFromFaction(ns,faction).indexOf(augment)!==-1){
+                    return [augment,faction]
+                }
+            }
+            return []
+        })
+        .filter(a => a.length === 2)
+        .sort((a,b)=>{
+            if(b == null) return 1
+            if(a == null) return -1
+            return ns.getAugmentationPrice(a[0]) - ns.getAugmentationPrice(b[0])
+        })
+        .reverse()
+        for(const pair of factionForAugment){
+            if(pair === null) continue
+            const [augment,faction] = pair
+            if(ns.getAugmentationRepReq(augment) < ns.getFactionRep(faction)){
+                await improveFactionReputation(ns,faction,ns.getAugmentationRepReq(augment))
+            }
+            await purchaseAugments(ns, faction, [augment]);
+        }
 }
