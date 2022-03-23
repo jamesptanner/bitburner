@@ -270,6 +270,9 @@ const waitToBackdoor = async function (ns:NS, server:string){
 
 const repForNextRole = function(ns:NS,corpName:string): number {
     const charInfo = ns.getCharacterInformation()
+    // typedef is incorrect for deprecated charInfo.
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore 
   switch(charInfo.jobTitles[charInfo.jobs.indexOf(corpName)])
   {
     case  "IT Intern":
@@ -313,7 +316,10 @@ const improveCorporateReputation = async function(ns:NS,corpName: string, reputa
                     ns.workForCompany(corpName)
                     
                 }
-                ns.printf(`INFO:estimated time remaining: ${ns.tFormat(((repForNextRole(ns,corpName) - (currentRep + (ns.getPlayer().workRepGained*2)) ) *1000)/ (ns.getPlayer().workRepGainRate))}`)
+                const repNeeded = ((reputation - currentRep)*2 )-ns.getPlayer().workRepGained
+
+                ns.printf(`INFO:RepNeeded: ${repNeeded}, repGain: ${ns.getPlayer().workRepGainRate*5}`)
+                ns.printf(`INFO:estimated time remaining: ${ns.tFormat(repNeeded*1000 / (ns.getPlayer().workRepGainRate*5))}`)
 
             }
             ns.stopAction()
