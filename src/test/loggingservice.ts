@@ -5,5 +5,5 @@ export const loggingservicePath ="/test/loggingservice.js";
 
 export async function main(ns : NS) : Promise<void> {
     initLogging(ns)
-    log(Level.Error,`This is a message at ${Date.now().toLocaleString(),false}`)
+    log(Level.Error,`This is a message at ${Date.now().toLocaleString()}`)
 }

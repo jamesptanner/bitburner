@@ -1,4 +1,5 @@
 import { NS } from '@ns'
+import { hostname } from 'os';
 import { LogData, MetricData, LoggingPayload, LOGGING_PORT, Level } from '/shared/logging';
 
 export const loggingServicePath = "/autorun/loggingService.js";
@@ -21,25 +22,29 @@ const sendTrace = async function (ns:NS, timestamp: number, traceId: string, met
 
 }
 
-const sendLog = async function (ns:NS, timestamp: number, traceId: string, log: LogData): Promise<void> {
-    const request = lokiRequest
-    const body = {
-        "streams": [
-            {
-                "stream": {
-                    "trace": traceId
-                },
-                "values": [
-                    [timestamp, log.message]
-                ]
-            }
-        ]
-    }
-    request.body = JSON.stringify(body)
+const sendLog = async function (ns:NS, payload: LoggingPayload): Promise<void> {
+    if ("message" in payload.payload) {
+        const request = lokiRequest
+        const body = {
+            "streams": [
+                {
+                    "stream": {
+                        "trace": payload.trace,
+                        "host": payload.host,
+                        "script": payload.script
+                    },
+                    "values": [
+                        [payload.timestamp, payload.payload.message]
+                    ]
+                }
+            ]
+        }
+        request.body = JSON.stringify(body)
 
-    const response = await fetch(lokiUrl,request)
-    if (!response.ok) { 
-        ns.tprint(`ERROR: Failed to send logging to loki. HTTP code: ${response.status}`)
+        const response = await fetch(lokiUrl,request)
+        if (!response.ok) { 
+            ns.tprint(`ERROR: Failed to send logging to loki. HTTP code: ${response.status}`)
+        }
     }
 }
 
@@ -103,7 +108,7 @@ export async function main(ns: NS): Promise<void> {
             }
             const payload = LoggingPayload.fromJSON(portPayload)
             if ("message" in payload.payload) {
-                await sendLog(ns, payload.timestamp, payload.trace, payload.payload)
+                await sendLog(ns, payload)
             }
             else if ("key" in payload.payload) {
                 await sendTrace(ns, payload.timestamp, payload.trace, payload.payload)

@@ -18,11 +18,15 @@ export type MetricData = {
 
 
 export class LoggingPayload {
-    trace: string ;
+    host:string
+    script:string
+    trace: string 
     timestamp:number
     payload: MetricData | LogData
 
-    constructor(trace?: string, payload?: MetricData | LogData) {
+    constructor(host?: string, script?: string, trace?: string, payload?: MetricData | LogData) {
+        if(host)this.host = host
+        if(script)this.script = script
         if(trace)this.trace = trace
         if(payload)this.payload = payload
         this.timestamp = Date.now()*1000000
@@ -97,7 +101,7 @@ export const log = function (level: Level, msg: string, toast?: boolean | null):
     }
     n.print(logString);
 
-    const logPayload = new LoggingPayload(loggingTrace, {
+    const logPayload = new LoggingPayload(n.getHostname(),n.getScriptName(),loggingTrace, {
         level: level,
         message: logString,
     })
@@ -108,7 +112,7 @@ export const log = function (level: Level, msg: string, toast?: boolean | null):
 };
 
 export const sendMetric = function (key:string, value:string) {
-    const logPayload = new LoggingPayload(loggingTrace, {
+    const logPayload = new LoggingPayload(n.getHostname(),n.getScriptName(),loggingTrace, {
         key:key,
         value:value
     })
