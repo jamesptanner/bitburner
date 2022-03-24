@@ -102,7 +102,7 @@ export async function main(ns: NS): Promise<void> {
         while (!port.empty()) {
             const portPayload = port.read()
             if(typeof portPayload==='number'){
-                ns.tprint(`Playload unknown type.`)
+                ns.tprint(`Payload unknown type.`)
                 ns.exit()
                 return
             }
