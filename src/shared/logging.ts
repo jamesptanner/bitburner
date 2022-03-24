@@ -1,42 +1,59 @@
-import { notStrictEqual } from "assert";
-import { randomUUID } from "crypto";
 import { NS, NetscriptPort } from "@ns";
-import { keyBy } from "lodash";
-
-enum Level {
+export enum Level {
     Error,
     Warning,
     Info,
     success,
 }
 
-type LogData = {
+export type LogData = {
     level: Level
     message: string
 }
 
-type MetricData = {
-    Key: string
+export type MetricData = {
+    key: string
     value: number | string
 }
 
 
-class LoggingPayload {
-    trace: string | undefined;
-    payload: MetricData | LogData | undefined
+export class LoggingPayload {
+    trace: string ;
+    timestamp:number
+    payload: MetricData | LogData
 
     constructor(trace?: string, payload?: MetricData | LogData) {
-        this.trace = trace
-        this.payload = payload
+        if(trace)this.trace = trace
+        if(payload)this.payload = payload
+        this.timestamp = Date.now()*1000000
     }
 
-    static fromJSON(d: unknown): LoggingPayload {
-        return Object.assign(new LoggingPayload(), d)
+    static fromJSON(d: string): LoggingPayload {
+        return Object.assign(new LoggingPayload(), JSON.parse(d))
     }
 }
 
-const LOGGING_PORT = 1;
-const loggingTrace = randomUUID();
+//from https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid.
+//cant import crypto so this should do.
+//TODO keep an eye out for something better.
+function generateUUID() { // Public Domain/MIT
+    let d = new Date().getTime();//Timestamp
+    let d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now()*1000)) || 0;//Time in microseconds since page-load or 0 if unsupported
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        let r = Math.random() * 16;//random number between 0 and 16
+        if(d > 0){//Use timestamp until depleted
+            r = (d + r)%16 | 0;
+            d = Math.floor(d/16);
+        } else {//Use microseconds since page-load if supported
+            r = (d2 + r)%16 | 0;
+            d2 = Math.floor(d2/16);
+        }
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+}
+
+export const LOGGING_PORT = 1;
+const loggingTrace = generateUUID();
 let n: NS;
 let portHandle: NetscriptPort;
 
@@ -92,7 +109,7 @@ export const log = function (level: Level, msg: string, toast?: boolean | null):
 
 export const sendMetric = function (key:string, value:string) {
     const logPayload = new LoggingPayload(loggingTrace, {
-        Key:key,
+        key:key,
         value:value
     })
     let attempts = 0
