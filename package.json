@@ -14,6 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/graphite": "^0.1.0",
     "@types/lodash": "^4.14.178",
     "@types/node": "^16.4.3",
     "@typescript-eslint/eslint-plugin": "^4.28.4",
@@ -29,6 +30,7 @@
     "@rollup/plugin-typescript": "^8.3.1",
     "dijkstra-pathfinder": "^1.0.2",
     "rollup": "^2.69.1",
+    "rollup-plugin-node-polyfills": "^0.2.1",
     "typedoc": "^0.22.11"
   }
 }

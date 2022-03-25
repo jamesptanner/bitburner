@@ -111,7 +111,7 @@ export const log = function (level: Level, msg: string, toast?: boolean | null):
     }
 };
 
-export const sendMetric = function (key:string, value:string) {
+export const sendMetric = function (key:string, value:string|number) {
     const logPayload = new LoggingPayload(n.getHostname(),n.getScriptName(),loggingTrace, {
         key:key,
         value:value

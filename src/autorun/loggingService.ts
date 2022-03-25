@@ -1,6 +1,7 @@
 import { NS } from '@ns'
 import { hostname } from 'os';
 import { LogData, MetricData, LoggingPayload, LOGGING_PORT, Level } from '/shared/logging';
+// import GraphiteClient from 'graphite'
 
 export const loggingServicePath = "/autorun/loggingService.js";
 
@@ -18,8 +19,24 @@ class LoggingSettings {
     }
 }
 
-const sendTrace = async function (ns:NS, timestamp: number, traceId: string, metric: MetricData): Promise<void> {
+// let graphite:GraphiteClient;
+const setupGraphite = function (settings: LoggingSettings) {
+    // graphite = GraphiteClient.createClient(`plaintext://${settings.metricHost}/`)
+}
 
+const sendTrace = async function (ns:NS, payload: LoggingPayload,metric:MetricData): Promise<void> {
+    const tags = {
+        "trace": payload.trace,
+        "host": payload.host,
+        "script": payload.script
+    }
+    const metricToSend:{[key: string]:string|number} = {}
+    metricToSend[metric.key] = metric.value;
+    // graphite.writeTagged(metricToSend,tags,function(err){
+    //     if(err){
+    //         ns.tprint(`ERROR: Failed to send metric to grafana. reason: ${err}`)
+    //     }
+    // });
 }
 
 const sendLog = async function (ns:NS, payload: LoggingPayload): Promise<void> {
@@ -60,9 +77,6 @@ const setupLoki = function (settings: LoggingSettings) {
     }
 }
 
-const setupGraphite = function (settings: LoggingSettings) {
-
-}
 
 const loggingSettingsFile = "loggingSettings.txt";
 
@@ -111,7 +125,7 @@ export async function main(ns: NS): Promise<void> {
                 await sendLog(ns, payload)
             }
             else if ("key" in payload.payload) {
-                await sendTrace(ns, payload.timestamp, payload.trace, payload.payload)
+                await sendTrace(ns, payload, payload.payload)
             }
         }
         await ns.sleep(100)

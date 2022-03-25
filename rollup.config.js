@@ -32,7 +32,7 @@ function addApp(path,includes) {
             file: path.replace('src/', 'dist/public/').replace('.ts', '.js'),
             format: 'esm',
             sourcemap: false,
-            interop: 'esModule'
+            interop: 'esModule',
         },
         plugins: [
             commonjs(),
