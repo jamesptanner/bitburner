@@ -19,27 +19,37 @@ class LoggingSettings {
     }
 }
 
-// let graphite:GraphiteClient;
+let graphiteUrl: string;
+let graphiteRequest: RequestInit;
+
 const setupGraphite = function (settings: LoggingSettings) {
-    // graphite = GraphiteClient.createClient(`plaintext://${settings.metricHost}/`)
-}
-
-const sendTrace = async function (ns:NS, payload: LoggingPayload,metric:MetricData): Promise<void> {
-    const tags = {
-        "trace": payload.trace,
-        "host": payload.host,
-        "script": payload.script
+    graphiteUrl = `${settings.metricHost}/`
+    graphiteRequest = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/plain'
+        }
     }
-    const metricToSend:{[key: string]:string|number} = {}
-    metricToSend[metric.key] = metric.value;
-    // graphite.writeTagged(metricToSend,tags,function(err){
-    //     if(err){
-    //         ns.tprint(`ERROR: Failed to send metric to grafana. reason: ${err}`)
-    //     }
-    // });
+
 }
 
-const sendLog = async function (ns:NS, payload: LoggingPayload): Promise<void> {
+const sendTrace = async function (ns: NS, settings: LoggingSettings, payload: LoggingPayload): Promise<void> {
+    if ("key" in payload.payload) {
+        const tags = `;trace=${payload.trace};host=${payload.host};script=${payload.script}`
+
+        const metricName = `bitburner.${payload.payload.key}`
+        const request = graphiteRequest
+        request.body = `${metricName} ${payload.payload.value} ${Math.floor(Date.now() / 1000)}\n`
+
+        const response = await fetch(graphiteUrl, request)
+        if (!response.ok) {
+            ns.tprint(`ERROR: Failed to send metric to graphite. HTTP code: ${response.status}`)
+        }
+
+    }
+}
+
+const sendLog = async function (ns: NS, settings: LoggingSettings, payload: LoggingPayload): Promise<void> {
     if ("message" in payload.payload) {
         const request = lokiRequest
         const body = {
@@ -48,7 +58,8 @@ const sendLog = async function (ns:NS, payload: LoggingPayload): Promise<void> {
                     "stream": {
                         "trace": payload.trace,
                         "host": payload.host,
-                        "script": payload.script
+                        "script": payload.script,
+                        "game": settings.gameHost
                     },
                     "values": [
                         [payload.timestamp, payload.payload.message]
@@ -58,8 +69,8 @@ const sendLog = async function (ns:NS, payload: LoggingPayload): Promise<void> {
         }
         request.body = JSON.stringify(body)
 
-        const response = await fetch(lokiUrl,request)
-        if (!response.ok) { 
+        const response = await fetch(lokiUrl, request)
+        if (!response.ok) {
             ns.tprint(`ERROR: Failed to send logging to loki. HTTP code: ${response.status}`)
         }
     }
@@ -97,7 +108,7 @@ const checkLoggingSettings = async function (ns: NS): Promise<LoggingSettings> {
 
     if (!settings.metricHost) {
         saveSettings = true
-        const host = await ns.prompt("Enter metric server host address (graphite.example.org:2003)", { type: "text" })
+        const host = await ns.prompt("Enter metric server host address (http://graphite.example.org:2003)", { type: "text" })
         if (typeof host === 'string') settings.metricHost = host
     }
 
@@ -115,17 +126,17 @@ export async function main(ns: NS): Promise<void> {
     while (true) {
         while (!port.empty()) {
             const portPayload = port.read()
-            if(typeof portPayload==='number'){
+            if (typeof portPayload === 'number') {
                 ns.tprint(`Payload unknown type.`)
                 ns.exit()
                 return
             }
             const payload = LoggingPayload.fromJSON(portPayload)
             if ("message" in payload.payload) {
-                await sendLog(ns, payload)
+                await sendLog(ns, loggingSettings, payload)
             }
             else if ("key" in payload.payload) {
-                await sendTrace(ns, payload, payload.payload)
+                await sendTrace(ns, loggingSettings, payload)
             }
         }
         await ns.sleep(100)
