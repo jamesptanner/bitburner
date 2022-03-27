@@ -1,10 +1,9 @@
 name: Build
 
 on:
-  create:
+  push:
     tags:
       - "v*.*.*"
-
 
 jobs:
   build:
