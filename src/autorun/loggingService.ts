@@ -37,13 +37,16 @@ const sendTrace = async function (ns: NS, settings: LoggingSettings, payload: Lo
     if ("key" in payload.payload) {
         const tags = `;trace=${payload.trace};host=${payload.host};script=${payload.script}`
 
-        const metricName = `bitburner.${payload.payload.key}`
+        const metricName = `bitburner.${settings.gameHost}.${payload.payload.key}`
         const request = graphiteRequest
         request.body = `${metricName} ${payload.payload.value} ${Math.floor(Date.now() / 1000)}\n`
 
         const response = await fetch(graphiteUrl, request)
         if (!response.ok) {
             ns.tprint(`ERROR: Failed to send metric to graphite. HTTP code: ${response.status}`)
+        }
+        else {
+            ns.print("Send Successful.")
         }
 
     }
@@ -72,6 +75,9 @@ const sendLog = async function (ns: NS, settings: LoggingSettings, payload: Logg
         const response = await fetch(lokiUrl, request)
         if (!response.ok) {
             ns.tprint(`ERROR: Failed to send logging to loki. HTTP code: ${response.status}`)
+        }
+        else {
+            ns.print("Send Successful.")
         }
     }
 }
@@ -139,6 +145,6 @@ export async function main(ns: NS): Promise<void> {
                 await sendTrace(ns, loggingSettings, payload)
             }
         }
-        await ns.sleep(100)
+        await ns.sleep(500)
     }
 }

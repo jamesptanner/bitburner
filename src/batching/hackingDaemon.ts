@@ -14,6 +14,7 @@ export async function main(ns: NS): Promise<void> {
     await waitForBatchedHackToFinish(ns);
     // prepare the server for attack. max mon, min sec.
     for (const server of servers) {
+        ns.print(server)
         await ns.scp([prepareHostPath,weakenPath,growPath,hackPath], server)
     }
     //throw everything we have at it and wait for the threads to finish.
