@@ -28,6 +28,6 @@ export async function main(ns : NS) : Promise<void> {
             log(Level.Info,`server:${server} ramused:${ns.getServerUsedRam(server)} rammax:${ns.getServerMaxRam(server)}`)
         })
 
-        await ns.sleep(15000)
+        await ns.sleep(5000)
     }
 }
