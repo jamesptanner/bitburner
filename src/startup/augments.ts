@@ -87,7 +87,13 @@ export async function main(ns: NS): Promise<void> {
     const skippedFactions:string[] = []
     //do we already have some factions we could buy from unlocked?
     const availableAugments = getAvailableFactions(ns)
-        .map(faction => getUniqueAugmentsAvailableFromFaction(ns,faction))
+        .map(faction => {
+            const augs = getUniqueAugmentsAvailableFromFaction(ns,faction)
+            if(augs.length > 0){
+                ns.print(`faction:${faction}, augments:[${augs}]`)
+            }
+            return augs
+        })
         .reduce((prev,augments) =>{
             return prev.concat(...augments)
         },[])
