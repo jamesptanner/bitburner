@@ -20,3 +20,28 @@ jobs:
         tag-prefix: 'v'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Use Node.js
+      uses: actions/setup-node@v1
+      with:
+        node-version: 16.x
+
+    - name: Build
+      env:
+        NODE_OPTIONS: "--max-old-space-size=8192"
+      run: | 
+        npm i
+        npm run defs
+        npm run build
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/public/**
+        tag_name: 
+    - name: Merge Back to Develop
+      uses: robotology/gh-action-nightly-merge@v1.3.1
+      with:
+        stable_branch: 'main'
+        development_branch: 'dev'
+        allow_ff: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
