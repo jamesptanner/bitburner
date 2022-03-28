@@ -4,17 +4,18 @@ import { findBestTarget, getAllServers } from '/shared/utils';
 import { weakenPath } from './weaken';
 import { hackPath } from '/batching/hack';
 import { growPath } from './grow';
+import { initLogging, log, Level } from '/shared/logging';
 
 export const hackingDaemonPath = "/batching/hackingDaemon.js";
 
 export async function main(ns: NS): Promise<void> {
     ns.disableLog('ALL')
+    initLogging(ns)
     const target = findBestTarget(ns)
     const servers = getAllServers(ns)
     await waitForBatchedHackToFinish(ns);
     // prepare the server for attack. max mon, min sec.
     for (const server of servers) {
-        ns.print(server)
         await ns.scp([prepareHostPath,weakenPath,growPath,hackPath], server)
     }
     //throw everything we have at it and wait for the threads to finish.
@@ -138,6 +139,7 @@ async function ScheduleHackEvent(event: number, weak_time: number, hack_time: nu
         await ns.sleep(weak_time)
         ns.spawn(hackingDaemonPath,1)
     }
+    log(Level.Info,`{"name":"${event_script}-${event}", "startTime":"${new Date(script_start).toISOString()}", "duration":${Math.floor(event_time/1000)}}`)
     ns.printf(`${event_script}: To Complete ${new Date(script_start + event_time).toISOString()}`);
     return runTask(ns, event_script,target,script_start)
 }
