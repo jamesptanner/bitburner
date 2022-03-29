@@ -62,7 +62,8 @@ const sendLog = async function (ns: NS, settings: LoggingSettings, payload: Logg
                         "trace": payload.trace,
                         "host": payload.host,
                         "script": payload.script,
-                        "game": settings.gameHost
+                        "game": settings.gameHost,
+                        "level": payload.payload.level
                     },
                     "values": [
                         [payload.timestamp, payload.payload.message]

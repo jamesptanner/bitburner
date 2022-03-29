@@ -95,15 +95,14 @@ const levelToToast = function (level: Level): string {
 };
 
 export const log = function (level: Level, msg: string, toast?: boolean | null): void {
-    const logString = `${levelToString(level)}: ${msg}`;
     if (toast) {
-        n.toast(logString, levelToToast(level));
+        n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
     }
-    n.print(logString);
+    n.print(`${levelToString(level)}: ${msg}`);
 
     const logPayload = new LoggingPayload(n.getHostname(),n.getScriptName(),loggingTrace, {
         level: level,
-        message: logString,
+        message: msg,
     })
     let attempts = 0
     while (!portHandle.tryWrite(JSON.stringify(logPayload)) && attempts < 3) {
