@@ -34,7 +34,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
-          ref: ${{ version-bump.newTag }}
+          ref: ${{ steps.version-bump.outputs.newTag }}
 
       - name: Use Node.js
         uses: actions/setup-node@v1
