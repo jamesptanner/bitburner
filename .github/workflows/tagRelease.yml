@@ -20,6 +20,7 @@ jobs:
         tag-prefix: 'v'
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Merge Back to Develop
       uses: Logerfo/gitflow-action@0.0.4
       with:
