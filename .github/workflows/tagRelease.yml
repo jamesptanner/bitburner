@@ -21,10 +21,9 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Merge Back to Develop
-      uses: robotology/gh-action-nightly-merge@v1.3.1
+      uses: Logerfo/gitflow-action@0.0.4
       with:
-        stable_branch: 'main'
-        development_branch: 'dev'
-        allow_ff: false
+        dev: dev # The `dev` branch.
+        master: main # The `master` branch.
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
