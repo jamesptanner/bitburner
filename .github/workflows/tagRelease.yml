@@ -54,5 +54,10 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/package/**
           tag_name: ${{ needs.CreateRelease.outputs.tag }}
+      - name: Save file in a new orphan storage branch
+        uses: StirlingLabs/BranchStorageAction@main
+        with:
+          src: dist/package
+          dst: /
+          storage-branch: release
