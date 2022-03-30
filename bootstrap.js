@@ -10,7 +10,7 @@ async function main(ns) {
     const map = Object.entries(await mapResponse.json());
     //iterate over rest of files and download to correct locations.
     for (const [url, name] of map) {
-        await ns.wget(`${releaseDir}/${url}`, name);
+        await ns.wget(`${releaseDir}/${url}`, name.indexOf('/') === -1 ? name : `/${name}`);
     }
     //launch start.js
     ns.spawn("start.js");
