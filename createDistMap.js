@@ -10,7 +10,7 @@ const fileMap = {}
 glob.sync(`${sourceDir}/**/*.js`).forEach(path =>{
     if(path !== `${sourceDir}/bootstrap.js`){
         const genName = path.replace(`${sourceDir}/`,'').replaceAll("/","-",)
-        fileMap[genName] = path.replace(sourceDir,'')
+        fileMap[genName] = path.replace(sourceDir,'').substring(1)
         fs.copyFile(path,`${packageDir}/${genName}`,function(){})
     }
     else{
