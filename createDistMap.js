@@ -9,7 +9,7 @@ fs.mkdir('dist/package',function(){})
 const fileMap = {}
 glob.sync(`${sourceDir}/**/*.js`).forEach(path =>{
     if(path !== `${sourceDir}/bootstrap.js`){
-        const genName = path.replace(sourceDir,'').replaceAll("/","~",)
+        const genName = path.replace(sourceDir,'').replaceAll("/","-",)
         fileMap[path.replace(sourceDir,'')] = genName
         fs.copyFile(path,`${packageDir}/${genName}`,function(){})
     }
