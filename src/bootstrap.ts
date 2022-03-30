@@ -15,7 +15,7 @@ export async function main(ns : NS) : Promise<void> {
 
    //iterate over rest of files and download to correct locations.
    for(const [url,name] of map){
-      await ns.wget(`${releaseDir}/${url}`,name)
+      await ns.wget(`${releaseDir}/${url}`,name.indexOf('/') ===-1 ? name: `/${name}`)
    }
    //launch start.js
    ns.spawn("start.js")
