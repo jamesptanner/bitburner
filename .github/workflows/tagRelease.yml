@@ -50,8 +50,9 @@ jobs:
           npm i
           npm run defs
           npm run build
+          npm run createdist
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          files: dist/public/**
+          files: dist/package/**
           tag_name: ${{ needs.CreateRelease.outputs.tag }}

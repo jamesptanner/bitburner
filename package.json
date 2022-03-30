@@ -9,7 +9,8 @@
     "build": "rollup --config",
     "clean": "rm -rf dist",
     "lint": "eslint . --ext .ts",
-    "defs": "node ./updateDefs.js"
+    "defs": "node ./updateDefs.js",
+    "createdist": "node ./createDistMap.js"
   },
   "author": "",
   "license": "ISC",
