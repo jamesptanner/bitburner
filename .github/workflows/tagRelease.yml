@@ -58,6 +58,6 @@ jobs:
       - name: Save file in a new orphan storage branch
         uses: StirlingLabs/BranchStorageAction@main
         with:
-          src: dist/package
+          src: dist/package/*
           dst: /
           storage-branch: release
