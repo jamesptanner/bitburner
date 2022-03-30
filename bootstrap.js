@@ -1,7 +1,7 @@
 const bootstrapPath = "/bootstrap.js";
 async function main(ns) {
     //get latest release file
-    const releaseDir = "https://raw.githubusercontent.com/jamesptanner/bitburner/release/package";
+    const releaseDir = "https://raw.githubusercontent.com/jamesptanner/bitburner/release";
     //get download map file from list
     const mapResponse = await fetch(`${releaseDir}/map.txt`);
     if (!mapResponse.ok) {
