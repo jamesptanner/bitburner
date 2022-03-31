@@ -6,8 +6,10 @@ import { NS } from '@ns'
 // the one before it, forming a triangle). Find the minimum path sum from the top to the
 // bottom of the triangle. In each step of the path, you may only move to adjacent
 // numbers in the row below.
-export function MinTrianglePath(ns: NS, data: any): number | string[] | undefined {
+export function MinTrianglePath(ns: NS, data: unknown): number | string[] | undefined {
     ns.print(`${JSON.stringify(data)} type:${typeof data}`);
+
+
     const numberArray:number[][] = data;
 
     for (let row = 1; row < numberArray.length; row++) {
@@ -39,7 +41,7 @@ export function MinTrianglePath(ns: NS, data: any): number | string[] | undefine
 // you may only move down or to the right.
 
 // Determine how many unique paths there are from start to finish.
-export function UniquePath1(ns: NS, data: any): number | string[] | undefined {
+export function UniquePath1(ns: NS, data: unknown): number | string[] | undefined {
     ns.print(`${JSON.stringify(data)} type:${typeof data}`)
     const maxX: number = data[0]
     const maxY: number = data[1]
@@ -73,7 +75,7 @@ export function UniquePath1(ns: NS, data: any): number | string[] | undefined {
 // or to the right. Furthermore, you cannot move onto spaces which have obstacles.
 
 // Determine how many unique paths there are from start to finish.
-export function UniquePath2(ns: NS, data: any): number | string[] | undefined { 
+export function UniquePath2(ns: NS, data: unknown): number | string[] | undefined { 
     ns.print(`${JSON.stringify(data)} type:${typeof data}`)
     const maxX: number = data.length
     const maxY: number = data[0].length

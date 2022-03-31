@@ -20,7 +20,7 @@ module.exports = {
         tsconfigRootDir: __dirname
     },
     plugins: ["@typescript-eslint"],
-    ignorePatterns: ['*.d.ts', '*.js','build/*'],
+    ignorePatterns: ['*.d.ts', 'build/*', 'dist/**'],
     rules: {
         'no-constant-condition': ['off'],
         "@typescript-eslint/no-floating-promises": "error"

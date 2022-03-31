@@ -1,6 +1,5 @@
 import { NS } from '@ns'
-import { hostname } from 'os';
-import { LogData, MetricData, LoggingPayload, LOGGING_PORT, Level } from '/shared/logging';
+import { LoggingPayload, LOGGING_PORT } from "/shared/logging";
 // import GraphiteClient from 'graphite'
 
 export const loggingServicePath = "/autorun/loggingService.js";
@@ -35,20 +34,18 @@ const setupGraphite = function (settings: LoggingSettings) {
 
 const sendTrace = async function (ns: NS, settings: LoggingSettings, payload: LoggingPayload): Promise<void> {
     if ("key" in payload.payload) {
-        const tags = `;trace=${payload.trace};host=${payload.host};script=${payload.script}`
+      // const tags = `;trace=${payload.trace};host=${payload.host};script=${payload.script}`
 
-        const metricName = `bitburner.${settings.gameHost}.${payload.payload.key}`
-        const request = graphiteRequest
-        request.body = `${metricName} ${payload.payload.value} ${Math.floor(Date.now() / 1000)}\n`
+      const metricName = `bitburner.${settings.gameHost}.${payload.payload.key}`;
+      const request = graphiteRequest;
+      request.body = `${metricName} ${payload.payload.value} ${Math.floor(Date.now() / 1000)}\n`;
 
-        const response = await fetch(graphiteUrl, request)
-        if (!response.ok) {
-            ns.tprint(`ERROR: Failed to send metric to graphite. HTTP code: ${response.status}`)
-        }
-        else {
-            ns.print("Send Successful.")
-        }
-
+      const response = await fetch(graphiteUrl, request);
+      if (!response.ok) {
+        ns.tprint(`ERROR: Failed to send metric to graphite. HTTP code: ${response.status}`);
+      } else {
+        ns.print("Send Successful.");
+      }
     }
 }
 

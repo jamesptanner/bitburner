@@ -2,18 +2,22 @@ import { NS } from '@ns';
 
 import { Graph, Node, Dijkstra } from 'dijkstra-pathfinder'
 
-export function asString(val: (string | number | boolean)): string{
-    if (typeof val === "string") return val;
-    return String(val);
+export function asString(val: unknown): string {
+  if (typeof val === "string") return val;
+  return String(val);
 }
-export function asNumber(val: (string | number | boolean)): number{
-    if (typeof val === "number") return val;
-    return NaN;
+export function asNumber(val: unknown): number {
+  if (typeof val === "number") return val;
+  return NaN;
 }
 
-export function asBoolean(val: (string | number | boolean)): boolean{
-    if (typeof val === "boolean") return val;
-    return false;
+export function asBoolean(val: unknown): boolean {
+  if (typeof val === "boolean") return val;
+  return false;
+}
+
+export function is2DArray<T>(val: unknown): val is T[][] {
+  return Array.isArray(val) && val.every((va) => Array.isArray(va) && va.every((v) => typeof v === typeof T));
 }
 
 export async function walk(ns: NS, start: string, func: (host: string | undefined) => Promise<boolean>): Promise<void> {
