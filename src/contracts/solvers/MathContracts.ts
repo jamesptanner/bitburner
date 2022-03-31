@@ -3,7 +3,7 @@ import { NS } from '@ns'
 
 // Given a number, find its largest prime factor. A prime factor
 // is a factor that is a prime number.
-export function largestPrimeFactor(ns:NS,data:any):number|string[]|undefined{
+export function largestPrimeFactor(ns:NS,data:unknown):number|string[]|undefined{
     ns.print(`${JSON.stringify(data)} type:${typeof data}`)
     let num: number = data
     let factor = 2
@@ -22,7 +22,7 @@ export function largestPrimeFactor(ns:NS,data:any):number|string[]|undefined{
 
 // Given an array of integers, find the contiguous subarray (containing
 // at least one number) which has the largest sum and return that sum.
-export function MaxSubArray(ns:NS,data:any):number|string[]|undefined{
+export function MaxSubArray(ns:NS,data:unknown):number|string[]|undefined{
     ns.print(`${JSON.stringify(data)} type:${typeof data}`)
     const numberArray: number[] = data
     ns.print(`${numberArray}`)
@@ -52,7 +52,7 @@ export function MaxSubArray(ns:NS,data:any):number|string[]|undefined{
 
 // Given a number, how many different ways can that number be written as
 // a sum of at least two positive integers?
-export function TotalSums(ns:NS,data:any):number|string[]|undefined{
+export function TotalSums(ns:NS,data:unknown):number|string[]|undefined{
     ns.tprintf(`${JSON.stringify(data)} type:${typeof data}`)
 
     const value:number  = data;

@@ -11,7 +11,7 @@ import { NS } from '@ns'
 // [9, 10, 11, 12]
 
 // is [1, 2, 3, 4, 8, 12, 11, 10, 9, 5, 6, 7]
-export function SpiralMatrix(ns:NS,data:any):number|string[]|undefined{
+export function SpiralMatrix(ns:NS,data:unknown):number|string[]|undefined{
 
     ns.print(`${JSON.stringify(data)} type:${typeof data}`)
     const numberArray: number[][] = data
@@ -73,7 +73,7 @@ export function SpiralMatrix(ns:NS,data:any):number|string[]|undefined{
 
 // Assuming you are initially positioned at the start of the array, determine
 // whether you are able to reach the last index of the array.
-export function ArrayJump(ns:NS,data:any):number|string[]|undefined{
+export function ArrayJump(ns:NS,data:unknown):number|string[]|undefined{
     ns.print(`${JSON.stringify(data)} type:${typeof data}`)
     const numberArray: number[] = data
 
@@ -108,7 +108,7 @@ function checkPosition(ns:NS, array:number[], pos:number):boolean{
 // Example:
 // [[1, 3], [8, 10], [2, 6], [10, 16]]
 // merges into [[1, 6], [8, 16]]
-export function MergeOverlapping(ns:NS,data:any):number|string[]|undefined{
+export function MergeOverlapping(ns:NS,data:unknown):number|string[]|undefined{
     ns.print(`${JSON.stringify(data)} type:${typeof data}`)
     const numberArray: number[][] = data
 
