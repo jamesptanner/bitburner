@@ -1,4 +1,5 @@
 import { NS } from '@ns'
+import { is2DArray } from '../../shared/utils';
 // "Spiralize Matrix"
 
 // Given an array of array of numbers representing a 2D matrix, return the
@@ -11,57 +12,58 @@ import { NS } from '@ns'
 // [9, 10, 11, 12]
 
 // is [1, 2, 3, 4, 8, 12, 11, 10, 9, 5, 6, 7]
-export function SpiralMatrix(ns:NS,data:unknown):number|string[]|undefined{
-
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`)
-    const numberArray: number[][] = data
-    const output: number[] = []
-    let state = 0
-    while (numberArray.length> 0)
-    {
-        switch(state%4){
-        case 0: //top
-        {
-            const row = numberArray.shift()
-            if(row){
-                output.push(...row)
+export function SpiralMatrix(ns: NS, data: unknown): number | string[] | undefined {
+    if (is2DArray<number>(data, (val): val is number => { return typeof val === 'number' })) {
+        ns.print(`${JSON.stringify(data)} type:${typeof data}`)
+        const numberArray: number[][] = data
+        const output: number[] = []
+        let state = 0
+        while (numberArray.length > 0) {
+            switch (state % 4) {
+                case 0: //top
+                    {
+                        const row = numberArray.shift()
+                        if (row) {
+                            output.push(...row)
+                        }
+                        break;
+                    }
+                case 1: //right
+                    {
+                        for (let row = 0; row < numberArray.length; row++) {
+                            const val = numberArray[row].pop()
+                            if (val) {
+                                output.push(val)
+                            }
+                        }
+                        break;
+                    }
+                case 2: //bottom
+                    {
+                        const row = numberArray.pop()
+                        if (row) {
+                            output.push(...(row.reverse()))
+                        }
+                        break;
+                    }
+                case 3: //left
+                    {
+                        for (let row = numberArray.length - 1; row >= 0; row--) {
+                            const val = numberArray[row].shift()
+                            if (val) {
+                                output.push(val)
+                            }
+                        }
+                        break;
+                    }
             }
-            break;
+            state++
         }
-        case 1: //right
-        {
-            for (let row = 0; row < numberArray.length; row++) {
-                const val = numberArray[row].pop()
-                if(val){
-                    output.push(val)
-                }
-            }
-            break;
-        }
-        case 2: //bottom
-        {
-            const row = numberArray.pop()
-            if(row){
-                output.push(...(row.reverse()))
-            }
-            break;
-        }
-        case 3: //left
-        {
-            for (let row = numberArray.length-1; row>= 0 ; row--) {
-                const val = numberArray[row].shift()
-                if(val){
-                output.push(val)
-                }
-            }
-            break;
-        }
-        }
-        state++
+        //may have undefined entries which we can remove.
+        ns.tprintf(`SpiralMatrix Result: ${JSON.stringify(output.filter(x => x))}`)
+        return output.filter(x => x).map<string>(x => x.toString())
     }
-    //may have undefined entries which we can remove.
-    ns.tprintf(`SpiralMatrix Result: ${JSON.stringify(output.filter(x=> x))}`)
-    return output.filter(x=> x).map<string>(x => x.toString())
+    throw new Error("Unexpected data types Unable to solve contract.");
 }
 
 // "Array Jumping Game"
@@ -73,24 +75,27 @@ export function SpiralMatrix(ns:NS,data:unknown):number|string[]|undefined{
 
 // Assuming you are initially positioned at the start of the array, determine
 // whether you are able to reach the last index of the array.
-export function ArrayJump(ns:NS,data:unknown):number|string[]|undefined{
+export function ArrayJump(ns: NS, data: unknown): number | string[] | undefined {
+    if(Array.isArray(data) && data.every(val => typeof val === 'number')){
     ns.print(`${JSON.stringify(data)} type:${typeof data}`)
     const numberArray: number[] = data
 
-    const result = checkPosition(ns,numberArray,0)
+    const result = checkPosition(ns, numberArray, 0)
     ns.tprintf(`${result}`)
-    if(result){
+    if (result) {
         return 1
     }
     return 0
 }
+throw new Error("Unexpected data types Unable to solve contract.");
+}
 
-function checkPosition(ns:NS, array:number[], pos:number):boolean{
+function checkPosition(ns: NS, array: number[], pos: number): boolean {
     ns.print(`${array}: checking position ${pos}`)
-    if (pos == array.length-1) return true
+    if (pos == array.length - 1) return true
     for (let jumpDist = 1; jumpDist <= array[pos]; jumpDist++) {
         ns.print(`Jumping ${jumpDist}`)
-        if(checkPosition(ns,array,pos+jumpDist)){
+        if (checkPosition(ns, array, pos + jumpDist)) {
             return true;
         }
     }
@@ -108,23 +113,24 @@ function checkPosition(ns:NS, array:number[], pos:number):boolean{
 // Example:
 // [[1, 3], [8, 10], [2, 6], [10, 16]]
 // merges into [[1, 6], [8, 16]]
-export function MergeOverlapping(ns:NS,data:unknown):number|string[]|undefined{
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`)
-    const numberArray: number[][] = data
+export function MergeOverlapping(ns: NS, data: unknown): number | string[] | undefined {
+    if (is2DArray<number>(data, (val): val is number => { return typeof val === 'number' })) {
+        const numberArray: number[][] = data
 
-    numberArray.sort((a,b) => a[0] - b[0])
-    ns.print(`${JSON.stringify(numberArray)}`)
+        numberArray.sort((a, b) => a[0] - b[0])
+        ns.print(`${JSON.stringify(numberArray)}`)
 
-    for (let i = 0; i < numberArray.length-1; i++) {
-        if(numberArray[i][1] >= numberArray[i+1][0]){
-            const newElement = [numberArray[i][0],Math.max(numberArray[i+1][1],numberArray[i][1])]
-            numberArray.splice(i,2,newElement)
-            ns.print(`${JSON.stringify(numberArray)}`)
-            i--
+        for (let i = 0; i < numberArray.length - 1; i++) {
+            if (numberArray[i][1] >= numberArray[i + 1][0]) {
+                const newElement = [numberArray[i][0], Math.max(numberArray[i + 1][1], numberArray[i][1])]
+                numberArray.splice(i, 2, newElement)
+                ns.print(`${JSON.stringify(numberArray)}`)
+                i--
+            }
         }
-    }
 
-    ns.tprintf(`${JSON.stringify((numberArray.length != 1)? numberArray:numberArray[0])}`)
-    return [JSON.stringify((numberArray.length != 1)? numberArray:numberArray[0])]
-    return undefined
+        ns.tprintf(`${JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])}`)
+        return [JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])]
+    }
+    throw new Error("Unexpected data types Unable to solve contract.");
 }

@@ -16,7 +16,7 @@ export function asBoolean(val: unknown): boolean {
   return false;
 }
 
-export const isInstanceOf = <T>(ctor: new (...args: unknown) => T) =>
+export const isInstanceOf = <T>(ctor: new (...args: unknown[]) => T) =>
     (x: unknown): x is T => x instanceof ctor;
 
 export function is2DArray<T>(val: unknown, elementGuard: (x: unknown) => x is T): val is T[][] {
