@@ -16,8 +16,11 @@ export function asBoolean(val: unknown): boolean {
   return false;
 }
 
-export function is2DArray<T>(val: unknown): val is T[][] {
-  return Array.isArray(val) && val.every((va) => Array.isArray(va) && va.every((v) => typeof v === typeof T));
+export const isInstanceOf = <T>(ctor: new (...args: unknown) => T) =>
+    (x: unknown): x is T => x instanceof ctor;
+
+export function is2DArray<T>(val: unknown, elementGuard: (x: unknown) => x is T): val is T[][] {
+  return Array.isArray(val) && val.every((va) => Array.isArray(va) && va.every(elementGuard));
 }
 
 export async function walk(ns: NS, start: string, func: (host: string | undefined) => Promise<boolean>): Promise<void> {
