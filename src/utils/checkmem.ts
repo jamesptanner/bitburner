@@ -9,7 +9,7 @@ export async function main(ns : NS) : Promise<void> {
         const mem = ns.getScriptRam(script)
         const memPercent = mem/totalMem
 
-        const level = memPercent > 50 ? memPercent > 100 ? "ERROR": "WARN":"INFO"
+        const level = memPercent > 0.5 ? memPercent > 1 ? "ERROR": "WARN":"INFO"
         ns.printf(`${level} ${script}: ${mem}GB`)
     })
 }
