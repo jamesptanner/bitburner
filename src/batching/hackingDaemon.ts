@@ -76,7 +76,7 @@ export async function main(ns: NS): Promise<void> {
         }
         const scheduleWorked = await ScheduleHackEvent(event, weak_time, hack_time, grow_time, startTime, depth, period, t0, ns,target);
         if(!scheduleWorked){
-            ns.toast(`Unable to schedule batch task`,"error",null)
+            ns.toast(`Unable to schedule batch task`,"error",10000)
             await ns.sleep((event%120)*1000)
         }
         else {
@@ -135,7 +135,7 @@ async function ScheduleHackEvent(event: number, weak_time: number, hack_time: nu
 
     const script_start = startTime + (depth * period) - (event * t0 * -1) - event_time;
     if(script_start < 0) {
-        ns.toast(`Wait time negative. restarting script.`,"error",null)
+        ns.toast(`Wait time negative. restarting script.`,"error",10000)
         await ns.sleep(weak_time)
         ns.spawn(hackingDaemonPath,1)
     }
