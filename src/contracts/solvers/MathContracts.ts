@@ -26,7 +26,7 @@ export function largestPrimeFactor(ns: NS, data: unknown): number | string[] | u
 // Given an array of integers, find the contiguous subarray (containing
 // at least one number) which has the largest sum and return that sum.
 export function MaxSubArray(ns: NS, data: unknown): number | string[] | undefined {
-    if (Array.isArray(data) && data.every(val => { typeof val === 'number' })) {
+    if (Array.isArray(data) && data.every(val => { return typeof val === 'number' })) {
         const numberArray: number[] = data
         ns.print(`${numberArray}`)
 

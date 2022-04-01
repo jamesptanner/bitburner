@@ -13,7 +13,7 @@ const isNumberArray = function (val: unknown): val is number[] {
   return (
     Array.isArray(val) &&
     val.every((v) => {
-      typeof v === "number";
+      return typeof v === "number";
     })
   );
 };
