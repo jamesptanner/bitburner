@@ -9,13 +9,13 @@ import { MinTrianglePath, UniquePath1, UniquePath2 } from '/contracts/solvers/Pa
 export const solveContractPath = "/contracts/solveContract.js";
 
 interface ContractFunction {
-    (ns:NS, data: any): (number | string[] | undefined)
+  (ns: NS, data: unknown): number | string[] | undefined;
 }
 
 interface FailedContract {
-    type:string
-    data: any
-    answer:number | string[]
+  type: string;
+  data: unknown;
+  answer: number | string[];
 }
 
 const processors = new Map<string, ContractFunction>([

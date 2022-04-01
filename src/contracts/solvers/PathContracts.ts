@@ -1,4 +1,5 @@
 import { NS } from '@ns'
+import { is2DArray } from '/shared/utils';
 // "Minimum Path Sum in a Triangle"
 
 // You are given a 2D array of numbers (array of array of numbers) that represents a
@@ -6,29 +7,32 @@ import { NS } from '@ns'
 // the one before it, forming a triangle). Find the minimum path sum from the top to the
 // bottom of the triangle. In each step of the path, you may only move to adjacent
 // numbers in the row below.
-export function MinTrianglePath(ns: NS, data: any): number | string[] | undefined {
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`);
-    const numberArray:number[][] = data;
+export function MinTrianglePath(ns: NS, data: unknown): number | string[] | undefined {
 
-    for (let row = 1; row < numberArray.length; row++) {
-        for (let col = 0; col < numberArray[row].length; col++) {
+    if (is2DArray<number>(data, (val: unknown): val is number => { return typeof val === 'number' })) {
+        const numberArray: number[][] = data;
 
-            if (col === 0) {
-                numberArray[row][col] += numberArray[row - 1][col]
-            }
-            else if (col === numberArray[row].length - 1) {
-                numberArray[row][col] += numberArray[row - 1][col - 1]
-            }
-            else {
-                numberArray[row][col] += Math.min(numberArray[row - 1][col], numberArray[row - 1][col - 1])
+        for (let row = 1; row < numberArray.length; row++) {
+            for (let col = 0; col < numberArray[row].length; col++) {
+
+                if (col === 0) {
+                    numberArray[row][col] += numberArray[row - 1][col]
+                }
+                else if (col === numberArray[row].length - 1) {
+                    numberArray[row][col] += numberArray[row - 1][col - 1]
+                }
+                else {
+                    numberArray[row][col] += Math.min(numberArray[row - 1][col], numberArray[row - 1][col - 1])
+                }
             }
         }
-    }
-    ns.print(`${JSON.stringify(numberArray)}`)
-    // return unimplemented(data) 
-    ns.tprintf(`MinPath: ${Math.min(...numberArray[numberArray.length - 1])}`)
+        ns.print(`${JSON.stringify(numberArray)}`)
+        // return unimplemented(data) 
+        ns.tprintf(`MinPath: ${Math.min(...numberArray[numberArray.length - 1])}`)
 
-    return Math.min(...numberArray[numberArray.length - 1]);
+        return Math.min(...numberArray[numberArray.length - 1]);
+    }
+    throw new Error("Unexpected data types Unable to solve contract.");
 }
 
 // "Unique Paths in a Grid I"
@@ -39,26 +43,30 @@ export function MinTrianglePath(ns: NS, data: any): number | string[] | undefine
 // you may only move down or to the right.
 
 // Determine how many unique paths there are from start to finish.
-export function UniquePath1(ns: NS, data: any): number | string[] | undefined {
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`)
-    const maxX: number = data[0]
-    const maxY: number = data[1]
+export function UniquePath1(ns: NS, data: unknown): number | string[] | undefined {
 
-    const map: number[][] = []
+    if (Array.isArray(data) && data.every(v => typeof v === 'number')) {
+        const maxX: number = data[0]
+        const maxY: number = data[1]
 
-    for (let x = 0; x < maxX; x++) {
-        map[x] = []
-        for (let y = 0; y < maxY; y++) {
-            if (x == 0 || y == 0) {
-                map[x][y] = 1
-            }
-            else {
-                map[x][y] = map[x - 1][y] + map[x][y - 1];
+        const map: number[][] = []
+
+        for (let x = 0; x < maxX; x++) {
+            map[x] = []
+            for (let y = 0; y < maxY; y++) {
+                if (x == 0 || y == 0) {
+                    map[x][y] = 1
+                }
+                else {
+                    map[x][y] = map[x - 1][y] + map[x][y - 1];
+                }
             }
         }
+        ns.tprintf(`paths: ${map[maxX - 1][maxY - 1]}`)
+        return map[maxX - 1][maxY - 1]
     }
-    ns.tprintf(`paths: ${map[maxX - 1][maxY - 1]}`)
-    return map[maxX - 1][maxY - 1]
+    throw new Error("Unexpected data types Unable to solve contract.");
+
 }
 
 
@@ -73,38 +81,40 @@ export function UniquePath1(ns: NS, data: any): number | string[] | undefined {
 // or to the right. Furthermore, you cannot move onto spaces which have obstacles.
 
 // Determine how many unique paths there are from start to finish.
-export function UniquePath2(ns: NS, data: any): number | string[] | undefined { 
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`)
-    const maxX: number = data.length
-    const maxY: number = data[0].length
+export function UniquePath2(ns: NS, data: unknown): number | string[] | undefined {
+    if (is2DArray<number>(data, (val: unknown): val is number => { return typeof val === 'number' })) {
 
-    const map: number[][] = data
+        const maxX: number = data.length
+        const maxY: number = data[0].length
 
-    for (let x = 0; x < maxX; x++) {
-        for (let y = 0; y < maxY; y++) {
-            if (map[x][y] == 1) {
-                map[x][y] = 0
-            }
-            else{
-                if(x==0 && y==0){
-                    map[x][y]=1
-                }
-                else if (x == 0 || y == 0) {
-                    if(x>0){
-                        map[x][y] = map[x-1][y] == 0 ? 0:1
-                    }
-                    else if(y>0){
-                        map[x][y] = map[x][y-1] == 0 ? 0:1
-                    }
+        const map: number[][] = data
+
+        for (let x = 0; x < maxX; x++) {
+            for (let y = 0; y < maxY; y++) {
+                if (map[x][y] == 1) {
+                    map[x][y] = 0
                 }
                 else {
-                    map[x][y] = map[x - 1][y] + map[x][y - 1];
+                    if (x == 0 && y == 0) {
+                        map[x][y] = 1
+                    }
+                    else if (x == 0 || y == 0) {
+                        if (x > 0) {
+                            map[x][y] = map[x - 1][y] == 0 ? 0 : 1
+                        }
+                        else if (y > 0) {
+                            map[x][y] = map[x][y - 1] == 0 ? 0 : 1
+                        }
+                    }
+                    else {
+                        map[x][y] = map[x - 1][y] + map[x][y - 1];
+                    }
                 }
             }
         }
+        ns.print(`${JSON.stringify(map)} type:${typeof data}`)
+        ns.tprintf(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`)
+        return map[maxX - 1][maxY - 1]
     }
-    ns.print(`${JSON.stringify(map)} type:${typeof data}`)
-    ns.tprintf(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`)
-    return map[maxX - 1][maxY - 1]
-
+    throw new Error("Unexpected data types Unable to solve contract.");
 }

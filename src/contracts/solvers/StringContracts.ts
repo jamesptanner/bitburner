@@ -1,4 +1,5 @@
 import { NS } from '@ns'
+import { asString, asNumber } from "/shared/utils";
 // "Generate IP Addresses"
 
 // Given a string containing only digits, return an array with all possible
@@ -10,50 +11,54 @@ import { NS } from '@ns'
 // Examples:
 // 25525511135 -> [255.255.11.135, 255.255.111.35]
 // 1938718066 -> [193.87.180.66]
-export function GenerateIPAddresses(ns:NS,data:any):number|string[]|undefined{
-
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`)
-    const baseAddress: string = data
-    const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)$/
-    const validAddresses: string[] = []
-    const expectedLength = baseAddress.length+3
-    for (let octalSize1 = 1; octalSize1 <= 3; octalSize1++) {
+export function GenerateIPAddresses(ns: NS, data: unknown): number | string[] | undefined {
+  ns.print(`${JSON.stringify(data)} type:${typeof data}`);
+  const baseAddress: string = asString(data);
+  const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)$/;
+  const validAddresses: string[] = [];
+  const expectedLength = baseAddress.length + 3;
+  for (let octalSize1 = 1; octalSize1 <= 3; octalSize1++) {
     for (let octalSize2 = 1; octalSize2 <= 3; octalSize2++) {
-    for (let octalSize3 = 1; octalSize3 <= 3; octalSize3++) {
-    for (let octalSize4 = 1; octalSize4 <= 3; octalSize4++) {
-        let addressCopy = baseAddress
-        let addrString = ""
-        addrString = (parseInt(addressCopy.substring(0,octalSize1))) + "."
-        addressCopy = addressCopy.slice(octalSize1)
-        addrString = addrString + (parseInt(addressCopy.substring(0,octalSize2))) + "."
-        addressCopy = addressCopy.slice(octalSize2)
-        addrString = addrString + (parseInt(addressCopy.substring(0,octalSize3))) + "."
-        addressCopy = addressCopy.slice(octalSize3)
-        addrString = addrString + (parseInt(addressCopy.substring(0,octalSize4)))
-        addressCopy = addressCopy.slice(octalSize4)
+      for (let octalSize3 = 1; octalSize3 <= 3; octalSize3++) {
+        for (let octalSize4 = 1; octalSize4 <= 3; octalSize4++) {
+          let addressCopy = baseAddress;
+          let addrString = "";
+          addrString = parseInt(addressCopy.substring(0, octalSize1)) + ".";
+          addressCopy = addressCopy.slice(octalSize1);
+          addrString = addrString + parseInt(addressCopy.substring(0, octalSize2)) + ".";
+          addressCopy = addressCopy.slice(octalSize2);
+          addrString = addrString + parseInt(addressCopy.substring(0, octalSize3)) + ".";
+          addressCopy = addressCopy.slice(octalSize3);
+          addrString = addrString + parseInt(addressCopy.substring(0, octalSize4));
+          addressCopy = addressCopy.slice(octalSize4);
 
-        if(addressCopy.length> 0){
+          if (addressCopy.length > 0) {
             //ns.tprintf("ERROR invalid addr, leftover numbers")
-            continue
+            continue;
+          }
+          ns.print(`addr: ${addrString}, leftover string: ${addressCopy}`);
+          if (addrString.length != expectedLength) {
+            ns.print("ERROR invalid addr, probably leading zeros.");
+            continue;
+          }
+          if (ipv4Regex.test(addrString)) {
+            ns.print(`INFO valid address ${addrString}`);
+            validAddresses.push(addrString);
+          } else {
+            ns.print(`ERROR invalid address ${addrString}`);
+          }
         }
-        ns.print(`addr: ${addrString}, leftover string: ${addressCopy}`)
-        if(addrString.length != expectedLength){
-            ns.print("ERROR invalid addr, probably leading zeros.")
-            continue
-        }
-        if (ipv4Regex.test(addrString)){
-            ns.print(`INFO valid address ${addrString}`)
-            validAddresses.push(addrString)
-        }
-        else {
-            ns.print(`ERROR invalid address ${addrString}`)
-        }
+      }
     }
-    }
-    }
-    }
-    ns.tprintf(`INFO Valid Addresses ${validAddresses.filter((v,i,self)=>{return self.indexOf(v)===i})}`)
-    return validAddresses.filter((v,i,self)=>{return self.indexOf(v)===i});
+  }
+  ns.tprintf(
+    `INFO Valid Addresses ${validAddresses.filter((v, i, self) => {
+      return self.indexOf(v) === i;
+    })}`
+  );
+  return validAddresses.filter((v, i, self) => {
+    return self.indexOf(v) === i;
+  });
 }
 
 // "Sanitize Parentheses in Expression"
@@ -69,65 +74,68 @@ export function GenerateIPAddresses(ns:NS,data:any):number|string[]|undefined{
 // ()())() -> [()()(), (())()]
 // (a)())() -> [(a)()(), (a())()]
 // )( -> [“”]
-export function SanitizeParentheses(ns:NS,data:any):number|string[]|undefined{
-    
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`)
-    const parentheses: string = data 
+export function SanitizeParentheses(ns: NS, data: unknown): number | string[] | undefined {
+  ns.print(`${JSON.stringify(data)} type:${typeof data}`);
+  const parentheses: string = asString(data);
 
-    function isValid(parens:string):boolean {
-        ns.print(`Testing ${parens}`)
-        let opens = 0
-        for (let index = 0; index < parens.length; index++) {
-            if(parens.charAt(index) === '('){
-                opens++
-            }
-            else if(parens.charAt(index) === ')'){
-                opens--
-            }
-            if(opens < 0){
-                return false
-            }
-        }
-        if (opens===0){
-            ns.print("👍")
-        }
-        return opens === 0
+  function isValid(parens: string): boolean {
+    ns.print(`Testing ${parens}`);
+    let opens = 0;
+    for (let index = 0; index < parens.length; index++) {
+      if (parens.charAt(index) === "(") {
+        opens++;
+      } else if (parens.charAt(index) === ")") {
+        opens--;
+      }
+      if (opens < 0) {
+        return false;
+      }
     }
-
-    function removeChar(str:string, depth:number,ans:string[]){
-        for (let index = 0, strcpy=str; index < str.length; index++,strcpy=str) {
-            strcpy = strcpy.substring(0,index)+strcpy.substring(index+1)
-            if(depth===0){
-                if(isValid(strcpy)){
-                    ans.push(strcpy)
-                }
-            }
-            else {
-                removeChar(strcpy,depth-1,ans)
-            }
-        }
+    if (opens === 0) {
+      ns.print("👍");
     }
+    return opens === 0;
+  }
 
-
-    const answers:string[]=[]
-
-    if(isValid(parentheses)) {
-        answers.push(parentheses)
-    }
-    let n = 0
-    while(answers.length ==0){
-        ns.print(`at depth ${n}`)
-        if (n === parentheses.length){
-            answers.push("")
+  function removeChar(str: string, depth: number, ans: string[]) {
+    for (let index = 0, strcpy = str; index < str.length; index++, strcpy = str) {
+      strcpy = strcpy.substring(0, index) + strcpy.substring(index + 1);
+      if (depth === 0) {
+        if (isValid(strcpy)) {
+          ans.push(strcpy);
         }
-        else{
-            removeChar(parentheses,n,answers)
-        }
-        n++
+      } else {
+        removeChar(strcpy, depth - 1, ans);
+      }
     }
+  }
 
-    ns.tprintf(`${JSON.stringify(answers.filter((v,i,self)=>{return self.indexOf(v)===i}))}`)
-    return answers.filter((v,i,self)=>{return self.indexOf(v)===i})
+  const answers: string[] = [];
+
+  if (isValid(parentheses)) {
+    answers.push(parentheses);
+  }
+  let n = 0;
+  while (answers.length == 0) {
+    ns.print(`at depth ${n}`);
+    if (n === parentheses.length) {
+      answers.push("");
+    } else {
+      removeChar(parentheses, n, answers);
+    }
+    n++;
+  }
+
+  ns.tprintf(
+    `${JSON.stringify(
+      answers.filter((v, i, self) => {
+        return self.indexOf(v) === i;
+      })
+    )}`
+  );
+  return answers.filter((v, i, self) => {
+    return self.indexOf(v) === i;
+  });
 }
 
 // "Find All Valid Math Expressions"
@@ -145,40 +153,41 @@ export function SanitizeParentheses(ns:NS,data:any):number|string[]|undefined{
 
 // Input: digits = “105”, target = 5
 // Output: [1*0+5, 10-5]
-export function FindValidMathExpressions(ns:NS,data:any):number|string[]|undefined{
-    ns.tprintf(`${JSON.stringify(data)} type:${typeof data}`)
-    
-    const num = data[0]
-    const target = data[1]
-
-    function helper(res:string[], path:string, num:string, target:number, pos:number, evaluated:number, multed:number) {
-        if (pos === num.length) {
-            if (target === evaluated) {
-                res.push(path)
-            }
-            return
-        }
-        for (let i = pos; i < num.length; ++i) {
-            if (i != pos && num[pos] == '0') {
-                break
-            }
-            const cur = parseInt(num.substring(pos, i + 1))
-            if (pos === 0) {
-                helper(res, path + cur, num, target, i + 1, cur, cur)
-            } else {
-                helper(res, path + '+' + cur, num, target, i + 1, evaluated + cur, cur)
-                helper(res, path + '-' + cur, num, target, i + 1, evaluated - cur, -cur)
-                helper(res, path + '*' + cur, num, target, i + 1, evaluated - multed + multed * cur, multed * cur)
-            }
-        }
+export function FindValidMathExpressions(ns: NS, data: unknown): number | string[] | undefined {
+  function helper(res: string[], path: string, num: string, target: number, pos: number, evaluated: number, multed: number) {
+    if (pos === num.length) {
+      if (target === evaluated) {
+        res.push(path);
+      }
+      return;
     }
+    for (let i = pos; i < num.length; ++i) {
+      if (i != pos && num[pos] == "0") {
+        break;
+      }
+      const cur = parseInt(num.substring(pos, i + 1));
+      if (pos === 0) {
+        helper(res, path + cur, num, target, i + 1, cur, cur);
+      } else {
+        helper(res, path + "+" + cur, num, target, i + 1, evaluated + cur, cur);
+        helper(res, path + "-" + cur, num, target, i + 1, evaluated - cur, -cur);
+        helper(res, path + "*" + cur, num, target, i + 1, evaluated - multed + multed * cur, multed * cur);
+      }
+    }
+  }
+
+  if (Array.isArray(data)) {
+    const num = asString(data[0]);
+    const target = asNumber(data[1]);
 
     if (num == null || num.length === 0) {
-        return []
+      return [];
     }
-    const result:string[] = []
-    helper(result, '', num, target, 0, 0, 0)
-    
-    ns.tprintf(`${Array.from<string>(result)}`)
-    return result
+    const result: string[] = [];
+    helper(result, "", num, target, 0, 0, 0);
+
+    ns.tprintf(`${Array.from<string>(result)}`);
+    return result;
+  }
+  throw new Error("Unexpected data types Unable to solve contract.");
 }

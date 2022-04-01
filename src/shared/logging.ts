@@ -110,13 +110,13 @@ export const log = function (level: Level, msg: string, toast?: boolean | null):
     }
 };
 
-export const sendMetric = function (key:string, value:string|number) {
-    const logPayload = new LoggingPayload(n.getHostname(),n.getScriptName(),loggingTrace, {
-        key:key,
-        value:value
-    })
-    let attempts = 0
-    while (!portHandle.tryWrite(JSON.stringify(logPayload)) && attempts < 3) {
-        attempts++
-    }
+export const sendMetric = function (key: string, value: string | number): void {
+  const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
+    key: key,
+    value: value,
+  });
+  let attempts = 0;
+  while (!portHandle.tryWrite(JSON.stringify(logPayload)) && attempts < 3) {
+    attempts++;
+  }
 };

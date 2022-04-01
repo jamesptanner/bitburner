@@ -1,5 +1,4 @@
 import { NS } from '@ns'
-import { prepareHostPath } from '/batching/prepareHost';
 import { findBestTarget, getAllServers } from '/shared/utils';
 import { weakenPath } from './weaken';
 import { hackPath } from '/batching/hack';
