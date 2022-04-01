@@ -120,3 +120,16 @@ export const sendMetric = function (key: string, value: string | number): void {
     attempts++;
   }
 };
+
+
+const loggingBatch = new Array<LoggingPayload>()
+
+export const addMetricToBatch = function (key: string, value: string | number): void {
+    const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
+      key: key,
+      value: value,
+    });
+    loggingBatch.push(logPayload)
+};
+  
+// export const send
