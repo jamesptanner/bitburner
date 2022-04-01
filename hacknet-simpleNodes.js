@@ -17,7 +17,7 @@ async function main(ns) {
                 coreCost: ns.hacknet.getCoreUpgradeCost(index, 1),
                 ramCost: ns.hacknet.getRamUpgradeCost(index, 1),
                 levelCost: ns.hacknet.getLevelUpgradeCost(index, 1),
-                nodeStat: ns.hacknet.getNodeStats(index)
+                nodeStat: ns.hacknet.getNodeStats(index),
             };
             purchaseOptions.push(option);
         }

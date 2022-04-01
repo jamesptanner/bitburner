@@ -3,66 +3,80 @@ function asString(val) {
         return val;
     return String(val);
 }
+function asNumber(val) {
+    if (typeof val === "number")
+        return val;
+    return NaN;
+}
+function is2DArray(val, elementGuard) {
+    return Array.isArray(val) && val.every((va) => Array.isArray(va) && va.every(elementGuard));
+}
 
 // "Find Largest Prime Factor"
 // Given a number, find its largest prime factor. A prime factor
 // is a factor that is a prime number.
 function largestPrimeFactor(ns, data) {
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`);
-    let num = data;
-    let factor = 2;
-    do {
-        while (num % factor == 0) {
-            num = num / factor;
-        }
-        factor++;
-    } while (factor != num);
-    ns.tprintf(`largest factor = ${factor}`);
-    return factor;
+    if (typeof data === 'number') {
+        ns.print(`${JSON.stringify(data)} type:${typeof data}`);
+        let num = data;
+        let factor = 2;
+        do {
+            while (num % factor == 0) {
+                num = num / factor;
+            }
+            factor++;
+        } while (factor != num);
+        ns.tprintf(`largest factor = ${factor}`);
+        return factor;
+    }
+    throw new Error("Unexpected data types Unable to solve contract.");
 }
 // "Subarray with Maximum Sum"
 // Given an array of integers, find the contiguous subarray (containing
 // at least one number) which has the largest sum and return that sum.
 function MaxSubArray(ns, data) {
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`);
-    const numberArray = data;
-    ns.print(`${numberArray}`);
-    let subArray = [];
-    let subArrayTotal = -Infinity;
-    for (let start = 0; start < numberArray.length; start++) {
-        for (let length = 1; length <= numberArray.length - start; length++) {
-            const testSubArray = numberArray.slice(start, start + length);
-            const testSubArrayTotal = testSubArray.reduce((prev, curr) => { return prev + curr; });
-            ns.print(`${testSubArray}: ${testSubArrayTotal}`);
-            if (testSubArrayTotal > subArrayTotal) {
-                subArray = testSubArray;
-                subArrayTotal = testSubArrayTotal;
+    if (Array.isArray(data) && data.every(val => { return typeof val === 'number'; })) {
+        const numberArray = data;
+        ns.print(`${numberArray}`);
+        let subArray = [];
+        let subArrayTotal = -Infinity;
+        for (let start = 0; start < numberArray.length; start++) {
+            for (let length = 1; length <= numberArray.length - start; length++) {
+                const testSubArray = numberArray.slice(start, start + length);
+                const testSubArrayTotal = testSubArray.reduce((prev, curr) => { return prev + curr; });
+                ns.print(`${testSubArray}: ${testSubArrayTotal}`);
+                if (testSubArrayTotal > subArrayTotal) {
+                    subArray = testSubArray;
+                    subArrayTotal = testSubArrayTotal;
+                }
             }
         }
+        ns.tprintf(`Best: ${subArray}: ${subArrayTotal}`);
+        return subArrayTotal;
     }
-    ns.tprintf(`Best: ${subArray}: ${subArrayTotal}`);
-    return subArrayTotal;
-    // return undefined
+    throw new Error("Unexpected data types Unable to solve contract.");
 }
 // "Total Ways to Sum"
 // Given a number, how many different ways can that number be written as
 // a sum of at least two positive integers?
 function TotalSums(ns, data) {
-    ns.tprintf(`${JSON.stringify(data)} type:${typeof data}`);
-    const value = data;
-    // An array to store a partition
-    const sums = new Array(value + 1);
-    sums[0] = 1;
-    sums.fill(0, 1);
-    for (let i = 1; i < value; ++i) {
-        for (let j = i; j <= value; ++j) {
-            sums[j] += sums[j - i];
+    if (typeof data === 'number') {
+        const value = data;
+        // An array to store a partition
+        const sums = new Array(value + 1);
+        sums[0] = 1;
+        sums.fill(0, 1);
+        for (let i = 1; i < value; ++i) {
+            for (let j = i; j <= value; ++j) {
+                sums[j] += sums[j - i];
+            }
         }
+        //ns.tprintf(`${partitions}`)
+        ns.tprintf(`total Sums: ${sums[value]}`);
+        ns.tprintf(`total Sums: ${sums}`);
+        return sums[value];
     }
-    //ns.tprintf(`${partitions}`)
-    ns.tprintf(`total Sums: ${sums[value]}`);
-    ns.tprintf(`total Sums: ${sums}`);
-    return sums[value];
+    throw new Error("Unexpected data types Unable to solve contract.");
 }
 
 // "Spiralize Matrix"
@@ -74,54 +88,57 @@ function TotalSums(ns, data) {
 // [9, 10, 11, 12]
 // is [1, 2, 3, 4, 8, 12, 11, 10, 9, 5, 6, 7]
 function SpiralMatrix(ns, data) {
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`);
-    const numberArray = data;
-    const output = [];
-    let state = 0;
-    while (numberArray.length > 0) {
-        switch (state % 4) {
-            case 0: //top
-                {
-                    const row = numberArray.shift();
-                    if (row) {
-                        output.push(...row);
-                    }
-                    break;
-                }
-            case 1: //right
-                {
-                    for (let row = 0; row < numberArray.length; row++) {
-                        const val = numberArray[row].pop();
-                        if (val) {
-                            output.push(val);
+    if (is2DArray(data, (val) => { return typeof val === 'number'; })) {
+        ns.print(`${JSON.stringify(data)} type:${typeof data}`);
+        const numberArray = data;
+        const output = [];
+        let state = 0;
+        while (numberArray.length > 0) {
+            switch (state % 4) {
+                case 0: //top
+                    {
+                        const row = numberArray.shift();
+                        if (row) {
+                            output.push(...row);
                         }
+                        break;
                     }
-                    break;
-                }
-            case 2: //bottom
-                {
-                    const row = numberArray.pop();
-                    if (row) {
-                        output.push(...(row.reverse()));
-                    }
-                    break;
-                }
-            case 3: //left
-                {
-                    for (let row = numberArray.length - 1; row >= 0; row--) {
-                        const val = numberArray[row].shift();
-                        if (val) {
-                            output.push(val);
+                case 1: //right
+                    {
+                        for (let row = 0; row < numberArray.length; row++) {
+                            const val = numberArray[row].pop();
+                            if (val) {
+                                output.push(val);
+                            }
                         }
+                        break;
                     }
-                    break;
-                }
+                case 2: //bottom
+                    {
+                        const row = numberArray.pop();
+                        if (row) {
+                            output.push(...(row.reverse()));
+                        }
+                        break;
+                    }
+                case 3: //left
+                    {
+                        for (let row = numberArray.length - 1; row >= 0; row--) {
+                            const val = numberArray[row].shift();
+                            if (val) {
+                                output.push(val);
+                            }
+                        }
+                        break;
+                    }
+            }
+            state++;
         }
-        state++;
+        //may have undefined entries which we can remove.
+        ns.tprintf(`SpiralMatrix Result: ${JSON.stringify(output.filter(x => x))}`);
+        return output.filter(x => x).map(x => x.toString());
     }
-    //may have undefined entries which we can remove.
-    ns.tprintf(`SpiralMatrix Result: ${JSON.stringify(output.filter(x => x))}`);
-    return output.filter(x => x).map(x => x.toString());
+    throw new Error("Unexpected data types Unable to solve contract.");
 }
 // "Array Jumping Game"
 // You are given an array of integers where each element represents the
@@ -131,14 +148,17 @@ function SpiralMatrix(ns, data) {
 // Assuming you are initially positioned at the start of the array, determine
 // whether you are able to reach the last index of the array.
 function ArrayJump(ns, data) {
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`);
-    const numberArray = data;
-    const result = checkPosition(ns, numberArray, 0);
-    ns.tprintf(`${result}`);
-    if (result) {
-        return 1;
+    if (Array.isArray(data) && data.every(val => typeof val === 'number')) {
+        ns.print(`${JSON.stringify(data)} type:${typeof data}`);
+        const numberArray = data;
+        const result = checkPosition(ns, numberArray, 0);
+        ns.tprintf(`${result}`);
+        if (result) {
+            return 1;
+        }
+        return 0;
     }
-    return 0;
+    throw new Error("Unexpected data types Unable to solve contract.");
 }
 function checkPosition(ns, array, pos) {
     ns.print(`${array}: checking position ${pos}`);
@@ -161,20 +181,22 @@ function checkPosition(ns, array, pos) {
 // [[1, 3], [8, 10], [2, 6], [10, 16]]
 // merges into [[1, 6], [8, 16]]
 function MergeOverlapping(ns, data) {
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`);
-    const numberArray = data;
-    numberArray.sort((a, b) => a[0] - b[0]);
-    ns.print(`${JSON.stringify(numberArray)}`);
-    for (let i = 0; i < numberArray.length - 1; i++) {
-        if (numberArray[i][1] >= numberArray[i + 1][0]) {
-            const newElement = [numberArray[i][0], Math.max(numberArray[i + 1][1], numberArray[i][1])];
-            numberArray.splice(i, 2, newElement);
-            ns.print(`${JSON.stringify(numberArray)}`);
-            i--;
+    if (is2DArray(data, (val) => { return typeof val === 'number'; })) {
+        const numberArray = data;
+        numberArray.sort((a, b) => a[0] - b[0]);
+        ns.print(`${JSON.stringify(numberArray)}`);
+        for (let i = 0; i < numberArray.length - 1; i++) {
+            if (numberArray[i][1] >= numberArray[i + 1][0]) {
+                const newElement = [numberArray[i][0], Math.max(numberArray[i + 1][1], numberArray[i][1])];
+                numberArray.splice(i, 2, newElement);
+                ns.print(`${JSON.stringify(numberArray)}`);
+                i--;
+            }
         }
+        ns.tprintf(`${JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])}`);
+        return [JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])];
     }
-    ns.tprintf(`${JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])}`);
-    return [JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])];
+    throw new Error("Unexpected data types Unable to solve contract.");
 }
 
 // "Generate IP Addresses"
@@ -187,7 +209,7 @@ function MergeOverlapping(ns, data) {
 // 1938718066 -> [193.87.180.66]
 function GenerateIPAddresses(ns, data) {
     ns.print(`${JSON.stringify(data)} type:${typeof data}`);
-    const baseAddress = data;
+    const baseAddress = asString(data);
     const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)$/;
     const validAddresses = [];
     const expectedLength = baseAddress.length + 3;
@@ -197,13 +219,13 @@ function GenerateIPAddresses(ns, data) {
                 for (let octalSize4 = 1; octalSize4 <= 3; octalSize4++) {
                     let addressCopy = baseAddress;
                     let addrString = "";
-                    addrString = (parseInt(addressCopy.substring(0, octalSize1))) + ".";
+                    addrString = parseInt(addressCopy.substring(0, octalSize1)) + ".";
                     addressCopy = addressCopy.slice(octalSize1);
-                    addrString = addrString + (parseInt(addressCopy.substring(0, octalSize2))) + ".";
+                    addrString = addrString + parseInt(addressCopy.substring(0, octalSize2)) + ".";
                     addressCopy = addressCopy.slice(octalSize2);
-                    addrString = addrString + (parseInt(addressCopy.substring(0, octalSize3))) + ".";
+                    addrString = addrString + parseInt(addressCopy.substring(0, octalSize3)) + ".";
                     addressCopy = addressCopy.slice(octalSize3);
-                    addrString = addrString + (parseInt(addressCopy.substring(0, octalSize4)));
+                    addrString = addrString + parseInt(addressCopy.substring(0, octalSize4));
                     addressCopy = addressCopy.slice(octalSize4);
                     if (addressCopy.length > 0) {
                         //ns.tprintf("ERROR invalid addr, leftover numbers")
@@ -225,8 +247,12 @@ function GenerateIPAddresses(ns, data) {
             }
         }
     }
-    ns.tprintf(`INFO Valid Addresses ${validAddresses.filter((v, i, self) => { return self.indexOf(v) === i; })}`);
-    return validAddresses.filter((v, i, self) => { return self.indexOf(v) === i; });
+    ns.tprintf(`INFO Valid Addresses ${validAddresses.filter((v, i, self) => {
+        return self.indexOf(v) === i;
+    })}`);
+    return validAddresses.filter((v, i, self) => {
+        return self.indexOf(v) === i;
+    });
 }
 // "Sanitize Parentheses in Expression"
 // Given a string with parentheses and letters, remove the minimum number of invalid
@@ -240,15 +266,15 @@ function GenerateIPAddresses(ns, data) {
 // )( -> [“”]
 function SanitizeParentheses(ns, data) {
     ns.print(`${JSON.stringify(data)} type:${typeof data}`);
-    const parentheses = data;
+    const parentheses = asString(data);
     function isValid(parens) {
         ns.print(`Testing ${parens}`);
         let opens = 0;
         for (let index = 0; index < parens.length; index++) {
-            if (parens.charAt(index) === '(') {
+            if (parens.charAt(index) === "(") {
                 opens++;
             }
-            else if (parens.charAt(index) === ')') {
+            else if (parens.charAt(index) === ")") {
                 opens--;
             }
             if (opens < 0) {
@@ -288,8 +314,12 @@ function SanitizeParentheses(ns, data) {
         }
         n++;
     }
-    ns.tprintf(`${JSON.stringify(answers.filter((v, i, self) => { return self.indexOf(v) === i; }))}`);
-    return answers.filter((v, i, self) => { return self.indexOf(v) === i; });
+    ns.tprintf(`${JSON.stringify(answers.filter((v, i, self) => {
+        return self.indexOf(v) === i;
+    }))}`);
+    return answers.filter((v, i, self) => {
+        return self.indexOf(v) === i;
+    });
 }
 // "Find All Valid Math Expressions"
 // You are given a string which contains only digits between 0 and 9 as well as a target
@@ -303,9 +333,6 @@ function SanitizeParentheses(ns, data) {
 // Input: digits = “105”, target = 5
 // Output: [1*0+5, 10-5]
 function FindValidMathExpressions(ns, data) {
-    ns.tprintf(`${JSON.stringify(data)} type:${typeof data}`);
-    const num = data[0];
-    const target = data[1];
     function helper(res, path, num, target, pos, evaluated, multed) {
         if (pos === num.length) {
             if (target === evaluated) {
@@ -314,7 +341,7 @@ function FindValidMathExpressions(ns, data) {
             return;
         }
         for (let i = pos; i < num.length; ++i) {
-            if (i != pos && num[pos] == '0') {
+            if (i != pos && num[pos] == "0") {
                 break;
             }
             const cur = parseInt(num.substring(pos, i + 1));
@@ -322,19 +349,24 @@ function FindValidMathExpressions(ns, data) {
                 helper(res, path + cur, num, target, i + 1, cur, cur);
             }
             else {
-                helper(res, path + '+' + cur, num, target, i + 1, evaluated + cur, cur);
-                helper(res, path + '-' + cur, num, target, i + 1, evaluated - cur, -cur);
-                helper(res, path + '*' + cur, num, target, i + 1, evaluated - multed + multed * cur, multed * cur);
+                helper(res, path + "+" + cur, num, target, i + 1, evaluated + cur, cur);
+                helper(res, path + "-" + cur, num, target, i + 1, evaluated - cur, -cur);
+                helper(res, path + "*" + cur, num, target, i + 1, evaluated - multed + multed * cur, multed * cur);
             }
         }
     }
-    if (num == null || num.length === 0) {
-        return [];
+    if (Array.isArray(data)) {
+        const num = asString(data[0]);
+        const target = asNumber(data[1]);
+        if (num == null || num.length === 0) {
+            return [];
+        }
+        const result = [];
+        helper(result, "", num, target, 0, 0, 0);
+        ns.tprintf(`${Array.from(result)}`);
+        return result;
     }
-    const result = [];
-    helper(result, '', num, target, 0, 0, 0);
-    ns.tprintf(`${Array.from(result)}`);
-    return result;
+    throw new Error("Unexpected data types Unable to solve contract.");
 }
 
 // "Algorithmic Stock Trader I"
@@ -342,16 +374,25 @@ function FindValidMathExpressions(ns, data) {
 // transaction (i.e. you can buy an sell the stock once). If no profit
 // can be made, then the answer should be 0. Note that you must buy the stock
 // before you can sell it.
+const isNumberArray = function (val) {
+    return (Array.isArray(val) &&
+        val.every((v) => {
+            return typeof v === "number";
+        }));
+};
 function StockTrader1(ns, data) {
-    const stocks = data;
-    let bestProfit = 0;
-    let maxCur = 0;
-    for (let i = 1; i < stocks.length; ++i) {
-        maxCur = Math.max(0, (maxCur += stocks[i] - stocks[i - 1]));
-        bestProfit = Math.max(bestProfit, maxCur);
+    if (isNumberArray(data)) {
+        const stocks = data;
+        let bestProfit = 0;
+        let maxCur = 0;
+        for (let i = 1; i < stocks.length; ++i) {
+            maxCur = Math.max(0, (maxCur += stocks[i] - stocks[i - 1]));
+            bestProfit = Math.max(bestProfit, maxCur);
+        }
+        ns.tprintf(`Stock1 Best profit: ${bestProfit}`);
+        return bestProfit > 0 ? bestProfit : 0;
     }
-    ns.tprintf(`Stock1 Best profit: ${bestProfit}`);
-    return bestProfit > 0 ? bestProfit : 0;
+    throw new Error("Unexpected data types Unable to solve contract.");
 }
 // "Algorithmic Stock Trader II"
 // You are given an array of numbers representing stock prices, where the
@@ -362,13 +403,16 @@ function StockTrader1(ns, data) {
 // once. In other words, you must sell the stock before you buy it again. If no
 // profit can be made, then the answer should be 0.
 function StockTrader2(ns, data) {
-    const stocks = data;
-    let profit = 0;
-    for (let i = 1; i < stocks.length; ++i) {
-        profit += Math.max(0, stocks[i] - stocks[i - 1]);
+    if (isNumberArray(data)) {
+        const stocks = data;
+        let profit = 0;
+        for (let i = 1; i < stocks.length; ++i) {
+            profit += Math.max(0, stocks[i] - stocks[i - 1]);
+        }
+        ns.tprintf(`Stock2 Best profit: ${profit}`);
+        return profit > 0 ? profit : 0;
     }
-    ns.tprintf(`Stock2 Best profit: ${profit}`);
-    return profit > 0 ? profit : 0;
+    throw new Error("Unexpected data types Unable to solve contract.");
 }
 // "Algorithmic Stock Trader III"
 // You are given an array of numbers representing stock prices, where the
@@ -379,18 +423,21 @@ function StockTrader2(ns, data) {
 // In other words, you must sell the stock before you buy it again. If no profit
 // can be made, then the answer should be 0.
 function StockTrader3(ns, data) {
-    let hold1 = Number.MIN_SAFE_INTEGER;
-    let hold2 = Number.MIN_SAFE_INTEGER;
-    let release1 = 0;
-    let release2 = 0;
-    for (let _i = 0, data_1 = data; _i < data_1.length; _i++) {
-        const price = data_1[_i];
-        release2 = Math.max(release2, hold2 + price);
-        hold2 = Math.max(hold2, release1 - price);
-        release1 = Math.max(release1, hold1 + price);
-        hold1 = Math.max(hold1, price * -1);
+    if (isNumberArray(data)) {
+        let hold1 = Number.MIN_SAFE_INTEGER;
+        let hold2 = Number.MIN_SAFE_INTEGER;
+        let release1 = 0;
+        let release2 = 0;
+        for (let _i = 0, data_1 = data; _i < data_1.length; _i++) {
+            const price = data_1[_i];
+            release2 = Math.max(release2, hold2 + price);
+            hold2 = Math.max(hold2, release1 - price);
+            release1 = Math.max(release1, hold1 + price);
+            hold1 = Math.max(hold1, price * -1);
+        }
+        return release2;
     }
-    return release2;
+    throw new Error("Unexpected data types Unable to solve contract.");
 }
 // "Algorithmic Stock Trader IV"
 // You are given an array with two elements. The first element is an integer k.
@@ -402,36 +449,39 @@ function StockTrader3(ns, data) {
 // you must sell the stock before you can buy it. If no profit can be made, then
 // the answer should be 0.
 function StockTrader4(ns, data) {
-    const k = data[0];
-    const prices = data[1];
-    const len = prices.length;
-    if (len < 2) {
-        return 0;
-    }
-    if (k > len / 2) {
-        let res = 0;
-        for (let i = 1; i < len; ++i) {
-            res += Math.max(prices[i] - prices[i - 1], 0);
+    if (Array.isArray(data) && typeof data[0] === "number" && isNumberArray(data[1])) {
+        const k = data[0];
+        const prices = data[1];
+        const len = prices.length;
+        if (len < 2) {
+            return 0;
         }
-        return res;
-    }
-    const hold = [];
-    const rele = [];
-    hold.length = k + 1;
-    rele.length = k + 1;
-    for (let i = 0; i <= k; ++i) {
-        hold[i] = Number.MIN_SAFE_INTEGER;
-        rele[i] = 0;
-    }
-    let cur;
-    for (let i = 0; i < len; ++i) {
-        cur = prices[i];
-        for (let j = k; j > 0; --j) {
-            rele[j] = Math.max(rele[j], hold[j] + cur);
-            hold[j] = Math.max(hold[j], rele[j - 1] - cur);
+        if (k > len / 2) {
+            let res = 0;
+            for (let i = 1; i < len; ++i) {
+                res += Math.max(prices[i] - prices[i - 1], 0);
+            }
+            return res;
         }
+        const hold = [];
+        const release = [];
+        hold.length = k + 1;
+        release.length = k + 1;
+        for (let i = 0; i <= k; ++i) {
+            hold[i] = Number.MIN_SAFE_INTEGER;
+            release[i] = 0;
+        }
+        let cur;
+        for (let i = 0; i < len; ++i) {
+            cur = prices[i];
+            for (let j = k; j > 0; --j) {
+                release[j] = Math.max(release[j], hold[j] + cur);
+                hold[j] = Math.max(hold[j], release[j - 1] - cur);
+            }
+        }
+        return release[k];
     }
-    return rele[k];
+    throw new Error("Unexpected data types Unable to solve contract.");
 }
 
 // "Minimum Path Sum in a Triangle"
@@ -441,25 +491,27 @@ function StockTrader4(ns, data) {
 // bottom of the triangle. In each step of the path, you may only move to adjacent
 // numbers in the row below.
 function MinTrianglePath(ns, data) {
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`);
-    const numberArray = data;
-    for (let row = 1; row < numberArray.length; row++) {
-        for (let col = 0; col < numberArray[row].length; col++) {
-            if (col === 0) {
-                numberArray[row][col] += numberArray[row - 1][col];
-            }
-            else if (col === numberArray[row].length - 1) {
-                numberArray[row][col] += numberArray[row - 1][col - 1];
-            }
-            else {
-                numberArray[row][col] += Math.min(numberArray[row - 1][col], numberArray[row - 1][col - 1]);
+    if (is2DArray(data, (val) => { return typeof val === 'number'; })) {
+        const numberArray = data;
+        for (let row = 1; row < numberArray.length; row++) {
+            for (let col = 0; col < numberArray[row].length; col++) {
+                if (col === 0) {
+                    numberArray[row][col] += numberArray[row - 1][col];
+                }
+                else if (col === numberArray[row].length - 1) {
+                    numberArray[row][col] += numberArray[row - 1][col - 1];
+                }
+                else {
+                    numberArray[row][col] += Math.min(numberArray[row - 1][col], numberArray[row - 1][col - 1]);
+                }
             }
         }
+        ns.print(`${JSON.stringify(numberArray)}`);
+        // return unimplemented(data) 
+        ns.tprintf(`MinPath: ${Math.min(...numberArray[numberArray.length - 1])}`);
+        return Math.min(...numberArray[numberArray.length - 1]);
     }
-    ns.print(`${JSON.stringify(numberArray)}`);
-    // return unimplemented(data) 
-    ns.tprintf(`MinPath: ${Math.min(...numberArray[numberArray.length - 1])}`);
-    return Math.min(...numberArray[numberArray.length - 1]);
+    throw new Error("Unexpected data types Unable to solve contract.");
 }
 // "Unique Paths in a Grid I"
 // You are given an array with two numbers: [m, n]. These numbers represent a
@@ -468,23 +520,25 @@ function MinTrianglePath(ns, data) {
 // you may only move down or to the right.
 // Determine how many unique paths there are from start to finish.
 function UniquePath1(ns, data) {
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`);
-    const maxX = data[0];
-    const maxY = data[1];
-    const map = [];
-    for (let x = 0; x < maxX; x++) {
-        map[x] = [];
-        for (let y = 0; y < maxY; y++) {
-            if (x == 0 || y == 0) {
-                map[x][y] = 1;
-            }
-            else {
-                map[x][y] = map[x - 1][y] + map[x][y - 1];
+    if (Array.isArray(data) && data.every(v => typeof v === 'number')) {
+        const maxX = data[0];
+        const maxY = data[1];
+        const map = [];
+        for (let x = 0; x < maxX; x++) {
+            map[x] = [];
+            for (let y = 0; y < maxY; y++) {
+                if (x == 0 || y == 0) {
+                    map[x][y] = 1;
+                }
+                else {
+                    map[x][y] = map[x - 1][y] + map[x][y - 1];
+                }
             }
         }
+        ns.tprintf(`paths: ${map[maxX - 1][maxY - 1]}`);
+        return map[maxX - 1][maxY - 1];
     }
-    ns.tprintf(`paths: ${map[maxX - 1][maxY - 1]}`);
-    return map[maxX - 1][maxY - 1];
+    throw new Error("Unexpected data types Unable to solve contract.");
 }
 // "Unique Paths in a Grid II"
 // You are given a 2D array of numbers (array of array of numbers) representing
@@ -495,36 +549,38 @@ function UniquePath1(ns, data) {
 // or to the right. Furthermore, you cannot move onto spaces which have obstacles.
 // Determine how many unique paths there are from start to finish.
 function UniquePath2(ns, data) {
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`);
-    const maxX = data.length;
-    const maxY = data[0].length;
-    const map = data;
-    for (let x = 0; x < maxX; x++) {
-        for (let y = 0; y < maxY; y++) {
-            if (map[x][y] == 1) {
-                map[x][y] = 0;
-            }
-            else {
-                if (x == 0 && y == 0) {
-                    map[x][y] = 1;
-                }
-                else if (x == 0 || y == 0) {
-                    if (x > 0) {
-                        map[x][y] = map[x - 1][y] == 0 ? 0 : 1;
-                    }
-                    else if (y > 0) {
-                        map[x][y] = map[x][y - 1] == 0 ? 0 : 1;
-                    }
+    if (is2DArray(data, (val) => { return typeof val === 'number'; })) {
+        const maxX = data.length;
+        const maxY = data[0].length;
+        const map = data;
+        for (let x = 0; x < maxX; x++) {
+            for (let y = 0; y < maxY; y++) {
+                if (map[x][y] == 1) {
+                    map[x][y] = 0;
                 }
                 else {
-                    map[x][y] = map[x - 1][y] + map[x][y - 1];
+                    if (x == 0 && y == 0) {
+                        map[x][y] = 1;
+                    }
+                    else if (x == 0 || y == 0) {
+                        if (x > 0) {
+                            map[x][y] = map[x - 1][y] == 0 ? 0 : 1;
+                        }
+                        else if (y > 0) {
+                            map[x][y] = map[x][y - 1] == 0 ? 0 : 1;
+                        }
+                    }
+                    else {
+                        map[x][y] = map[x - 1][y] + map[x][y - 1];
+                    }
                 }
             }
         }
+        ns.print(`${JSON.stringify(map)} type:${typeof data}`);
+        ns.tprintf(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`);
+        return map[maxX - 1][maxY - 1];
     }
-    ns.print(`${JSON.stringify(map)} type:${typeof data}`);
-    ns.tprintf(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`);
-    return map[maxX - 1][maxY - 1];
+    throw new Error("Unexpected data types Unable to solve contract.");
 }
 
 const solveContractPath = "/contracts/solveContract.js";

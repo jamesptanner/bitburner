@@ -96,7 +96,7 @@ const log = function (level, msg, toast) {
 const sendMetric = function (key, value) {
     const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
         key: key,
-        value: value
+        value: value,
     });
     let attempts = 0;
     while (!portHandle.tryWrite(JSON.stringify(logPayload)) && attempts < 3) {

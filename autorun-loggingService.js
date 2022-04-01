@@ -79,6 +79,7 @@ const setupGraphite = function (settings) {
 };
 const sendTrace = async function (ns, settings, payload) {
     if ("key" in payload.payload) {
+        // const tags = `;trace=${payload.trace};host=${payload.host};script=${payload.script}`
         const metricName = `bitburner.${settings.gameHost}.${payload.payload.key}`;
         const request = graphiteRequest;
         request.body = `${metricName} ${payload.payload.value} ${Math.floor(Date.now() / 1000)}\n`;
