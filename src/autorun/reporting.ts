@@ -27,7 +27,16 @@ export async function main(ns : NS) : Promise<void> {
         .forEach(server =>{
             log(Level.Info,`server:${server} ramused:${ns.getServerUsedRam(server)} rammax:${ns.getServerMaxRam(server)}`)
         })
-
+        getAllServers(ns).concat('home')
+        .forEach(server => {
+            const ServerInfo = ns.getServer(server)
+            sendMetric(`server.${server}.backdoorInstalled`, ServerInfo.backdoorInstalled ? 1:0)
+            sendMetric(`server.${server}.playerOwned`, ServerInfo.purchasedByPlayer? 1:0)
+            sendMetric(`server.${server}.requiredHacking`, ServerInfo.requiredHackingSkill? 1:0)
+            sendMetric(`server.${server}.backdoorable`, ServerInfo.openPortCount >= ServerInfo.numOpenPortsRequired? 1:0)
+            sendMetric(`server.${server}.maxRam`, ns.getServerMaxRam(server))
+            sendMetric(`server.${server}.usedRam`, ns.getServerUsedRam(server))
+        })
         await ns.sleep(5000)
     }
 }
