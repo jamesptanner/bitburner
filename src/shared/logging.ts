@@ -69,13 +69,13 @@ export const initLogging = function (ns: NS): void {
 const levelToString = function (level: Level): string {
     switch (level) {
         case Level.Error:
-            return "Error";
+            return "ERROR";
         case Level.Info:
-            return "Info";
+            return "INFO";
         case Level.Warning:
-            return "Warn";
+            return "WARNING";
         case Level.success:
-            return "Success";
+            return "SUCCESS";
     }
     return "";
 };
