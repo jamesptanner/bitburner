@@ -94,7 +94,7 @@ const levelToToast = function (level: Level): string {
     return "";
 };
 
-export const log = function (level: Level, msg: string, toast?: boolean | null): void {
+export const log = function (level: Level, msg: string, toast?: boolean): void {
     if (toast) {
         n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
     }
@@ -108,6 +108,19 @@ export const log = function (level: Level, msg: string, toast?: boolean | null):
     while (!portHandle.tryWrite(JSON.stringify(logPayload)) && attempts < 3) {
         attempts++
     }
+};
+
+export const success = function(msg: string, toast?: boolean ): void {
+    log(Level.success,msg,toast)
+};
+export const info = function(msg: string, toast?: boolean ): void {
+    log(Level.Info,msg,toast)
+};
+export const warning = function(msg: string, toast?: boolean ): void {
+    log(Level.Warning ,msg,toast)
+};
+export const error = function(msg: string, toast?: boolean ): void {
+    log(Level.Error,msg,toast)
 };
 
 export const sendMetric = function (key: string, value: string | number): void {
@@ -132,4 +145,11 @@ export const addMetricToBatch = function (key: string, value: string | number): 
     loggingBatch.push(logPayload)
 };
   
-// export const send
+
+export const logging = {
+    log: log,
+    error: error,
+    warning: warning,
+    success: success,
+    info: info
+}
