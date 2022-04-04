@@ -11,7 +11,7 @@ export async function main(ns : NS) : Promise<void> {
     factions.forEach(faction =>{
         const augments = getAugmentsAvailableFromFaction(ns,faction)
         if (augments.length >0){
-            log(Level.Info,`faction: ${faction}, augments: [${augments}]`)
+            log(Level.Info,`faction: ${faction}, augments: [\n${augments.join(",\n")}\n]\n`)
         }
     })
 }
