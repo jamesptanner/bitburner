@@ -1,4 +1,5 @@
 import { needToFocus } from "/shared/utils";
+import { logging } from 'shared/logging'
 
 export const factionsPath ="/shared/factions.js";
 
@@ -351,13 +352,11 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
             await ns.sleep(1000*60)
         }
         if(requirements.combatSkill){
-            // await improveCombatSkills(ns,requirements.combatSkill)
-            return false
+            await improveStat(ns,0,requirements.hacking)
 
         }
         if(requirements.hacking){
-            // await improveHackingSkill(ns,requirements.hacking)
-            return false
+            await improveStat(ns,requirements.hacking)
 
         }
         if(typeof requirements.corp == 'string' && typeof requirements.corpRep == 'number'){
@@ -398,4 +397,48 @@ export const improveFactionReputation = async function (ns: NS, faction: string,
         await ns.sleep(1000 * 60)
     }
     ns.stopAction()
+}
+
+export const improveStat = async function(ns:NS, hacking = 0,combat = 0, charisma = 0): promise<void>{
+    let previousSkill = ""
+    while(true){
+        await ns.sleep(1000)
+        const player = ns.getPlayer()
+        let skill = ""
+
+        if(player.agility < combat) skill = 'agility'
+        else if(player.strength < combat) skill = 'strength'
+        else if(player.defense < combat) skill = 'defense'
+        else if(player.dexterity < combat) skill = 'dexterity'
+        else if(player.charisma < charisma) skill = 'charisma'
+        else if(player.hacking < hacking) skill = 'hacking'
+
+        if(skill === ""){
+            ns.stopAction()
+            break;
+        }
+
+        if (previousSkill !== skill || !ns.isBusy()){
+            previousSkill = skill
+            if(player.location.toLowerCase() !== "sector-12"){
+                ns.goToLocation("sector-12")
+            }
+            ns.clearLog()
+            if(['agility','strength','defense','dexterity'].indexOf(skill) !== -1){
+                ns.gymWorkout("powerhouse gym",skill)
+                logging.info(`Working on ${skill} at powerhouse gym`)
+            }
+            else if(skill === 'charisma'){
+                ns.universityCourse('rothman university',"leadership")
+                logging.info(`Working on ${skill} at rothman university`)
+
+            }
+            else if(skill === 'hacking'){
+                ns.universityCourse('rothman university',"algorithms")
+                logging.info(`Working on ${skill} at rothman university`)
+
+
+            }
+        }
+    }
 }
