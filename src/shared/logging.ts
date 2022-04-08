@@ -63,10 +63,22 @@ let n: NS;
 let portHandle: NetscriptPort;
 
 const DBVERSION = 1
+const LoggingTable = "logging"
+const MetricTable = "metrics"
+
 let loggingDB: IDBDatabase
 
 const createDB = function (ns: NS, event: IDBVersionChangeEvent) {
     const db: IDBDatabase = event.target.result
+    const prevVersion = event.oldVersion
+    const newVersion = event.newVersion
+
+    if(prevVersion < 1){
+        const loggingStore = db.createObjectStore(LoggingTable, {autoIncrement:true})
+        loggingStore.createIndex("timestamp","timestamp",{unique:false})
+        const metricStore = db.createObjectStore(MetricTable,{autoIncrement:true})
+        metricStore.createIndex("timestamp","timestamp",{unique:false})
+    }
 }
 
 
@@ -134,6 +146,18 @@ export const log = function (level: Level, msg: string, toast?: boolean): void {
         message: msg,
     })
     let attempts = 0
+    // const transaction = loggingDB.transaction([LoggingTable],"readwrite")
+    // transaction.oncomplete = event => {
+    //     console.log("store Complete")
+    // }
+
+    // transaction.onerror = event =>{
+    //     console.log("failed to store logging")
+
+    // }
+    // const loggingStore = transaction.objectStore(LoggingTable)
+    // loggingStore.add(logPayload)
+    // transaction.commit()
     while (!portHandle.tryWrite(JSON.stringify(logPayload)) && attempts < 3) {
         attempts++
     }
@@ -168,7 +192,7 @@ export const addMetricToBatch = function (key: string, value: string | number): 
         key: key,
         value: value,
     });
-    loggingBatch.push(logPayload)
+    // loggingBatch.push(logPayload)
 };
 
 
