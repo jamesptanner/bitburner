@@ -1,5 +1,5 @@
 import { NS, NetscriptPort } from "@ns";
-import { createBrotliDecompress } from "zlib";
+import { IDBPDatabase } from "idb";
 import { DB } from "/shared/db";
 export enum Level {
     Error,
@@ -67,10 +67,11 @@ const DBVERSION = 1
 const LoggingTable = "logging"
 const MetricTable = "metrics"
 
-let loggingDB: IDBDatabase
+let loggingDB: IDBPDatabase
 
-const createDB = function (ns: NS, event: IDBVersionChangeEvent) {
-    const db: IDBDatabase = event.target.result
+const createDB = function (event: IDBVersionChangeEvent) {
+    const target = event.target as IDBRequest<IDBDatabase>
+    const db: IDBDatabase = target.result
     const prevVersion = event.oldVersion
 
     if(prevVersion < 1){
@@ -82,10 +83,10 @@ const createDB = function (ns: NS, event: IDBVersionChangeEvent) {
 }
 
 
-export const initLogging = function (ns: NS): void {
+export const initLogging = async function (ns: NS): Promise<void> {
     n = ns;
     portHandle = ns.getPortHandle(LOGGING_PORT);
-    loggingdb = await DB.open("BBLogging",DBVERSION,createDB)
+    loggingDB = await DB.open("BBLogging",DBVERSION,createDB)
 };
 
 const levelToString = function (level: Level): string {
@@ -127,12 +128,11 @@ export const log = function (level: Level, msg: string, toast?: boolean): void {
         message: msg,
     })
     let attempts = 0
- 
-    await DB.runTransaction(loggingDB, [loggingTable],"readwrite",(transaction:IDBTransaction)=> {
-        const loggingStore = transaction.objectStore(LoggingTable)
-        loggingStore.add(logPayload)
-    })
-    
+
+    const tx = loggingDB.transaction(LoggingTable,'readwrite')
+    void tx.store.add(logPayload)
+    void tx.done
+
     while (!portHandle.tryWrite(JSON.stringify(logPayload)) && attempts < 3) {
         attempts++
     }
@@ -142,13 +142,13 @@ export const success = function (msg: string, toast?: boolean): void {
     log(Level.success, msg, toast)
 };
 export const info = function (msg: string, toast?: boolean): void {
-    log(Level.Info, msg, toast)
+     log(Level.Info, msg, toast)
 };
-export const warning = function (msg: string, toast?: boolean): void {
-    log(Level.Warning, msg, toast)
+export const warning =  function (msg: string, toast?: boolean): void {
+     log(Level.Warning, msg, toast)
 };
-export const error = function (msg: string, toast?: boolean): void {
-    log(Level.Error, msg, toast)
+export const error =  function (msg: string, toast?: boolean): void {
+     log(Level.Error, msg, toast)
 };
 
 export const sendMetric = function (key: string, value: string | number): void {
@@ -157,6 +157,12 @@ export const sendMetric = function (key: string, value: string | number): void {
         value: value,
     });
     let attempts = 0;
+
+    
+    const tx = loggingDB.transaction(MetricTable,'readwrite')
+    void tx.store.add(logPayload)
+    void tx.done
+
     while (!portHandle.tryWrite(JSON.stringify(logPayload)) && attempts < 3) {
         attempts++;
     }

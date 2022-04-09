@@ -1,15 +1,19 @@
 
-const open = async function (dbName: string, dbVersion:number, createDB: (event: IDBVersionChangeEvent) => void): Promise<IDBDatabase> {
-    return Promise<IDBDatabase>((resolve, reject) => {
+import { IDBPDatabase, wrap } from "idb"
+
+const open = async function (dbName: string, dbVersion:number, createDB: (event: IDBVersionChangeEvent) => void): Promise<IDBPDatabase> {
+    return new Promise<IDBPDatabase>((resolve, reject) => {
         const eval2 = eval
         const win: Window = eval2('window')
         const loggingDBRequest = win.indexedDB.open(dbName, dbVersion)
 
         loggingDBRequest.onsuccess = event => {
-            resolve(event.target.result)
+            const target = event.target as IDBRequest<IDBDatabase>
+            resolve(wrap(target.result))
         }
         loggingDBRequest.onerror = event => {
-            reject(`Unable to open loggingdb: ${event.target.code}`)
+            const target = event.target as IDBRequest<IDBDatabase>
+            reject(`Unable to open loggingdb: ${target.error}`)
         }
 
         loggingDBRequest.onupgradeneeded = event => {
@@ -18,19 +22,8 @@ const open = async function (dbName: string, dbVersion:number, createDB: (event:
     })
 }
 
-const runTransaction = async function (db:IDBDatabase,tables:string[], mode:IDBTransactionMode, callback: (tranaction:IDBTransaction) => void): Promise<void> {
-    return Promise((resolve, reject) => {
-        const transaction: IDBTransaction = db.transaction(tables,mode)
-        transaction.oncomplete = resolve
-        transaction.onerror = reject
-        callback(transaction)
-        transaction.commit()
-    })
-}
-
 const DB = {
-    open: open,
-    runTransaction: runTransaction
+    open: open
 }
 
 export { DB } 
