@@ -1,5 +1,6 @@
 import { NS, NetscriptPort } from "@ns";
 import { createBrotliDecompress } from "zlib";
+import { DB } from "/shared/db";
 export enum Level {
     Error,
     Warning,
@@ -71,7 +72,6 @@ let loggingDB: IDBDatabase
 const createDB = function (ns: NS, event: IDBVersionChangeEvent) {
     const db: IDBDatabase = event.target.result
     const prevVersion = event.oldVersion
-    const newVersion = event.newVersion
 
     if(prevVersion < 1){
         const loggingStore = db.createObjectStore(LoggingTable, {autoIncrement:true})
@@ -85,26 +85,7 @@ const createDB = function (ns: NS, event: IDBVersionChangeEvent) {
 export const initLogging = function (ns: NS): void {
     n = ns;
     portHandle = ns.getPortHandle(LOGGING_PORT);
-    const eval2 = eval
-    const win: Window = eval2('window')
-    const loggingDBRequest = win.indexedDB.open("BBlogging", DBVERSION)
-
-    loggingDBRequest.onsuccess = event => {
-        loggingDB = event.target.result
-        loggingDB.onerror = event => {
-            ns.tprint(`database error: ${event.target.code}`)
-        }
-    }
-    loggingDBRequest.onerror = event => {
-        ns.tprint(`Unable to open loggingdb: ${event.target.code}`)
-    }
-
-    loggingDBRequest.onupgradeneeded = event => {
-        createDB(ns, event)
-    }
-
-
-
+    loggingdb = await DB.open("BBLogging",DBVERSION,createDB)
 };
 
 const levelToString = function (level: Level): string {
@@ -146,18 +127,12 @@ export const log = function (level: Level, msg: string, toast?: boolean): void {
         message: msg,
     })
     let attempts = 0
-    // const transaction = loggingDB.transaction([LoggingTable],"readwrite")
-    // transaction.oncomplete = event => {
-    //     console.log("store Complete")
-    // }
-
-    // transaction.onerror = event =>{
-    //     console.log("failed to store logging")
-
-    // }
-    // const loggingStore = transaction.objectStore(LoggingTable)
-    // loggingStore.add(logPayload)
-    // transaction.commit()
+ 
+    await DB.runTransaction(loggingDB, [loggingTable],"readwrite",(transaction:IDBTransaction)=> {
+        const loggingStore = transaction.objectStore(LoggingTable)
+        loggingStore.add(logPayload)
+    })
+    
     while (!portHandle.tryWrite(JSON.stringify(logPayload)) && attempts < 3) {
         attempts++
     }
