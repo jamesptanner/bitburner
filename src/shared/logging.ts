@@ -64,8 +64,8 @@ let n: NS;
 let portHandle: NetscriptPort;
 
 const DBVERSION = 1
-const LoggingTable = "logging"
-const MetricTable = "metrics"
+export const LoggingTable = "logging"
+export const MetricTable = "metrics"
 
 let loggingDB: IDBPDatabase
 
@@ -82,6 +82,9 @@ const createDB = function (event: IDBVersionChangeEvent) {
     }
 }
 
+export const getLoggingDB = function(): IDBPDatabase {
+    return loggingDB;
+}
 
 export const initLogging = async function (ns: NS): Promise<void> {
     n = ns;

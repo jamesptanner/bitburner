@@ -1,6 +1,6 @@
 import { NS } from '@ns'
-import { LoggingPayload, LOGGING_PORT } from "/shared/logging";
-// import GraphiteClient from 'graphite'
+import { getLoggingDB, LoggingPayload, LoggingTable, initLogging } from "/shared/logging";
+import { MetricTable } from '../shared/logging';
 
 export const loggingServicePath = "/autorun/loggingService.js";
 
@@ -34,18 +34,18 @@ const setupGraphite = function (settings: LoggingSettings) {
 
 const sendTrace = async function (ns: NS, settings: LoggingSettings, payload: LoggingPayload): Promise<void> {
     if ("key" in payload.payload) {
-      // const tags = `;trace=${payload.trace};host=${payload.host};script=${payload.script}`
+        // const tags = `;trace=${payload.trace};host=${payload.host};script=${payload.script}`
 
-      const metricName = `bitburner.${settings.gameHost}.${payload.payload.key}`;
-      const request = graphiteRequest;
-      request.body = `${metricName} ${payload.payload.value} ${Math.floor(Date.now() / 1000)}\n`;
+        const metricName = `bitburner.${settings.gameHost}.${payload.payload.key}`;
+        const request = graphiteRequest;
+        request.body = `${metricName} ${payload.payload.value} ${Math.floor(Date.now() / 1000)}\n`;
 
-      const response = await fetch(graphiteUrl, request);
-      if (!response.ok) {
-        ns.tprint(`ERROR: Failed to send metric to graphite. HTTP code: ${response.status}`);
-      } else {
-        ns.print("Send Successful.");
-      }
+        const response = await fetch(graphiteUrl, request);
+        if (!response.ok) {
+            ns.tprint(`ERROR: Failed to send metric to graphite. HTTP code: ${response.status}`);
+        } else {
+            ns.print("Send Successful.");
+        }
     }
 }
 
@@ -123,26 +123,47 @@ const checkLoggingSettings = async function (ns: NS): Promise<LoggingSettings> {
 }
 
 export async function main(ns: NS): Promise<void> {
-    const port = ns.getPortHandle(LOGGING_PORT)
     const loggingSettings = await checkLoggingSettings(ns)
     setupLoki(loggingSettings)
     setupGraphite(loggingSettings)
+
+    await initLogging(ns)
+    const loggingDB = getLoggingDB()
     while (true) {
-        while (!port.empty()) {
-            const portPayload = port.read()
-            if (typeof portPayload === 'number') {
-                ns.tprint(`Payload unknown type.`)
-                ns.exit()
-                return
-            }
-            const payload = LoggingPayload.fromJSON(portPayload)
+        const logLines = new Map<IDBValidKey, string>()
+        let logLineCursor = await loggingDB.transaction(LoggingTable, 'readonly').store.openCursor()
+
+        while (logLineCursor != null) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion 
+            logLines.set(logLineCursor!.key, logLineCursor!.value as string)
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            logLineCursor = await logLineCursor!.continue()
+        }
+        for (const logline of logLines) {
+            const payload = LoggingPayload.fromJSON(logline[1])
             if ("message" in payload.payload) {
                 await sendLog(ns, loggingSettings, payload)
             }
-            else if ("key" in payload.payload) {
+            await loggingDB.delete(LoggingTable, logline[0])
+        }
+
+        const metrics = new Map<IDBValidKey, string>()
+        let metricCursor = await loggingDB.transaction(MetricTable, 'readonly').store.openCursor()
+        while (metricCursor != null) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            metrics.set(metricCursor!.key, metricCursor!.value as string)
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            metricCursor = await metricCursor!.continue()
+        }
+        for (const metric of metrics) {
+            const payload = LoggingPayload.fromJSON(metric[1])
+            if ("key" in payload.payload) {
                 await sendTrace(ns, loggingSettings, payload)
             }
+            await loggingDB.delete(MetricTable, metric[0])
         }
+
+
         await ns.sleep(500)
     }
 }
