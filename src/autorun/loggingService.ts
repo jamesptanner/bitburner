@@ -44,7 +44,7 @@ const sendTrace = async function (ns: NS, settings: LoggingSettings, payload: Lo
         if (!response.ok) {
             ns.tprint(`ERROR: Failed to send metric to graphite. HTTP code: ${response.status}`);
         } else {
-            ns.print("Send Successful.");
+            // ns.print("Send Successful.");
         }
     }
 }
@@ -75,7 +75,7 @@ const sendLog = async function (ns: NS, settings: LoggingSettings, payload: Logg
             ns.tprint(`ERROR: Failed to send logging to loki. HTTP code: ${response.status}`)
         }
         else {
-            ns.print("Send Successful.")
+            // ns.print("Send Successful.")
         }
     }
 }
@@ -133,37 +133,48 @@ export async function main(ns: NS): Promise<void> {
         const logLines = new Map<IDBValidKey, string>()
         let logLineCursor = await loggingDB.transaction(LoggingTable, 'readonly').store.openCursor()
 
-        while (logLineCursor != null) {
+        while (logLineCursor != null && logLines.size < 5000) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion 
-            logLines.set(logLineCursor!.key, logLineCursor!.value as string)
+            logLines.set(logLineCursor!.primaryKey, logLineCursor!.value as string)
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             logLineCursor = await logLineCursor!.continue()
         }
         for (const logline of logLines) {
-            const payload = LoggingPayload.fromJSON(logline[1])
+            const payload = LoggingPayload.fromJSON(JSON.stringify(logline[1]))
             if ("message" in payload.payload) {
                 await sendLog(ns, loggingSettings, payload)
             }
-            await loggingDB.delete(LoggingTable, logline[0])
+            const tx = loggingDB.transaction(LoggingTable, 'readwrite')
+            await tx.store.delete(logline[0])
+            tx.commit()
+            if((logline[0] as number) %10 === 0){
+                ns.print(`sent log ${logline[0]}`)
+            }
         }
 
         const metrics = new Map<IDBValidKey, string>()
         let metricCursor = await loggingDB.transaction(MetricTable, 'readonly').store.openCursor()
-        while (metricCursor != null) {
+        while (metricCursor != null&& metrics.size < 5000) {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            metrics.set(metricCursor!.key, metricCursor!.value as string)
+            metrics.set(metricCursor!.primaryKey, metricCursor!.value as string)
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             metricCursor = await metricCursor!.continue()
         }
         for (const metric of metrics) {
-            const payload = LoggingPayload.fromJSON(metric[1])
+            const payload = LoggingPayload.fromJSON(JSON.stringify(metric[1]))
             if ("key" in payload.payload) {
                 await sendTrace(ns, loggingSettings, payload)
             }
-            await loggingDB.delete(MetricTable, metric[0])
+
+            const tx = loggingDB.transaction(MetricTable, 'readwrite')
+            await tx.store.delete(metric[0])
+            tx.commit()
+            if((metric[0] as number )%10 === 0){
+                ns.print(`sent metric ${metric[0]}`)
+            }
         }
 
 
-        await ns.sleep(500)
+        await ns.sleep(1)
     }
 }

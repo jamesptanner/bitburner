@@ -61,7 +61,6 @@ function generateUUID() { // Public Domain/MIT
 export const LOGGING_PORT = 1;
 const loggingTrace = generateUUID();
 let n: NS;
-let portHandle: NetscriptPort;
 
 const DBVERSION = 1
 export const LoggingTable = "logging"
@@ -88,7 +87,6 @@ export const getLoggingDB = function(): IDBPDatabase {
 
 export const initLogging = async function (ns: NS): Promise<void> {
     n = ns;
-    portHandle = ns.getPortHandle(LOGGING_PORT);
     loggingDB = await DB.open("BBLogging",DBVERSION,createDB)
 };
 
@@ -130,15 +128,9 @@ export const log = function (level: Level, msg: string, toast?: boolean): void {
         level: level,
         message: msg,
     })
-    let attempts = 0
-
     const tx = loggingDB.transaction(LoggingTable,'readwrite')
     void tx.store.add(logPayload)
     void tx.done
-
-    while (!portHandle.tryWrite(JSON.stringify(logPayload)) && attempts < 3) {
-        attempts++
-    }
 };
 
 export const success = function (msg: string, toast?: boolean): void {
@@ -159,16 +151,10 @@ export const sendMetric = function (key: string, value: string | number): void {
         key: key,
         value: value,
     });
-    let attempts = 0;
-
     
     const tx = loggingDB.transaction(MetricTable,'readwrite')
     void tx.store.add(logPayload)
     void tx.done
-
-    while (!portHandle.tryWrite(JSON.stringify(logPayload)) && attempts < 3) {
-        attempts++;
-    }
 };
 
 export const addMetricToBatch = function (key: string, value: string | number): void {
