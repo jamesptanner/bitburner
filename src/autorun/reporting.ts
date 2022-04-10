@@ -5,7 +5,7 @@ import { getAllServers } from '/shared/utils';
 export const reportingPath ="/autorun/reporting.js";
 
 export async function main(ns : NS) : Promise<void> {
-    initLogging(ns)
+    await initLogging(ns)
     while(true){
         const player = ns.getPlayer()
         sendMetric("player.money",player.money)

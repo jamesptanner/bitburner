@@ -6,8 +6,8 @@ import { getAugmentsAvailableFromFaction } from './../shared/factions';
 export const listAugmentsPath ="/utils/listAugments.js";
 
 export async function main(ns : NS) : Promise<void> {
-    initLogging(ns)
-    log(Level.Info,`Getting list  of augments`)
+    await initLogging(ns)
+     log(Level.Info,`Getting list  of augments`)
     factions.forEach(faction =>{
         const augments = getAugmentsAvailableFromFaction(ns,faction)
         if (augments.length >0){

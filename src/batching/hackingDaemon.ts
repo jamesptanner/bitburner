@@ -10,7 +10,7 @@ export const hackingDaemonPath = "/batching/hackingDaemon.js";
 
 export async function main(ns: NS): Promise<void> {
     ns.disableLog('ALL')
-    initLogging(ns)
+    await initLogging(ns)
     const target = findBestTarget(ns)
     const servers = getAllServers(ns)
     await waitForBatchedHackToFinish(ns);

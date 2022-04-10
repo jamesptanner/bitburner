@@ -5,7 +5,7 @@ import { log } from './../shared/logging';
 export const checkCostsPath ="/servers/checkCosts.js";
 
 export async function main(ns : NS) : Promise<void> {
-    initLogging(ns)
+    await initLogging(ns)
 
     let mem = 2
     while(mem <= ns.getPurchasedServerMaxRam()){

@@ -399,7 +399,7 @@ export const improveFactionReputation = async function (ns: NS, faction: string,
     ns.stopAction()
 }
 
-export const improveStat = async function(ns:NS, hacking = 0,combat = 0, charisma = 0): promise<void>{
+export const improveStat = async function(ns:NS, hacking = 0,combat = 0, charisma = 0): Promise<void>{
     let previousSkill = ""
     while(true){
         await ns.sleep(1000)
