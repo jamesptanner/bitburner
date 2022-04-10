@@ -14,7 +14,7 @@ async function weakenServer(ns, target) {
 }
 async function hackServer(ns, target) {
     const earnings = await ns.hack(target, createHGWoptions(ns));
-    ns.toast(`${ns.getHostname()}:🤖 ${target} Earned ${earnings}`, earnings > 0 ? "success" : "warning");
+    ns.toast(`${ns.getHostname()}:🤖 ${target} Earned ${ns.nFormat(earnings, '($0.00a)')}`, earnings > 0 ? "success" : "warning");
 }
 
 async function main(ns) {
