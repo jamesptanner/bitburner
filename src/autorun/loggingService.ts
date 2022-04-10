@@ -139,6 +139,7 @@ export async function main(ns: NS): Promise<void> {
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             logLineCursor = await logLineCursor!.continue()
         }
+        
         for (const logline of logLines) {
             const payload = LoggingPayload.fromJSON(JSON.stringify(logline[1]))
             if ("message" in payload.payload) {
