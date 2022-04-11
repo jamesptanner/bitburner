@@ -1,6 +1,9 @@
 import { NS } from '@ns'
-import { getLoggingDB, LoggingPayload, LoggingTable, initLogging } from "/shared/logging";
+import { getLoggingDB, LoggingPayload, LoggingTable, initLogging,LogData } from "/shared/logging";
 import { MetricTable } from '../shared/logging';
+import { IDBPDatabase } from 'idb';
+import { unique } from '/shared/utils';
+import { GangMemberAscension } from './../../NetscriptDefinitions.d';
 
 export const loggingServicePath = "/autorun/loggingService.js";
 
@@ -49,22 +52,25 @@ const sendTrace = async function (ns: NS, settings: LoggingSettings, payload: Lo
     }
 }
 
-const sendLog = async function (ns: NS, settings: LoggingSettings, payload: LoggingPayload): Promise<void> {
-    if ("message" in payload.payload) {
+const sendLog = async function (ns: NS, settings: LoggingSettings, payload: LoggingPayload[]): Promise<void> {
+    if(payload.length === 0){
+        return
+    }
+    
+    if ("message" in payload[0].payload) {
+        const values = payload.map(payload => [payload.timestamp,(payload.payload as LogData).message])
         const request = lokiRequest
         const body = {
             "streams": [
                 {
                     "stream": {
-                        "trace": payload.trace,
-                        "host": payload.host,
-                        "script": payload.script,
+                        "trace": payload[0].trace,
+                        "host": payload[0].host,
+                        "script": payload[0].script,
                         "game": settings.gameHost,
-                        "level": payload.payload.level
+                        "level": payload[0].payload.level
                     },
-                    "values": [
-                        [payload.timestamp, payload.payload.message]
-                    ]
+                    "values": values
                 }
             ]
         }
@@ -130,28 +136,7 @@ export async function main(ns: NS): Promise<void> {
     await initLogging(ns)
     const loggingDB = getLoggingDB()
     while (true) {
-        const logLines = new Map<IDBValidKey, string>()
-        let logLineCursor = await loggingDB.transaction(LoggingTable, 'readonly').store.openCursor()
-
-        while (logLineCursor != null && logLines.size < 5000) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion 
-            logLines.set(logLineCursor!.primaryKey, logLineCursor!.value as string)
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            logLineCursor = await logLineCursor!.continue()
-        }
-        
-        for (const logline of logLines) {
-            const payload = LoggingPayload.fromJSON(JSON.stringify(logline[1]))
-            if ("message" in payload.payload) {
-                await sendLog(ns, loggingSettings, payload)
-            }
-            const tx = loggingDB.transaction(LoggingTable, 'readwrite')
-            await tx.store.delete(logline[0])
-            tx.commit()
-            if((logline[0] as number) %10 === 0){
-                ns.print(`sent log ${logline[0]}`)
-            }
-        }
+        await sendLogs(loggingDB, ns, loggingSettings);
 
         const metrics = new Map<IDBValidKey, string>()
         let metricCursor = await loggingDB.transaction(MetricTable, 'readonly').store.openCursor()
@@ -178,4 +163,41 @@ export async function main(ns: NS): Promise<void> {
 
         await ns.sleep(1)
     }
+}
+
+async function sendLogs(loggingDB:IDBPDatabase, ns: NS, loggingSettings: LoggingSettings) {
+    const logLines = new Map<IDBValidKey, string>();
+    const logLinesGetAll = await loggingDB.transaction(LoggingTable, 'readonly').store.getAll(null,5000) as LoggingPayload[];
+    console.log(`${logLinesGetAll}`)
+    let logLineCursor = await loggingDB.transaction(LoggingTable, 'readonly').store.openCursor();
+
+    while (logLineCursor != null && logLines.size < 5000) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion 
+        logLines.set(logLineCursor!.primaryKey, logLineCursor!.value as string);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        logLineCursor = await logLineCursor!.continue();
+    }
+    
+    const linesByTrace = new Map<string,LoggingPayload[]>()
+    
+     logLinesGetAll.map(x => x.trace).filter(unique).forEach(trace =>{
+        linesByTrace.set(trace,logLinesGetAll.filter(v=>{return v.trace===trace}))
+     })
+    
+     for(const trace of linesByTrace){
+         await sendLog(ns,loggingSettings,trace[1])
+     }
+
+    // for (const logline of logLines) {
+    //     const payload = LoggingPayload.fromJSON(JSON.stringify(logline[1]));
+    //     if ("message" in payload.payload) {
+    //         await sendLog(ns, loggingSettings, [payload]);
+    //     }
+    //     const tx = loggingDB.transaction(LoggingTable, 'readwrite');
+    //     await tx.store.delete(logline[0]);
+    //     tx.commit();
+    //     if ((logline[0] as number) % 10 === 0) {
+    //         ns.print(`sent log ${logline[0]}`);
+    //     }
+    // }
 }
