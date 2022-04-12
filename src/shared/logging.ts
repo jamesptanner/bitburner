@@ -1,6 +1,5 @@
 import { NS } from "@ns";
-import { IDBPDatabase } from "idb";
-import { DB } from "/shared/db";
+import { DBSchema, IDBPDatabase, openDB } from "idb";
 export enum Level {
     Error,
     Warning,
@@ -25,7 +24,6 @@ export class LoggingPayload {
     trace: string
     timestamp: number
     payload: MetricData | LogData
-
     constructor(host?: string, script?: string, trace?: string, payload?: MetricData | LogData) {
         if (host) this.host = host
         if (script) this.script = script
@@ -66,7 +64,7 @@ const DBVERSION = 1
 export const LoggingTable = "logging"
 export const MetricTable = "metrics"
 
-let loggingDB: IDBPDatabase
+let loggingDB: IDBPDatabase<LoggingDB>
 
 const createDB = function (event: IDBVersionChangeEvent) {
     const target = event.target as IDBRequest<IDBDatabase>
@@ -81,13 +79,40 @@ const createDB = function (event: IDBVersionChangeEvent) {
     }
 }
 
-export const getLoggingDB = function(): IDBPDatabase {
+export interface LoggingDB extends DBSchema{
+    'logging':{
+        key:number;
+        value:LoggingPayload;
+        indexes:{
+            'timestamp':number;
+        };
+    };
+    'metrics':{
+        key: number;
+        value:LoggingPayload;
+        indexes:{
+            'timestamp':number;
+        };
+    }
+}
+
+export const getLoggingDB = function(): IDBPDatabase<LoggingDB> {
     return loggingDB;
 }
 
 export const initLogging = async function (ns: NS): Promise<void> {
     n = ns;
-    loggingDB = await DB.open("BBLogging",DBVERSION,createDB)
+    // loggingDB = await DB.open("BBLogging",DBVERSION,createDB)
+    loggingDB = await openDB<LoggingDB>("BBLogging",DBVERSION,{
+        upgrade(db,prevVersion){
+            if(prevVersion < 1){
+                const loggingStore = db.createObjectStore(LoggingTable, {autoIncrement:true})
+                loggingStore.createIndex("timestamp","timestamp",{unique:false})
+                const metricStore = db.createObjectStore(MetricTable,{autoIncrement:true})
+                metricStore.createIndex("timestamp","timestamp",{unique:false})
+            }
+        }
+    })
 };
 
 const levelToString = function (level: Level): string {

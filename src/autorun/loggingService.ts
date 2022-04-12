@@ -1,5 +1,5 @@
 import { NS } from '@ns'
-import { getLoggingDB, LoggingPayload, LoggingTable, initLogging, LogData } from "/shared/logging";
+import { getLoggingDB, LoggingPayload, LoggingTable, initLogging, LogData, LoggingDB } from "/shared/logging";
 import { MetricTable } from '../shared/logging';
 import { IDBPDatabase } from 'idb';
 import { unique } from '/shared/utils';
@@ -166,8 +166,8 @@ export async function main(ns: NS): Promise<void> {
     }
 }
 
-async function sendLogs(loggingDB: IDBPDatabase, ns: NS, loggingSettings: LoggingSettings) {
-    const logLinesGetAll = await loggingDB.transaction(LoggingTable, 'readonly').store.getAll(null, 5000) as LoggingPayload[];
+async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSettings: LoggingSettings) {
+    const logLinesGetAll = await loggingDB.transaction(LoggingTable, 'readonly').store.getAll(null, 5000);
     const linesByTrace = new Map<string, [LoggingPayload[], number[]]>()
 
     logLinesGetAll.map(x => x.trace).filter(unique).forEach(trace => {
@@ -175,28 +175,34 @@ async function sendLogs(loggingDB: IDBPDatabase, ns: NS, loggingSettings: Loggin
         const keys = lines.map(line => line.timestamp)
         linesByTrace.set(trace, [lines, keys])
     })
-    const traceSuccessful = new Map<string,boolean>()
+    const traceSuccessful = new Map<string, boolean>()
     for (const trace of linesByTrace) {
         if (trace[1][0].length > 0) {
             console.log(`${trace[1][0]}`)
-            traceSuccessful.set(trace[0],await sendLog(ns, loggingSettings, trace[1][0]))
+            traceSuccessful.set(trace[0], await sendLog(ns, loggingSettings, trace[1][0]))
         }
     }
-    const tx = loggingDB.transaction(LoggingTable, 'readwrite')
-    const deletes: Promise<unknown>[] = []
+    const toDelete: number[] = []
     for (const trace of linesByTrace) {
-        if ( traceSuccessful.get(trace[0]) && trace[1][1].length > 0) {
-            trace[1][1].forEach(index => {
-                deletes.push(tx.store.index('timestamp').objectStore.delete(index))
-            })
+        if (traceSuccessful.get(trace[0]) && trace[1][1].length > 0) {
+            for (const index of trace[1][1]) {
+                const cursor = await loggingDB.transaction(LoggingTable, 'readonly').store.index("timestamp").openCursor(index)
+                if (cursor) {
+                    toDelete.push(cursor.primaryKey)
+                }
+            }
         }
     }
+
+    const deletes: Promise<unknown>[] = []
+    const tx = loggingDB.transaction(LoggingTable, 'readwrite')
+    toDelete.forEach(primaryKey => {
+        deletes.push(tx.store.delete(primaryKey))
+    })
     deletes.push(tx.done)
     await Promise.all(deletes)
-    .then(x => 
-        console.log(`all good?: ${x}`))
-    .catch(x =>
-        console.log(`failed to delete: ${x}`)
+        .catch(x =>
+            console.log(`failed to delete: ${x}`)
         )
 
 }
