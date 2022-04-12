@@ -137,7 +137,7 @@ export async function main(ns: NS): Promise<void> {
     await initLogging(ns)
     const loggingDB = getLoggingDB()
     while (true) {
-        await sendLogs(loggingDB, ns, loggingSettings);
+        await sendLogs(loggingDB, ns, loggingSettings,LoggingTable);
 
         // const metrics = new Map<IDBValidKey, string>()
         // let metricCursor = await loggingDB.transaction(MetricTable, 'readonly').store.openCursor()
@@ -166,8 +166,8 @@ export async function main(ns: NS): Promise<void> {
     }
 }
 
-async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSettings: LoggingSettings) {
-    const logLinesGetAll = await loggingDB.transaction(LoggingTable, 'readonly').store.getAll(null, 5000);
+async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSettings: LoggingSettings, table: "logging"|"metrics") {
+    const logLinesGetAll = await loggingDB.transaction(table, 'readonly').store.getAll(null, 5000);
     const linesByTrace = new Map<string, [LoggingPayload[], number[]]>()
 
     logLinesGetAll.map(x => x.trace).filter(unique).forEach(trace => {
@@ -186,7 +186,7 @@ async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSetti
     for (const trace of linesByTrace) {
         if (traceSuccessful.get(trace[0]) && trace[1][1].length > 0) {
             for (const index of trace[1][1]) {
-                const cursor = await loggingDB.transaction(LoggingTable, 'readonly').store.index("timestamp").openCursor(index)
+                const cursor = await loggingDB.transaction(table, 'readonly').store.index("timestamp").openCursor(index)
                 if (cursor) {
                     toDelete.push(cursor.primaryKey)
                 }
@@ -195,7 +195,7 @@ async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSetti
     }
 
     const deletes: Promise<unknown>[] = []
-    const tx = loggingDB.transaction(LoggingTable, 'readwrite')
+    const tx = loggingDB.transaction(table, 'readwrite')
     toDelete.forEach(primaryKey => {
         deletes.push(tx.store.delete(primaryKey))
     })
