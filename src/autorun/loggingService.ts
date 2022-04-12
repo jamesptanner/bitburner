@@ -1,9 +1,8 @@
 import { NS } from '@ns'
-import { getLoggingDB, LoggingPayload, LoggingTable, initLogging,LogData } from "/shared/logging";
+import { getLoggingDB, LoggingPayload, LoggingTable, initLogging, LogData } from "/shared/logging";
 import { MetricTable } from '../shared/logging';
 import { IDBPDatabase } from 'idb';
 import { unique } from '/shared/utils';
-import { GangMemberAscension } from './../../NetscriptDefinitions.d';
 
 export const loggingServicePath = "/autorun/loggingService.js";
 
@@ -52,13 +51,13 @@ const sendTrace = async function (ns: NS, settings: LoggingSettings, payload: Lo
     }
 }
 
-const sendLog = async function (ns: NS, settings: LoggingSettings, payload: LoggingPayload[]): Promise<void> {
-    if(payload.length === 0){
-        return
+const sendLog = async function (ns: NS, settings: LoggingSettings, payload: LoggingPayload[]): Promise<boolean> {
+    if (payload.length === 0) {
+        return true
     }
-    
+
     if ("message" in payload[0].payload) {
-        const values = payload.map(payload => [payload.timestamp,(payload.payload as LogData).message])
+        const values = payload.map(payload => [`${payload.timestamp}`, (payload.payload as LogData).message])
         const request = lokiRequest
         const body = {
             "streams": [
@@ -83,7 +82,9 @@ const sendLog = async function (ns: NS, settings: LoggingSettings, payload: Logg
         else {
             // ns.print("Send Successful.")
         }
+        return response.ok
     }
+    return false
 }
 
 let lokiUrl: string
@@ -138,66 +139,64 @@ export async function main(ns: NS): Promise<void> {
     while (true) {
         await sendLogs(loggingDB, ns, loggingSettings);
 
-        const metrics = new Map<IDBValidKey, string>()
-        let metricCursor = await loggingDB.transaction(MetricTable, 'readonly').store.openCursor()
-        while (metricCursor != null&& metrics.size < 5000) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            metrics.set(metricCursor!.primaryKey, metricCursor!.value as string)
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            metricCursor = await metricCursor!.continue()
-        }
-        for (const metric of metrics) {
-            const payload = LoggingPayload.fromJSON(JSON.stringify(metric[1]))
-            if ("key" in payload.payload) {
-                await sendTrace(ns, loggingSettings, payload)
-            }
+        // const metrics = new Map<IDBValidKey, string>()
+        // let metricCursor = await loggingDB.transaction(MetricTable, 'readonly').store.openCursor()
+        // while (metricCursor != null && metrics.size < 5000) {
+        //     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        //     metrics.set(metricCursor!.primaryKey, metricCursor!.value as string)
+        //     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        //     metricCursor = await metricCursor!.continue()
+        // }
+        // for (const metric of metrics) {
+        //     const payload = LoggingPayload.fromJSON(JSON.stringify(metric[1]))
+        //     if ("key" in payload.payload) {
+        //         await sendTrace(ns, loggingSettings, payload)
+        //     }
 
-            const tx = loggingDB.transaction(MetricTable, 'readwrite')
-            await tx.store.delete(metric[0])
-            tx.commit()
-            if((metric[0] as number )%10 === 0){
-                ns.print(`sent metric ${metric[0]}`)
-            }
-        }
+        //     const tx = loggingDB.transaction(MetricTable, 'readwrite')
+        //     await tx.store.delete(metric[0])
+        //     tx.commit()
+        //     if ((metric[0] as number) % 10 === 0) {
+        //         ns.print(`sent metric ${metric[0]}`)
+        //     }
+        // }
 
 
-        await ns.sleep(1)
+        await ns.sleep(100)
     }
 }
 
-async function sendLogs(loggingDB:IDBPDatabase, ns: NS, loggingSettings: LoggingSettings) {
-    const logLines = new Map<IDBValidKey, string>();
-    const logLinesGetAll = await loggingDB.transaction(LoggingTable, 'readonly').store.getAll(null,5000) as LoggingPayload[];
-    console.log(`${logLinesGetAll}`)
-    let logLineCursor = await loggingDB.transaction(LoggingTable, 'readonly').store.openCursor();
+async function sendLogs(loggingDB: IDBPDatabase, ns: NS, loggingSettings: LoggingSettings) {
+    const logLinesGetAll = await loggingDB.transaction(LoggingTable, 'readonly').store.getAll(null, 5000) as LoggingPayload[];
+    const linesByTrace = new Map<string, [LoggingPayload[], number[]]>()
 
-    while (logLineCursor != null && logLines.size < 5000) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion 
-        logLines.set(logLineCursor!.primaryKey, logLineCursor!.value as string);
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        logLineCursor = await logLineCursor!.continue();
+    logLinesGetAll.map(x => x.trace).filter(unique).forEach(trace => {
+        const lines = logLinesGetAll.filter(v => { return v.trace === trace })
+        const keys = lines.map(line => line.timestamp)
+        linesByTrace.set(trace, [lines, keys])
+    })
+    const traceSuccessful = new Map<string,boolean>()
+    for (const trace of linesByTrace) {
+        if (trace[1][0].length > 0) {
+            console.log(`${trace[1][0]}`)
+            traceSuccessful.set(trace[0],await sendLog(ns, loggingSettings, trace[1][0]))
+        }
     }
-    
-    const linesByTrace = new Map<string,LoggingPayload[]>()
-    
-     logLinesGetAll.map(x => x.trace).filter(unique).forEach(trace =>{
-        linesByTrace.set(trace,logLinesGetAll.filter(v=>{return v.trace===trace}))
-     })
-    
-     for(const trace of linesByTrace){
-         await sendLog(ns,loggingSettings,trace[1])
-     }
+    const tx = loggingDB.transaction(LoggingTable, 'readwrite')
+    const deletes: Promise<unknown>[] = []
+    for (const trace of linesByTrace) {
+        if ( traceSuccessful.get(trace[0]) && trace[1][1].length > 0) {
+            trace[1][1].forEach(index => {
+                deletes.push(tx.store.index('timestamp').objectStore.delete(index))
+            })
+        }
+    }
+    deletes.push(tx.done)
+    await Promise.all(deletes)
+    .then(x => 
+        console.log(`all good?: ${x}`))
+    .catch(x =>
+        console.log(`failed to delete: ${x}`)
+        )
 
-    // for (const logline of logLines) {
-    //     const payload = LoggingPayload.fromJSON(JSON.stringify(logline[1]));
-    //     if ("message" in payload.payload) {
-    //         await sendLog(ns, loggingSettings, [payload]);
-    //     }
-    //     const tx = loggingDB.transaction(LoggingTable, 'readwrite');
-    //     await tx.store.delete(logline[0]);
-    //     tx.commit();
-    //     if ((logline[0] as number) % 10 === 0) {
-    //         ns.print(`sent log ${logline[0]}`);
-    //     }
-    // }
 }

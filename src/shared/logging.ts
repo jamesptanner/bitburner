@@ -1,4 +1,4 @@
-import { NS, NetscriptPort } from "@ns";
+import { NS } from "@ns";
 import { IDBPDatabase } from "idb";
 import { DB } from "/shared/db";
 export enum Level {
@@ -31,7 +31,7 @@ export class LoggingPayload {
         if (script) this.script = script
         if (trace) this.trace = trace
         if (payload) this.payload = payload
-        this.timestamp = Date.now() * 1000000
+        this.timestamp = (performance.now() + performance.timeOrigin)*1000000
     }
 
     static fromJSON(d: string): LoggingPayload {
