@@ -271,10 +271,11 @@ const waitToBackdoor = async function (ns:NS, server:string){
 
 const repForNextRole = function(ns:NS,corpName:string): number {
     const charInfo = ns.singularity.getCharacterInformation()
+    const jobs = ns.getPlayer().jobs as Map<string,string>
     // typedef is incorrect for deprecated charInfo.
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore 
-  switch(charInfo.jobTitles[charInfo.jobs.indexOf(corpName)])
+  switch(jobs.get(corpName))
   {
     case  "IT Intern":
     return 7e3
