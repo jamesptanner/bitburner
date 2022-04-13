@@ -5,6 +5,7 @@ import { SpiralMatrix, MergeOverlapping, ArrayJump } from '/contracts/solvers/Ar
 import { GenerateIPAddresses, FindValidMathExpressions, SanitizeParentheses } from '/contracts/solvers/StringContracts';
 import { StockTrader1, StockTrader2, StockTrader3, StockTrader4 } from '/contracts/solvers/StockContracts';
 import { MinTrianglePath, UniquePath1, UniquePath2 } from '/contracts/solvers/PathContracts';
+import { unsolveableContractPath } from './unsolveableContract';
 
 export const solveContractPath = "/contracts/solveContract.js";
 
@@ -24,7 +25,7 @@ const processors = new Map<string, ContractFunction>([
     ["Total Ways to Sum", TotalSums],                               //Maths     DONE
     ["Spiralize Matrix", SpiralMatrix],                             //Arrays    DONE
     ["Array Jumping Game", ArrayJump],                              //Arrays    DONE
-    ["Merge Overlapping Intervals", MergeOverlapping],              //Arrays    UNTESTED
+    ["Merge Overlapping Intervals", MergeOverlapping],              //Arrays    DONE
     ["Generate IP Addresses", GenerateIPAddresses],                 //Strings   DONE
     ["Algorithmic Stock Trader I", StockTrader1],                   //Stocks    DONE
     ["Algorithmic Stock Trader II", StockTrader2],                  //Stocks    DONE
@@ -33,8 +34,8 @@ const processors = new Map<string, ContractFunction>([
     ["Minimum Path Sum in a Triangle", MinTrianglePath],            //Paths     DONE
     ["Unique Paths in a Grid I", UniquePath1],                      //Paths     DONE
     ["Unique Paths in a Grid II", UniquePath2],                     //Paths     DONE
-    ["Sanitize Parentheses in Expression", SanitizeParentheses],    //Strings
-    ["Find All Valid Math Expressions", FindValidMathExpressions],  //Strings
+    ["Sanitize Parentheses in Expression", SanitizeParentheses],    //Strings   DONE
+    ["Find All Valid Math Expressions", FindValidMathExpressions],  //Strings   DONE
 
 ])
 
@@ -85,6 +86,7 @@ export async function main(ns: NS): Promise<void> {
     }
     else {
         ns.toast(`unable to process contract: ${host}.${filename} - '${type}'`,"warning")
+        ns.spawn(unsolveableContractPath,1,"--file",filename,"--host",host)
         // ns.tprintf(`${ns.codingcontract.getDescription(filename,host)}\n\n`)
     }
 }
