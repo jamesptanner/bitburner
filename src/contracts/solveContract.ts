@@ -2,10 +2,11 @@ import { NS } from '@ns'
 import { asString } from '/shared/utils';
 import { largestPrimeFactor, TotalSums, MaxSubArray } from '/contracts/solvers/MathContracts';
 import { SpiralMatrix, MergeOverlapping, ArrayJump } from '/contracts/solvers/ArrayContracts';
-import { GenerateIPAddresses, FindValidMathExpressions, SanitizeParentheses } from '/contracts/solvers/StringContracts';
+import { GenerateIPAddresses, FindValidMathExpressions, SanitizeParentheses,HammingBtoI,HammingItoB } from '/contracts/solvers/StringContracts';
 import { StockTrader1, StockTrader2, StockTrader3, StockTrader4 } from '/contracts/solvers/StockContracts';
 import { MinTrianglePath, UniquePath1, UniquePath2 } from '/contracts/solvers/PathContracts';
 import { unsolveableContractPath } from './unsolveableContract';
+import { error, initLogging } from '/shared/logging';
 
 export const solveContractPath = "/contracts/solveContract.js";
 
@@ -36,10 +37,13 @@ const processors = new Map<string, ContractFunction>([
     ["Unique Paths in a Grid II", UniquePath2],                     //Paths     DONE
     ["Sanitize Parentheses in Expression", SanitizeParentheses],    //Strings   DONE
     ["Find All Valid Math Expressions", FindValidMathExpressions],  //Strings   DONE
+    ["HammingCodes: Encoded Binary to Integer",HammingBtoI],
+    ["HammingCodes: Integer to encoded Binary",HammingItoB],
 
 ])
 
 export async function main(ns: NS): Promise<void> {
+    await initLogging(ns)
     const usage = `solveContract.ts USAGE: ${solveContractPath} <contract filename> <host>`;
     if (ns.args.length != 2) {
         ns.tprintf(`Invalid number of arguments`)
@@ -64,29 +68,39 @@ export async function main(ns: NS): Promise<void> {
 
     const type = ns.codingcontract.getContractType(filename,host);
     const data = ns.codingcontract.getData(filename,host)
-
-    const answer = processors.get(type)?.(ns,data);
-    if (answer !== undefined) {
-        const result = ns.codingcontract.attempt(answer, filename, host,{returnReward:true})
-        if (result === "") {
-            ns.toast(`Failed Contract: ${host}.${filename} - '${type}'`,"error")
-            ns.tprintf(`Failed Contract: ${host}.${filename} - '${type}'`)
-            const failed:FailedContract = {
-                answer: answer,
-                type: type,
-                data: data
+    try {
+        const answer = processors.get(type)?.(ns,data);
+        if (answer !== undefined) {
+            const result = ns.codingcontract.attempt(answer, filename, host,{returnReward:true})
+            if (result === "") {
+                ns.toast(`Failed Contract: ${host}.${filename} - '${type}'`,"error")
+                ns.tprintf(`Failed Contract: ${host}.${filename} - '${type}'`)
+                const failed:FailedContract = {
+                    answer: answer,
+                    type: type,
+                    data: data
+                }
+                
+                await ns.write("failedContracts.txt",failed+"\n","a")
             }
-            
-            await ns.write("failedContracts.txt",failed+"\n","a")
+            else {
+                ns.toast(`${result}`,"success")
+                ns.tprintf(`${result}`)
+                await ns.write("solvedContracts.txt",[type,data,answer,"\n"],'a')
+            }
         }
         else {
-            ns.toast(`${result}`,"success")
-            ns.tprintf(`${result}`)
+            ns.toast(`unable to process contract: ${host}.${filename} - '${type}'`,"warning")
+            ns.spawn(unsolveableContractPath,1,"--file",filename,"--host",host)
+            // ns.tprintf(`${ns.codingcontract.getDescription(filename,host)}\n\n`)
         }
     }
-    else {
-        ns.toast(`unable to process contract: ${host}.${filename} - '${type}'`,"warning")
-        ns.spawn(unsolveableContractPath,1,"--file",filename,"--host",host)
-        // ns.tprintf(`${ns.codingcontract.getDescription(filename,host)}\n\n`)
+    catch(e:unknown){
+        if(typeof e === "string"){
+            error(e,true)
+        }
+        else if (e instanceof Error){
+            error(e.message,true)
+        }
     }
 }
