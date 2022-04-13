@@ -116,6 +116,9 @@ let idbProxyTraps = {
         return prop in target;
     },
 };
+function replaceTraps(callback) {
+    idbProxyTraps = callback(idbProxyTraps);
+}
 function wrapFunction(func) {
     // Due to expected object equality (which is enforced by the caching in `wrap`), we
     // only create one new func per func.
@@ -179,27 +182,78 @@ function wrap(value) {
 }
 const unwrap = (value) => reverseTransformCache.get(value);
 
-const open = async function (dbName, dbVersion, createDB) {
-    return new Promise((resolve, reject) => {
-        const eval2 = eval;
-        const win = eval2('window');
-        const loggingDBRequest = win.indexedDB.open(dbName, dbVersion);
-        loggingDBRequest.onsuccess = event => {
-            const target = event.target;
-            resolve(wrap(target.result));
-        };
-        loggingDBRequest.onerror = event => {
-            const target = event.target;
-            reject(`Unable to open loggingdb: ${target.error}`);
-        };
-        loggingDBRequest.onupgradeneeded = event => {
-            createDB(event);
-        };
-    });
-};
-const DB = {
-    open: open
-};
+/**
+ * Open a database.
+ *
+ * @param name Name of the database.
+ * @param version Schema version.
+ * @param callbacks Additional callbacks.
+ */
+function openDB(name, version, { blocked, upgrade, blocking, terminated } = {}) {
+    const request = indexedDB.open(name, version);
+    const openPromise = wrap(request);
+    if (upgrade) {
+        request.addEventListener('upgradeneeded', (event) => {
+            upgrade(wrap(request.result), event.oldVersion, event.newVersion, wrap(request.transaction));
+        });
+    }
+    if (blocked)
+        request.addEventListener('blocked', () => blocked());
+    openPromise
+        .then((db) => {
+        if (terminated)
+            db.addEventListener('close', () => terminated());
+        if (blocking)
+            db.addEventListener('versionchange', () => blocking());
+    })
+        .catch(() => { });
+    return openPromise;
+}
+
+const readMethods = ['get', 'getKey', 'getAll', 'getAllKeys', 'count'];
+const writeMethods = ['put', 'add', 'delete', 'clear'];
+const cachedMethods = new Map();
+function getMethod(target, prop) {
+    if (!(target instanceof IDBDatabase &&
+        !(prop in target) &&
+        typeof prop === 'string')) {
+        return;
+    }
+    if (cachedMethods.get(prop))
+        return cachedMethods.get(prop);
+    const targetFuncName = prop.replace(/FromIndex$/, '');
+    const useIndex = prop !== targetFuncName;
+    const isWrite = writeMethods.includes(targetFuncName);
+    if (
+    // Bail if the target doesn't exist on the target. Eg, getAll isn't in Edge.
+    !(targetFuncName in (useIndex ? IDBIndex : IDBObjectStore).prototype) ||
+        !(isWrite || readMethods.includes(targetFuncName))) {
+        return;
+    }
+    const method = async function (storeName, ...args) {
+        // isWrite ? 'readwrite' : undefined gzipps better, but fails in Edge :(
+        const tx = this.transaction(storeName, isWrite ? 'readwrite' : 'readonly');
+        let target = tx.store;
+        if (useIndex)
+            target = target.index(args.shift());
+        // Must reject if op rejects.
+        // If it's a write operation, must reject if tx.done rejects.
+        // Must reject with op rejection first.
+        // Must resolve with op value.
+        // Must handle both promises (no unhandled rejections)
+        return (await Promise.all([
+            target[targetFuncName](...args),
+            isWrite && tx.done,
+        ]))[0];
+    };
+    cachedMethods.set(prop, method);
+    return method;
+}
+replaceTraps((oldTraps) => ({
+    ...oldTraps,
+    get: (target, prop, receiver) => getMethod(target, prop) || oldTraps.get(target, prop, receiver),
+    has: (target, prop) => !!getMethod(target, prop) || oldTraps.has(target, prop),
+}));
 
 var Level;
 (function (Level) {
@@ -223,7 +277,7 @@ class LoggingPayload {
             this.trace = trace;
         if (payload)
             this.payload = payload;
-        this.timestamp = Date.now() * 1000000;
+        this.timestamp = (performance.now() + performance.timeOrigin) * 1000000;
     }
     static fromJSON(d) {
         return Object.assign(new LoggingPayload(), JSON.parse(d));
@@ -254,20 +308,19 @@ const DBVERSION = 1;
 const LoggingTable = "logging";
 const MetricTable = "metrics";
 let loggingDB;
-const createDB = function (event) {
-    const target = event.target;
-    const db = target.result;
-    const prevVersion = event.oldVersion;
-    if (prevVersion < 1) {
-        const loggingStore = db.createObjectStore(LoggingTable, { autoIncrement: true });
-        loggingStore.createIndex("timestamp", "timestamp", { unique: false });
-        const metricStore = db.createObjectStore(MetricTable, { autoIncrement: true });
-        metricStore.createIndex("timestamp", "timestamp", { unique: false });
-    }
-};
 const initLogging = async function (ns) {
     n = ns;
-    loggingDB = await DB.open("BBLogging", DBVERSION, createDB);
+    // loggingDB = await DB.open("BBLogging",DBVERSION,createDB)
+    loggingDB = await openDB("BBLogging", DBVERSION, {
+        upgrade(db, prevVersion) {
+            if (prevVersion < 1) {
+                const loggingStore = db.createObjectStore(LoggingTable, { autoIncrement: true });
+                loggingStore.createIndex("timestamp", "timestamp", { unique: false });
+                const metricStore = db.createObjectStore(MetricTable, { autoIncrement: true });
+                metricStore.createIndex("timestamp", "timestamp", { unique: false });
+            }
+        }
+    });
 };
 const levelToString = function (level) {
     switch (level) {

@@ -116,6 +116,9 @@ let idbProxyTraps = {
         return prop in target;
     },
 };
+function replaceTraps(callback) {
+    idbProxyTraps = callback(idbProxyTraps);
+}
 function wrapFunction(func) {
     // Due to expected object equality (which is enforced by the caching in `wrap`), we
     // only create one new func per func.
@@ -179,27 +182,78 @@ function wrap(value) {
 }
 const unwrap = (value) => reverseTransformCache.get(value);
 
-const open = async function (dbName, dbVersion, createDB) {
-    return new Promise((resolve, reject) => {
-        const eval2 = eval;
-        const win = eval2('window');
-        const loggingDBRequest = win.indexedDB.open(dbName, dbVersion);
-        loggingDBRequest.onsuccess = event => {
-            const target = event.target;
-            resolve(wrap(target.result));
-        };
-        loggingDBRequest.onerror = event => {
-            const target = event.target;
-            reject(`Unable to open loggingdb: ${target.error}`);
-        };
-        loggingDBRequest.onupgradeneeded = event => {
-            createDB(event);
-        };
-    });
-};
-const DB = {
-    open: open
-};
+/**
+ * Open a database.
+ *
+ * @param name Name of the database.
+ * @param version Schema version.
+ * @param callbacks Additional callbacks.
+ */
+function openDB(name, version, { blocked, upgrade, blocking, terminated } = {}) {
+    const request = indexedDB.open(name, version);
+    const openPromise = wrap(request);
+    if (upgrade) {
+        request.addEventListener('upgradeneeded', (event) => {
+            upgrade(wrap(request.result), event.oldVersion, event.newVersion, wrap(request.transaction));
+        });
+    }
+    if (blocked)
+        request.addEventListener('blocked', () => blocked());
+    openPromise
+        .then((db) => {
+        if (terminated)
+            db.addEventListener('close', () => terminated());
+        if (blocking)
+            db.addEventListener('versionchange', () => blocking());
+    })
+        .catch(() => { });
+    return openPromise;
+}
+
+const readMethods = ['get', 'getKey', 'getAll', 'getAllKeys', 'count'];
+const writeMethods = ['put', 'add', 'delete', 'clear'];
+const cachedMethods = new Map();
+function getMethod(target, prop) {
+    if (!(target instanceof IDBDatabase &&
+        !(prop in target) &&
+        typeof prop === 'string')) {
+        return;
+    }
+    if (cachedMethods.get(prop))
+        return cachedMethods.get(prop);
+    const targetFuncName = prop.replace(/FromIndex$/, '');
+    const useIndex = prop !== targetFuncName;
+    const isWrite = writeMethods.includes(targetFuncName);
+    if (
+    // Bail if the target doesn't exist on the target. Eg, getAll isn't in Edge.
+    !(targetFuncName in (useIndex ? IDBIndex : IDBObjectStore).prototype) ||
+        !(isWrite || readMethods.includes(targetFuncName))) {
+        return;
+    }
+    const method = async function (storeName, ...args) {
+        // isWrite ? 'readwrite' : undefined gzipps better, but fails in Edge :(
+        const tx = this.transaction(storeName, isWrite ? 'readwrite' : 'readonly');
+        let target = tx.store;
+        if (useIndex)
+            target = target.index(args.shift());
+        // Must reject if op rejects.
+        // If it's a write operation, must reject if tx.done rejects.
+        // Must reject with op rejection first.
+        // Must resolve with op value.
+        // Must handle both promises (no unhandled rejections)
+        return (await Promise.all([
+            target[targetFuncName](...args),
+            isWrite && tx.done,
+        ]))[0];
+    };
+    cachedMethods.set(prop, method);
+    return method;
+}
+replaceTraps((oldTraps) => ({
+    ...oldTraps,
+    get: (target, prop, receiver) => getMethod(target, prop) || oldTraps.get(target, prop, receiver),
+    has: (target, prop) => !!getMethod(target, prop) || oldTraps.has(target, prop),
+}));
 
 var Level;
 (function (Level) {
@@ -208,27 +262,6 @@ var Level;
     Level[Level["Info"] = 2] = "Info";
     Level[Level["success"] = 3] = "success";
 })(Level || (Level = {}));
-class LoggingPayload {
-    host;
-    script;
-    trace;
-    timestamp;
-    payload;
-    constructor(host, script, trace, payload) {
-        if (host)
-            this.host = host;
-        if (script)
-            this.script = script;
-        if (trace)
-            this.trace = trace;
-        if (payload)
-            this.payload = payload;
-        this.timestamp = Date.now() * 1000000;
-    }
-    static fromJSON(d) {
-        return Object.assign(new LoggingPayload(), JSON.parse(d));
-    }
-}
 //from https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid.
 //cant import crypto so this should do.
 //TODO keep an eye out for something better.
@@ -253,23 +286,24 @@ const DBVERSION = 1;
 const LoggingTable = "logging";
 const MetricTable = "metrics";
 let loggingDB;
-const createDB = function (event) {
-    const target = event.target;
-    const db = target.result;
-    const prevVersion = event.oldVersion;
-    if (prevVersion < 1) {
-        const loggingStore = db.createObjectStore(LoggingTable, { autoIncrement: true });
-        loggingStore.createIndex("timestamp", "timestamp", { unique: false });
-        const metricStore = db.createObjectStore(MetricTable, { autoIncrement: true });
-        metricStore.createIndex("timestamp", "timestamp", { unique: false });
-    }
-};
 const getLoggingDB = function () {
     return loggingDB;
 };
 const initLogging = async function (ns) {
-    loggingDB = await DB.open("BBLogging", DBVERSION, createDB);
+    // loggingDB = await DB.open("BBLogging",DBVERSION,createDB)
+    loggingDB = await openDB("BBLogging", DBVERSION, {
+        upgrade(db, prevVersion) {
+            if (prevVersion < 1) {
+                const loggingStore = db.createObjectStore(LoggingTable, { autoIncrement: true });
+                loggingStore.createIndex("timestamp", "timestamp", { unique: false });
+                const metricStore = db.createObjectStore(MetricTable, { autoIncrement: true });
+                metricStore.createIndex("timestamp", "timestamp", { unique: false });
+            }
+        }
+    });
 };
+
+const unique = (v, i, self) => { return self.indexOf(v) === i; };
 
 const loggingServicePath = "/autorun/loggingService.js";
 class LoggingSettings {
@@ -299,34 +333,46 @@ const setupGraphite = function (settings) {
         }
     };
 };
-const sendTrace = async function (ns, settings, payload) {
-    if ("key" in payload.payload) {
-        // const tags = `;trace=${payload.trace};host=${payload.host};script=${payload.script}`
-        const metricName = `bitburner.${settings.gameHost}.${payload.payload.key}`;
-        const request = graphiteRequest;
-        request.body = `${metricName} ${payload.payload.value} ${Math.floor(Date.now() / 1000)}\n`;
-        const response = await fetch(graphiteUrl, request);
-        if (!response.ok) {
-            ns.tprint(`ERROR: Failed to send metric to graphite. HTTP code: ${response.status}`);
-        }
+const sendTrace = async function (ns, settings, payloads) {
+    if (payloads.length === 0) {
+        return true;
     }
+    if ("key" in payloads[0].payload) {
+        // const tags = `;trace=${payload.trace};host=${payload.host};script=${payload.script}`
+        for (const payload of payloads) {
+            if ("key" in payload.payload) {
+                const metricName = `bitburner.${settings.gameHost}.${payload.payload.key}`;
+                const request = graphiteRequest;
+                request.body = `${metricName} ${payload.payload.value} ${Math.floor(Date.now() / 1000)}\n`;
+                const response = await fetch(graphiteUrl, request);
+                if (!response.ok) {
+                    ns.tprint(`ERROR: Failed to send metric to graphite. HTTP code: ${response.status}`);
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    return false;
 };
 const sendLog = async function (ns, settings, payload) {
-    if ("message" in payload.payload) {
+    if (payload.length === 0) {
+        return true;
+    }
+    if ("message" in payload[0].payload) {
+        const values = payload.map(payload => [`${payload.timestamp}`, payload.payload.message]);
         const request = lokiRequest;
         const body = {
             "streams": [
                 {
                     "stream": {
-                        "trace": payload.trace,
-                        "host": payload.host,
-                        "script": payload.script,
+                        "trace": payload[0].trace,
+                        "host": payload[0].host,
+                        "script": payload[0].script,
                         "game": settings.gameHost,
-                        "level": payload.payload.level
+                        "level": payload[0].payload.level
                     },
-                    "values": [
-                        [payload.timestamp, payload.payload.message]
-                    ]
+                    "values": values
                 }
             ]
         };
@@ -335,7 +381,9 @@ const sendLog = async function (ns, settings, payload) {
         if (!response.ok) {
             ns.tprint(`ERROR: Failed to send logging to loki. HTTP code: ${response.status}`);
         }
+        return response.ok;
     }
+    return false;
 };
 let lokiUrl;
 let lokiRequest;
@@ -382,48 +430,44 @@ async function main(ns) {
     await initLogging(ns);
     const loggingDB = getLoggingDB();
     while (true) {
-        const logLines = new Map();
-        let logLineCursor = await loggingDB.transaction(LoggingTable, 'readonly').store.openCursor();
-        while (logLineCursor != null && logLines.size < 5000) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion 
-            logLines.set(logLineCursor.primaryKey, logLineCursor.value);
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            logLineCursor = await logLineCursor.continue();
-        }
-        for (const logline of logLines) {
-            const payload = LoggingPayload.fromJSON(JSON.stringify(logline[1]));
-            if ("message" in payload.payload) {
-                await sendLog(ns, loggingSettings, payload);
-            }
-            const tx = loggingDB.transaction(LoggingTable, 'readwrite');
-            await tx.store.delete(logline[0]);
-            tx.commit();
-            if (logline[0] % 10 === 0) {
-                ns.print(`sent log ${logline[0]}`);
-            }
-        }
-        const metrics = new Map();
-        let metricCursor = await loggingDB.transaction(MetricTable, 'readonly').store.openCursor();
-        while (metricCursor != null && metrics.size < 5000) {
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            metrics.set(metricCursor.primaryKey, metricCursor.value);
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            metricCursor = await metricCursor.continue();
-        }
-        for (const metric of metrics) {
-            const payload = LoggingPayload.fromJSON(JSON.stringify(metric[1]));
-            if ("key" in payload.payload) {
-                await sendTrace(ns, loggingSettings, payload);
-            }
-            const tx = loggingDB.transaction(MetricTable, 'readwrite');
-            await tx.store.delete(metric[0]);
-            tx.commit();
-            if (metric[0] % 10 === 0) {
-                ns.print(`sent metric ${metric[0]}`);
-            }
-        }
-        await ns.sleep(1);
+        await sendLogs(loggingDB, ns, loggingSettings, LoggingTable, sendLog);
+        await sendLogs(loggingDB, ns, loggingSettings, MetricTable, sendTrace);
+        await ns.sleep(100);
     }
+}
+async function sendLogs(loggingDB, ns, loggingSettings, table, sender) {
+    const logLinesGetAll = await loggingDB.transaction(table, 'readonly').store.getAll(null, 5000);
+    const linesByTrace = new Map();
+    logLinesGetAll.map(x => x.trace).filter(unique).forEach(trace => {
+        const lines = logLinesGetAll.filter(v => { return v.trace === trace; });
+        const keys = lines.map(line => line.timestamp);
+        linesByTrace.set(trace, [lines, keys]);
+    });
+    const traceSuccessful = new Map();
+    for (const trace of linesByTrace) {
+        if (trace[1][0].length > 0) {
+            traceSuccessful.set(trace[0], await sender(ns, loggingSettings, trace[1][0]));
+        }
+    }
+    const toDelete = [];
+    for (const trace of linesByTrace) {
+        if (traceSuccessful.get(trace[0]) && trace[1][1].length > 0) {
+            for (const index of trace[1][1]) {
+                const cursor = await loggingDB.transaction(table, 'readonly').store.index("timestamp").openCursor(index);
+                if (cursor) {
+                    toDelete.push(cursor.primaryKey);
+                }
+            }
+        }
+    }
+    const deletes = [];
+    const tx = loggingDB.transaction(table, 'readwrite');
+    toDelete.forEach(primaryKey => {
+        deletes.push(tx.store.delete(primaryKey));
+    });
+    deletes.push(tx.done);
+    await Promise.all(deletes)
+        .catch(x => console.log(`failed to delete: ${x}`));
 }
 
 export { loggingServicePath, main };
