@@ -158,7 +158,12 @@ export async function main(ns: NS): Promise<void> {
 async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSettings: LoggingSettings,
     table: "logging" | "metrics",
     sender: (ns: NS, settings: LoggingSettings, payload: LoggingPayload[]) => Promise<boolean>) {
+    const lineCount = await loggingDB.transaction(table, 'readonly').store.count()
+    if (lineCount == 0) {
+        return
+    }
     const logLinesGetAll = await loggingDB.transaction(table, 'readonly').store.getAll(null, 5000);
+
     const linesByTrace = new Map<string, [LoggingPayload[], number[]]>()
 
     logLinesGetAll.map(x => x.trace).filter(unique).forEach(trace => {
