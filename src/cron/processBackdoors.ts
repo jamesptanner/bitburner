@@ -9,21 +9,21 @@ export async function main(ns: NS): Promise<void> {
     if (hosts.length > 0) {
         ns.tprintf(`need to backdoor : ${hosts.join()}`)
         for (const host of hosts) {
-            ns.tprintf(`backdooring ${host} starting at ${ns.getCurrentServer()}`)
-            const hops = routeToHost(ns, ns.getCurrentServer(), host)
+            ns.tprintf(`backdooring ${host} starting at ${ns.singularity.getCurrentServer()}`)
+            const hops = routeToHost(ns, ns.singularity.getCurrentServer(), host)
             if (hops && hops.length > 0) {
                 ns.tprintf(`routing via ${hops}`)
 
-                hops.forEach(hop => ns.connect(hop))
+                hops.forEach(hop => ns.singularity.connect(hop))
                 ns.tprintf(`INFO: installing backdoor ${host}`)
-                await ns.installBackdoor();
+                await ns.singularity.installBackdoor();
             }
         }
         ns.printf(`returning home`)
-        const hops = routeToHost(ns, ns.getCurrentServer(), "home")
+        const hops = routeToHost(ns, ns.singularity.getCurrentServer(), "home")
         if (hops && hops.length > 0) {
             ns.tprintf(`routing via ${hops}`)
-            hops.forEach(hop => ns.connect(hop))
+            hops.forEach(hop => ns.singularity.connect(hop))
         }
         ns.rm("toBackdoor.txt","home");
         ns.spawn(MapWindowPath)

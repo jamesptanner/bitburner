@@ -104,7 +104,7 @@ const levelToString = function (level: Level): string {
     return "";
 };
 
-const levelToToast = function (level: Level): string {
+const levelToToast = function (level: Level): "success" | "warning" | "error" | "info" | undefined {
     switch (level) {
         case Level.Error:
             return "error";
@@ -115,7 +115,7 @@ const levelToToast = function (level: Level): string {
         case Level.success:
             return "success";
     }
-    return "";
+    return undefined;
 };
 
 export const log = function (level: Level, msg: string, toast?: boolean): void {
@@ -156,15 +156,6 @@ export const sendMetric = function (key: string, value: string | number): void {
     void tx.store.add(logPayload)
     void tx.done
 };
-
-export const addMetricToBatch = function (key: string, value: string | number): void {
-    const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
-        key: key,
-        value: value,
-    });
-    // loggingBatch.push(logPayload)
-};
-
 
 export const logging = {
     log: log,

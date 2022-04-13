@@ -16,7 +16,7 @@ const chooseAFaction = function (ns: NS, skipFactions:string[]): string {
         return getUniqueAugmentsAvailableFromFaction(ns, faction).length != 0
     })
     if (factionsToComplete.length == 1) return factionsToComplete[0]
-    const factionInvites = ns.checkFactionInvitations()
+    const factionInvites = ns.singularity.checkFactionInvitations()
     if (factionInvites.length > 0) {
         const readyNow = intersection(factionInvites, factionsToComplete)
         if (readyNow.length > 0) return readyNow[0]
@@ -40,18 +40,18 @@ const chooseAFaction = function (ns: NS, skipFactions:string[]): string {
 const purchaseAugment = async function (ns: NS, faction: string, augment: string) {
     ns.printf(`INFO: buying ${augment} from ${faction}`)
     let purchaseAttempt = 0
-    while (!ns.purchaseAugmentation(faction, augment) && purchaseAttempt < 3) {
+    while (!ns.singularity.purchaseAugmentation(faction, augment) && purchaseAttempt < 3) {
         let lastMoneyCheck = ns.getPlayer().money
-        while (ns.getPlayer().money < ns.getAugmentationPrice(augment)) {
+        while (ns.getPlayer().money < ns.singularity.getAugmentationPrice(augment)) {
             const currentMoneyCheck = ns.getPlayer().money
             const moneyDiff = currentMoneyCheck - lastMoneyCheck
-            ns.printf(`INFO:estimated time remaining: ${ns.tFormat((ns.getAugmentationPrice(augment) - currentMoneyCheck) / (60*1000 /moneyDiff))}`)
+            ns.printf(`INFO:estimated time remaining: ${ns.tFormat((ns.singularity.getAugmentationPrice(augment) - currentMoneyCheck) / (60*1000 /moneyDiff))}`)
             lastMoneyCheck = currentMoneyCheck
             await ns.sleep(1000 * 60)
         }
         purchaseAttempt++
     }
-    if (purchaseAttempt === 3 && ns.getOwnedAugmentations(true).indexOf(augment) === -1) {
+    if (purchaseAttempt === 3 && ns.singularity.getOwnedAugmentations(true).indexOf(augment) === -1) {
         ns.printf(`ERROR: failed to buy ${augment} from ${faction}`)
     }
     ns.printf(`INFO: bought ${augment} from ${faction}`)
@@ -59,19 +59,19 @@ const purchaseAugment = async function (ns: NS, faction: string, augment: string
 
 const purchaseAugments = async function (ns: NS, faction: string, augments: string[]) {
     const sortedAugments = augments.sort((a, b) => {
-        return ns.getAugmentationPrice(b) - ns.getAugmentationPrice(a) //prices change but the order wont.
+        return ns.singularity.getAugmentationPrice(b) - ns.singularity.getAugmentationPrice(a) //prices change but the order wont.
     })
     for (const augment of sortedAugments) {
         //double check we have the reputation for the augment
-        if(ns.getAugmentationRepReq(augment) < ns.getFactionRep(faction)){
-            await improveFactionReputation(ns,faction,ns.getAugmentationRepReq(augment))
+        if(ns.singularity.getAugmentationRepReq(augment) < ns.singularity.getFactionRep(faction)){
+            await improveFactionReputation(ns,faction,ns.singularity.getAugmentationRepReq(augment))
         }
 
-        if (ns.getAugmentationPrereq(augment).length > 0) {//handle the augment pre requirements first.
+        if (ns.singularity.getAugmentationPrereq(augment).length > 0) {//handle the augment pre requirements first.
             ns.printf(`WARN: getting prerequisite for ${augment} first`)
-            const unownedPrerequisites = ns.getAugmentationPrereq(augment)
+            const unownedPrerequisites = ns.singularity.getAugmentationPrereq(augment)
                 .filter(preReq => {
-                    return ns.getOwnedAugmentations(true).indexOf(preReq) === -1
+                    return ns.singularity.getOwnedAugmentations(true).indexOf(preReq) === -1
                 })
                 for (const preReq of unownedPrerequisites) {
                     await purchaseAugments(ns, faction, [preReq])
@@ -115,7 +115,7 @@ async function unlockNewFactionAndBuyAugments(ns: NS, skippedFactions: string[])
             ns.printf(`INFO: Unlocking faction ${faction}`);
             unlocked = await unlockFaction(ns, faction);
             if (unlocked) {
-                ns.joinFaction(faction);
+                ns.singularity.joinFaction(faction);
             }
             else {
                 ns.printf(`ERROR: Cant faction ${faction}`);
@@ -135,10 +135,10 @@ async function unlockNewFactionAndBuyAugments(ns: NS, skippedFactions: string[])
     const augments = getUniqueAugmentsAvailableFromFaction(ns, faction);
     ns.printf(`INFO: augments available [${augments}]`);
     const maxRepNeeded = augments.reduce((repNeeded, augment) => {
-        return Math.max(repNeeded, ns.getAugmentationRepReq(augment));
+        return Math.max(repNeeded, ns.singularity.getAugmentationRepReq(augment));
     }, 0);
 
-    if (ns.getFactionRep(faction) < maxRepNeeded) {
+    if (ns.singularity.getFactionRep(faction) < maxRepNeeded) {
         ns.printf(`INFO: improving reputation with ${faction}`);
         await improveFactionReputation(ns, faction, maxRepNeeded);
     }
@@ -159,14 +159,14 @@ async function buyExistingAugments(ns:NS,availableAugments:string[]){
         .sort((a,b)=>{
             if(b == null) return 1
             if(a == null) return -1
-            return ns.getAugmentationPrice(a[0]) - ns.getAugmentationPrice(b[0])
+            return ns.singularity.getAugmentationPrice(a[0]) - ns.singularity.getAugmentationPrice(b[0])
         })
         .reverse()
         for(const pair of factionForAugment){
             if(pair === null) continue
             const [augment,faction] = pair
-            if(ns.getAugmentationRepReq(augment) < ns.getFactionRep(faction)){
-                await improveFactionReputation(ns,faction,ns.getAugmentationRepReq(augment))
+            if(ns.singularity.getAugmentationRepReq(augment) < ns.singularity.getFactionRep(faction)){
+                await improveFactionReputation(ns,faction,ns.singularity.getAugmentationRepReq(augment))
             }
             await purchaseAugments(ns, faction, [augment]);
         }

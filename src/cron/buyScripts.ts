@@ -7,7 +7,7 @@ export const buyScriptsPath ="/cron/buyScripts.js";
 export async function main(ns : NS) : Promise<void> {
     const player = ns.getPlayer()
     if(!player.tor){
-        if(!ns.purchaseTor()){
+        if(!ns.singularity.purchaseTor()){
             ns.printf(`not enough money to buy tor router`)
             ns.exit()
         }
@@ -16,7 +16,7 @@ export async function main(ns : NS) : Promise<void> {
     for (const scriptInfo of scripts) {
         const script = scriptInfo[0];
         if (!ns.fileExists(script)) {
-           if(!ns.purchaseProgram(script)){
+           if(!ns.singularity.purchaseProgram(script)){
                ns.printf(`not enough money to buy ${script}`)
            }
         }
