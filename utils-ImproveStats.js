@@ -346,7 +346,7 @@ const levelToToast = function (level) {
         case Level.success:
             return "success";
     }
-    return "";
+    return undefined;
 };
 const log = function (level, msg, toast) {
     if (toast) {
@@ -399,25 +399,25 @@ const improveStat = async function (ns, hacking = 0, combat = 0, charisma = 0) {
         else if (player.hacking < hacking)
             skill = 'hacking';
         if (skill === "") {
-            ns.stopAction();
+            ns.singularity.stopAction();
             break;
         }
-        if (previousSkill !== skill || !ns.isBusy()) {
+        if (previousSkill !== skill || !ns.singularity.isBusy()) {
             previousSkill = skill;
             if (player.location.toLowerCase() !== "sector-12") {
-                ns.goToLocation("sector-12");
+                ns.singularity.goToLocation("sector-12");
             }
             ns.clearLog();
             if (['agility', 'strength', 'defense', 'dexterity'].indexOf(skill) !== -1) {
-                ns.gymWorkout("powerhouse gym", skill);
+                ns.singularity.gymWorkout("powerhouse gym", skill);
                 logging.info(`Working on ${skill} at powerhouse gym`);
             }
             else if (skill === 'charisma') {
-                ns.universityCourse('rothman university', "leadership");
+                ns.singularity.universityCourse('rothman university', "leadership");
                 logging.info(`Working on ${skill} at rothman university`);
             }
             else if (skill === 'hacking') {
-                ns.universityCourse('rothman university', "algorithms");
+                ns.singularity.universityCourse('rothman university', "algorithms");
                 logging.info(`Working on ${skill} at rothman university`);
             }
         }

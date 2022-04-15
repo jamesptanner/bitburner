@@ -346,7 +346,7 @@ const levelToToast = function (level) {
         case Level.success:
             return "success";
     }
-    return "";
+    return undefined;
 };
 const log = function (level, msg, toast) {
     if (toast) {

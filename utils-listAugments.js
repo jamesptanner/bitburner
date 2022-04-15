@@ -346,7 +346,7 @@ const levelToToast = function (level) {
         case Level.success:
             return "success";
     }
-    return "";
+    return undefined;
 };
 const log = function (level, msg, toast) {
     if (toast) {
@@ -397,8 +397,8 @@ const factions = [
     // "Church of the Machine God", //not sure who these are yet.
 ];
 const getAugmentsAvailableFromFaction = function (ns, faction) {
-    return ns.getAugmentationsFromFaction(faction).filter(augment => {
-        return ns.getOwnedAugmentations(true).indexOf(augment) == -1;
+    return ns.singularity.getAugmentationsFromFaction(faction).filter(augment => {
+        return ns.singularity.getOwnedAugmentations(true).indexOf(augment) == -1;
     });
 };
 

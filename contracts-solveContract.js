@@ -151,7 +151,7 @@ function ArrayJump(ns, data) {
     if (Array.isArray(data) && data.every(val => typeof val === 'number')) {
         ns.print(`${JSON.stringify(data)} type:${typeof data}`);
         const numberArray = data;
-        const result = checkPosition(ns, numberArray, 0);
+        const result = checkPosition(ns, numberArray, 0, 0);
         ns.tprintf(`${result}`);
         if (result) {
             return 1;
@@ -160,17 +160,41 @@ function ArrayJump(ns, data) {
     }
     throw new Error("Unexpected data types Unable to solve contract.");
 }
-function checkPosition(ns, array, pos) {
+// "Array Jumping Game II"
+// You are given the following array of integers:
+// 4,3,7,5
+// Each element in the array represents your MAXIMUM jump length at that position. 
+// This means that if you are at position i and your maximum jump length is n, you 
+// can jump to any position from i to i+n.
+// Assuming you are initially positioned at the start of the array, determine the 
+// minimum number of jumps to reach the end of the array.
+// If it's impossible to reach the end, then the answer should be 0.
+function ArrayJump2(ns, data) {
+    if (Array.isArray(data) && data.every(val => typeof val === 'number')) {
+        ns.print(`${JSON.stringify(data)} type:${typeof data}`);
+        const numberArray = data;
+        const [result, minHops] = checkPosition(ns, numberArray, 0, 0);
+        ns.tprintf(`${result}`);
+        if (result) {
+            return minHops;
+        }
+        return 0;
+    }
+    throw new Error("Unexpected data types Unable to solve contract.");
+}
+function checkPosition(ns, array, pos, depth) {
     ns.print(`${array}: checking position ${pos}`);
     if (pos == array.length - 1)
-        return true;
+        return [true, depth];
+    let minHops = array.length;
     for (let jumpDist = 1; jumpDist <= array[pos]; jumpDist++) {
         ns.print(`Jumping ${jumpDist}`);
-        if (checkPosition(ns, array, pos + jumpDist)) {
-            return true;
+        const [reachedEnd, hops] = checkPosition(ns, array, pos + jumpDist, depth + 1);
+        if (reachedEnd) {
+            minHops = Math.min(minHops, hops);
         }
     }
-    return false;
+    return minHops;
 }
 // "Merge Overlapping Intervals"
 // Given an array of intervals, merge all overlapping intervals. An interval
@@ -363,8 +387,97 @@ function FindValidMathExpressions(ns, data) {
         }
         const result = [];
         helper(result, "", num, target, 0, 0, 0);
-        ns.tprintf(`${Array.from(result)}`);
+        ns.print(`${Array.from(result)}`);
         return result;
+    }
+    throw new Error("Unexpected data types Unable to solve contract.");
+}
+// You are given the following encoded binary String:
+// '01010101000'
+// Treat it as a Hammingcode with 1 'possible' error on an random Index.
+// Find the 'possible' wrong bit, fix it and extract the decimal value, which is hidden inside the string.
+// Note: The length of the binary string is dynamic, but it's encoding/decoding is following Hammings 'rule'
+// Note 2: Index 0 is an 'overall' parity bit. Watch the Hammingcode-video from 3Blue1Brown for more information
+// Note 3: There's a ~55% chance for an altered Bit. So... MAYBE there is an altered Bit 😉
+// Extranote for automation: return the decimal value as a string
+function HammingBtoI(ns, data) {
+    const bin2Dec = function (bin) {
+        return parseInt(bin, 2);
+    };
+    if (typeof data === 'string') {
+        const binary = data;
+        const bits = [];
+        for (const c of binary) {
+            bits.push(c === '1' ? 1 : 0);
+        }
+        const err = bits.map((v, i) => { return v > 0 ? i : 0; }).reduce((p, c) => { return p ^ c; });
+        if (err > 0) {
+            ns.tprint(`error at ${err}`);
+            bits[err] = (bits[err] === 1) ? 0 : 1;
+        }
+        else {
+            ns.tprint('no error detected.');
+        }
+        for (let bit = bits.length - 1; bit >= 0; bit--) {
+            if ((bit & (bit - 1)) === 0) {
+                bits.splice(bit, 1);
+            }
+        }
+        ns.tprint(`remaining bits: ${bits.join('')}`);
+        const integer = bin2Dec(bits.join(''));
+        ns.tprint(`integer value: ${integer}`);
+        return [`${integer}`];
+    }
+    throw new Error("Unexpected data types Unable to solve contract.");
+}
+// You are given the following decimal Value:
+// 1084208828266
+// Convert it into a binary string and encode it as a 'Hamming-Code'. eg:
+// Value 8 will result into binary '1000', which will be encoded with the pattern 'pppdpddd', where p is a paritybit and d a databit,
+// or '10101' (Value 21) will result into (pppdpdddpd) '1001101011'.
+// NOTE: You need an parity Bit on Index 0 as an 'overall'-paritybit.
+// NOTE 2: You should watch the HammingCode-video from 3Blue1Brown, which explains the 'rule' of encoding, including the first Index parity-bit mentioned on the first note.
+// Now the only one rule for this encoding:
+// It's not allowed to add additional leading '0's to the binary value
+// That means, the binary value has to be encoded as it is
+function HammingItoB(ns, data) {
+    const decToBin = function (dec) {
+        const bin = [];
+        while (dec > 0) {
+            bin.push(dec % 2);
+            dec = Math.floor(dec / 2);
+        }
+        return bin;
+    };
+    if (typeof data === 'number') {
+        const decimal = data;
+        ns.tprint(`converting: ${decimal}`);
+        //convert decimal to binary
+        const bin = decToBin(decimal);
+        ns.tprint(`convert to binary: ${bin.join('')}`);
+        //calculate number of parity bits 
+        const controlBitsIndex = [];
+        let i = 1;
+        while ((bin.length + controlBitsIndex.length) / i >= 1) {
+            controlBitsIndex.push(i);
+            i *= 2;
+        }
+        bin.splice(0, 0, 0);
+        controlBitsIndex.forEach(i => {
+            bin.splice(i, 0, 0);
+        });
+        // ns.tprint(`inserted parity: ${bin.join('')}`)
+        controlBitsIndex.forEach(i => {
+            // ns.tprint(`calculating parity ${i}`)
+            bin[i] = bin.reduce((prev, curr, index) => { return prev ^ (index & i) ? curr : 0; });
+            // ns.tprint(`${i} parity: ${bin[i]}`)
+            // ns.tprint(`bin update: ${bin.join('')}`)
+        });
+        // ns.tprint(`calulating parity 0`)
+        bin[0] = bin.reduce((prev, curr) => { return prev ^ curr; });
+        // ns.tprint(`0 parity: ${bin[0]}`)
+        ns.tprint(`with parity: ${bin.join('')}`);
+        return [bin.join('')];
     }
     throw new Error("Unexpected data types Unable to solve contract.");
 }
@@ -583,6 +696,374 @@ function UniquePath2(ns, data) {
     throw new Error("Unexpected data types Unable to solve contract.");
 }
 
+const instanceOfAny = (object, constructors) => constructors.some((c) => object instanceof c);
+
+let idbProxyableTypes;
+let cursorAdvanceMethods;
+// This is a function to prevent it throwing up in node environments.
+function getIdbProxyableTypes() {
+    return (idbProxyableTypes ||
+        (idbProxyableTypes = [
+            IDBDatabase,
+            IDBObjectStore,
+            IDBIndex,
+            IDBCursor,
+            IDBTransaction,
+        ]));
+}
+// This is a function to prevent it throwing up in node environments.
+function getCursorAdvanceMethods() {
+    return (cursorAdvanceMethods ||
+        (cursorAdvanceMethods = [
+            IDBCursor.prototype.advance,
+            IDBCursor.prototype.continue,
+            IDBCursor.prototype.continuePrimaryKey,
+        ]));
+}
+const cursorRequestMap = new WeakMap();
+const transactionDoneMap = new WeakMap();
+const transactionStoreNamesMap = new WeakMap();
+const transformCache = new WeakMap();
+const reverseTransformCache = new WeakMap();
+function promisifyRequest(request) {
+    const promise = new Promise((resolve, reject) => {
+        const unlisten = () => {
+            request.removeEventListener('success', success);
+            request.removeEventListener('error', error);
+        };
+        const success = () => {
+            resolve(wrap(request.result));
+            unlisten();
+        };
+        const error = () => {
+            reject(request.error);
+            unlisten();
+        };
+        request.addEventListener('success', success);
+        request.addEventListener('error', error);
+    });
+    promise
+        .then((value) => {
+        // Since cursoring reuses the IDBRequest (*sigh*), we cache it for later retrieval
+        // (see wrapFunction).
+        if (value instanceof IDBCursor) {
+            cursorRequestMap.set(value, request);
+        }
+        // Catching to avoid "Uncaught Promise exceptions"
+    })
+        .catch(() => { });
+    // This mapping exists in reverseTransformCache but doesn't doesn't exist in transformCache. This
+    // is because we create many promises from a single IDBRequest.
+    reverseTransformCache.set(promise, request);
+    return promise;
+}
+function cacheDonePromiseForTransaction(tx) {
+    // Early bail if we've already created a done promise for this transaction.
+    if (transactionDoneMap.has(tx))
+        return;
+    const done = new Promise((resolve, reject) => {
+        const unlisten = () => {
+            tx.removeEventListener('complete', complete);
+            tx.removeEventListener('error', error);
+            tx.removeEventListener('abort', error);
+        };
+        const complete = () => {
+            resolve();
+            unlisten();
+        };
+        const error = () => {
+            reject(tx.error || new DOMException('AbortError', 'AbortError'));
+            unlisten();
+        };
+        tx.addEventListener('complete', complete);
+        tx.addEventListener('error', error);
+        tx.addEventListener('abort', error);
+    });
+    // Cache it for later retrieval.
+    transactionDoneMap.set(tx, done);
+}
+let idbProxyTraps = {
+    get(target, prop, receiver) {
+        if (target instanceof IDBTransaction) {
+            // Special handling for transaction.done.
+            if (prop === 'done')
+                return transactionDoneMap.get(target);
+            // Polyfill for objectStoreNames because of Edge.
+            if (prop === 'objectStoreNames') {
+                return target.objectStoreNames || transactionStoreNamesMap.get(target);
+            }
+            // Make tx.store return the only store in the transaction, or undefined if there are many.
+            if (prop === 'store') {
+                return receiver.objectStoreNames[1]
+                    ? undefined
+                    : receiver.objectStore(receiver.objectStoreNames[0]);
+            }
+        }
+        // Else transform whatever we get back.
+        return wrap(target[prop]);
+    },
+    set(target, prop, value) {
+        target[prop] = value;
+        return true;
+    },
+    has(target, prop) {
+        if (target instanceof IDBTransaction &&
+            (prop === 'done' || prop === 'store')) {
+            return true;
+        }
+        return prop in target;
+    },
+};
+function replaceTraps(callback) {
+    idbProxyTraps = callback(idbProxyTraps);
+}
+function wrapFunction(func) {
+    // Due to expected object equality (which is enforced by the caching in `wrap`), we
+    // only create one new func per func.
+    // Edge doesn't support objectStoreNames (booo), so we polyfill it here.
+    if (func === IDBDatabase.prototype.transaction &&
+        !('objectStoreNames' in IDBTransaction.prototype)) {
+        return function (storeNames, ...args) {
+            const tx = func.call(unwrap(this), storeNames, ...args);
+            transactionStoreNamesMap.set(tx, storeNames.sort ? storeNames.sort() : [storeNames]);
+            return wrap(tx);
+        };
+    }
+    // Cursor methods are special, as the behaviour is a little more different to standard IDB. In
+    // IDB, you advance the cursor and wait for a new 'success' on the IDBRequest that gave you the
+    // cursor. It's kinda like a promise that can resolve with many values. That doesn't make sense
+    // with real promises, so each advance methods returns a new promise for the cursor object, or
+    // undefined if the end of the cursor has been reached.
+    if (getCursorAdvanceMethods().includes(func)) {
+        return function (...args) {
+            // Calling the original function with the proxy as 'this' causes ILLEGAL INVOCATION, so we use
+            // the original object.
+            func.apply(unwrap(this), args);
+            return wrap(cursorRequestMap.get(this));
+        };
+    }
+    return function (...args) {
+        // Calling the original function with the proxy as 'this' causes ILLEGAL INVOCATION, so we use
+        // the original object.
+        return wrap(func.apply(unwrap(this), args));
+    };
+}
+function transformCachableValue(value) {
+    if (typeof value === 'function')
+        return wrapFunction(value);
+    // This doesn't return, it just creates a 'done' promise for the transaction,
+    // which is later returned for transaction.done (see idbObjectHandler).
+    if (value instanceof IDBTransaction)
+        cacheDonePromiseForTransaction(value);
+    if (instanceOfAny(value, getIdbProxyableTypes()))
+        return new Proxy(value, idbProxyTraps);
+    // Return the same value back if we're not going to transform it.
+    return value;
+}
+function wrap(value) {
+    // We sometimes generate multiple promises from a single IDBRequest (eg when cursoring), because
+    // IDB is weird and a single IDBRequest can yield many responses, so these can't be cached.
+    if (value instanceof IDBRequest)
+        return promisifyRequest(value);
+    // If we've already transformed this value before, reuse the transformed value.
+    // This is faster, but it also provides object equality.
+    if (transformCache.has(value))
+        return transformCache.get(value);
+    const newValue = transformCachableValue(value);
+    // Not all types are transformed.
+    // These may be primitive types, so they can't be WeakMap keys.
+    if (newValue !== value) {
+        transformCache.set(value, newValue);
+        reverseTransformCache.set(newValue, value);
+    }
+    return newValue;
+}
+const unwrap = (value) => reverseTransformCache.get(value);
+
+/**
+ * Open a database.
+ *
+ * @param name Name of the database.
+ * @param version Schema version.
+ * @param callbacks Additional callbacks.
+ */
+function openDB(name, version, { blocked, upgrade, blocking, terminated } = {}) {
+    const request = indexedDB.open(name, version);
+    const openPromise = wrap(request);
+    if (upgrade) {
+        request.addEventListener('upgradeneeded', (event) => {
+            upgrade(wrap(request.result), event.oldVersion, event.newVersion, wrap(request.transaction));
+        });
+    }
+    if (blocked)
+        request.addEventListener('blocked', () => blocked());
+    openPromise
+        .then((db) => {
+        if (terminated)
+            db.addEventListener('close', () => terminated());
+        if (blocking)
+            db.addEventListener('versionchange', () => blocking());
+    })
+        .catch(() => { });
+    return openPromise;
+}
+
+const readMethods = ['get', 'getKey', 'getAll', 'getAllKeys', 'count'];
+const writeMethods = ['put', 'add', 'delete', 'clear'];
+const cachedMethods = new Map();
+function getMethod(target, prop) {
+    if (!(target instanceof IDBDatabase &&
+        !(prop in target) &&
+        typeof prop === 'string')) {
+        return;
+    }
+    if (cachedMethods.get(prop))
+        return cachedMethods.get(prop);
+    const targetFuncName = prop.replace(/FromIndex$/, '');
+    const useIndex = prop !== targetFuncName;
+    const isWrite = writeMethods.includes(targetFuncName);
+    if (
+    // Bail if the target doesn't exist on the target. Eg, getAll isn't in Edge.
+    !(targetFuncName in (useIndex ? IDBIndex : IDBObjectStore).prototype) ||
+        !(isWrite || readMethods.includes(targetFuncName))) {
+        return;
+    }
+    const method = async function (storeName, ...args) {
+        // isWrite ? 'readwrite' : undefined gzipps better, but fails in Edge :(
+        const tx = this.transaction(storeName, isWrite ? 'readwrite' : 'readonly');
+        let target = tx.store;
+        if (useIndex)
+            target = target.index(args.shift());
+        // Must reject if op rejects.
+        // If it's a write operation, must reject if tx.done rejects.
+        // Must reject with op rejection first.
+        // Must resolve with op value.
+        // Must handle both promises (no unhandled rejections)
+        return (await Promise.all([
+            target[targetFuncName](...args),
+            isWrite && tx.done,
+        ]))[0];
+    };
+    cachedMethods.set(prop, method);
+    return method;
+}
+replaceTraps((oldTraps) => ({
+    ...oldTraps,
+    get: (target, prop, receiver) => getMethod(target, prop) || oldTraps.get(target, prop, receiver),
+    has: (target, prop) => !!getMethod(target, prop) || oldTraps.has(target, prop),
+}));
+
+var Level;
+(function (Level) {
+    Level[Level["Error"] = 0] = "Error";
+    Level[Level["Warning"] = 1] = "Warning";
+    Level[Level["Info"] = 2] = "Info";
+    Level[Level["success"] = 3] = "success";
+})(Level || (Level = {}));
+class LoggingPayload {
+    host;
+    script;
+    trace;
+    timestamp;
+    payload;
+    constructor(host, script, trace, payload) {
+        if (host)
+            this.host = host;
+        if (script)
+            this.script = script;
+        if (trace)
+            this.trace = trace;
+        if (payload)
+            this.payload = payload;
+        this.timestamp = (performance.now() + performance.timeOrigin) * 1000000;
+    }
+    static fromJSON(d) {
+        return Object.assign(new LoggingPayload(), JSON.parse(d));
+    }
+}
+//from https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid.
+//cant import crypto so this should do.
+//TODO keep an eye out for something better.
+function generateUUID() {
+    let d = new Date().getTime(); //Timestamp
+    let d2 = ((typeof performance !== 'undefined') && performance.now && (performance.now() * 1000)) || 0; //Time in microseconds since page-load or 0 if unsupported
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+        let r = Math.random() * 16; //random number between 0 and 16
+        if (d > 0) { //Use timestamp until depleted
+            r = (d + r) % 16 | 0;
+            d = Math.floor(d / 16);
+        }
+        else { //Use microseconds since page-load if supported
+            r = (d2 + r) % 16 | 0;
+            d2 = Math.floor(d2 / 16);
+        }
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+}
+const loggingTrace = generateUUID();
+let n;
+const DBVERSION = 1;
+const LoggingTable = "logging";
+const MetricTable = "metrics";
+let loggingDB;
+const initLogging = async function (ns) {
+    n = ns;
+    // loggingDB = await DB.open("BBLogging",DBVERSION,createDB)
+    loggingDB = await openDB("BBLogging", DBVERSION, {
+        upgrade(db, prevVersion) {
+            if (prevVersion < 1) {
+                const loggingStore = db.createObjectStore(LoggingTable, { autoIncrement: true });
+                loggingStore.createIndex("timestamp", "timestamp", { unique: false });
+                const metricStore = db.createObjectStore(MetricTable, { autoIncrement: true });
+                metricStore.createIndex("timestamp", "timestamp", { unique: false });
+            }
+        }
+    });
+};
+const levelToString = function (level) {
+    switch (level) {
+        case Level.Error:
+            return "ERROR";
+        case Level.Info:
+            return "INFO";
+        case Level.Warning:
+            return "WARNING";
+        case Level.success:
+            return "SUCCESS";
+    }
+    return "";
+};
+const levelToToast = function (level) {
+    switch (level) {
+        case Level.Error:
+            return "error";
+        case Level.Info:
+            return "info";
+        case Level.Warning:
+            return "warning";
+        case Level.success:
+            return "success";
+    }
+    return undefined;
+};
+const log = function (level, msg, toast) {
+    if (toast) {
+        n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
+    }
+    n.print(`${levelToString(level)}: ${msg}`);
+    const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
+        level: level,
+        message: msg,
+    });
+    const tx = loggingDB.transaction(LoggingTable, 'readwrite');
+    void tx.store.add(logPayload);
+};
+const error = function (msg, toast) {
+    log(Level.Error, msg, toast);
+};
+
+const unsolveableContractPath = "/contracts/unsolveableContract.js";
+
 const solveContractPath = "/contracts/solveContract.js";
 const processors = new Map([
     ["Find Largest Prime Factor", largestPrimeFactor],
@@ -590,6 +1071,7 @@ const processors = new Map([
     ["Total Ways to Sum", TotalSums],
     ["Spiralize Matrix", SpiralMatrix],
     ["Array Jumping Game", ArrayJump],
+    ["Array Jumping Game II", ArrayJump2],
     ["Merge Overlapping Intervals", MergeOverlapping],
     ["Generate IP Addresses", GenerateIPAddresses],
     ["Algorithmic Stock Trader I", StockTrader1],
@@ -600,9 +1082,12 @@ const processors = new Map([
     ["Unique Paths in a Grid I", UniquePath1],
     ["Unique Paths in a Grid II", UniquePath2],
     ["Sanitize Parentheses in Expression", SanitizeParentheses],
-    ["Find All Valid Math Expressions", FindValidMathExpressions], //Strings
+    ["Find All Valid Math Expressions", FindValidMathExpressions],
+    ["HammingCodes: Encoded Binary to Integer", HammingBtoI],
+    ["HammingCodes: Integer to encoded Binary", HammingItoB], //Strings
 ]);
 async function main(ns) {
+    await initLogging(ns);
     const usage = `solveContract.ts USAGE: ${solveContractPath} <contract filename> <host>`;
     if (ns.args.length != 2) {
         ns.tprintf(`Invalid number of arguments`);
@@ -623,27 +1108,33 @@ async function main(ns) {
     }
     const type = ns.codingcontract.getContractType(filename, host);
     const data = ns.codingcontract.getData(filename, host);
-    const answer = processors.get(type)?.(ns, data);
-    if (answer !== undefined) {
-        const result = ns.codingcontract.attempt(answer, filename, host, { returnReward: true });
-        if (result === "") {
-            ns.toast(`Failed Contract: ${host}.${filename} - '${type}'`, "error");
-            ns.tprintf(`Failed Contract: ${host}.${filename} - '${type}'`);
-            const failed = {
-                answer: answer,
-                type: type,
-                data: data
-            };
-            await ns.write("failedContracts.txt", failed + "\n", "a");
+    try {
+        const answer = processors.get(type)?.(ns, data);
+        if (answer !== undefined) {
+            const result = ns.codingcontract.attempt(answer, filename, host, { returnReward: true });
+            if (result === "") {
+                ns.toast(`Failed Contract: ${host}.${filename} - '${type}'`, "error");
+                ns.spawn(unsolveableContractPath, 1, "--file", filename, "--host", host);
+            }
+            else {
+                ns.toast(`${result}`, "success");
+                ns.tprintf(`${result}`);
+                await ns.write("solvedContracts.txt", [type, data, answer, "\n"], 'a');
+            }
         }
         else {
-            ns.toast(`${result}`, "success");
-            ns.tprintf(`${result}`);
+            ns.toast(`unable to process contract: ${host}.${filename} - '${type}'`, "warning");
+            ns.spawn(unsolveableContractPath, 1, "--file", filename, "--host", host);
+            // ns.tprintf(`${ns.codingcontract.getDescription(filename,host)}\n\n`)
         }
     }
-    else {
-        ns.toast(`unable to process contract: ${host}.${filename} - '${type}'`, "warning");
-        // ns.tprintf(`${ns.codingcontract.getDescription(filename,host)}\n\n`)
+    catch (e) {
+        if (typeof e === "string") {
+            error(e, true);
+        }
+        else if (e instanceof Error) {
+            error(e.message, true);
+        }
     }
 }
 

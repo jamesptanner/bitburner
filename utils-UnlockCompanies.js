@@ -73,7 +73,7 @@ const levelToToast = function (level) {
         case Level.success:
             return "success";
     }
-    return "";
+    return undefined;
 };
 const log = function (level, msg, toast) {
     if (toast) {
@@ -309,7 +309,7 @@ const getAvailableFactions = function (ns) {
     const player = ns.getPlayer();
     return factions.filter(faction => {
         return player.factions.indexOf(faction) != -1 ||
-            ns.checkFactionInvitations().indexOf(faction) != -1;
+            ns.singularity.checkFactionInvitations().indexOf(faction) != -1;
     });
 };
 const waitToBackdoor = async function (ns, server) {
@@ -319,23 +319,24 @@ const waitToBackdoor = async function (ns, server) {
             ns.printf(`improving hacking skills at uni`);
             //improve hacking skill
             if (!ns.getPlayer().isWorking) {
-                if (ns.travelToCity('Volhaven')) {
-                    ns.universityCourse("ZB Institute of Technology", "Algorithms");
+                if (ns.singularity.travelToCity('Volhaven')) {
+                    ns.singularity.universityCourse("ZB Institute of Technology", "Algorithms");
                 }
             }
         }
         await ns.sleep(60 * 1000);
     }
     if (ns.getPlayer().workType === "Studying or Taking a class at university") {
-        ns.stopAction();
+        ns.singularity.stopAction();
     }
 };
 const repForNextRole = function (ns, corpName) {
-    const charInfo = ns.getCharacterInformation();
+    ns.singularity.getCharacterInformation();
+    const jobs = ns.getPlayer().jobs;
     // typedef is incorrect for deprecated charInfo.
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore 
-    switch (charInfo.jobTitles[charInfo.jobs.indexOf(corpName)]) {
+    switch (jobs.get(corpName)) {
         case "IT Intern":
             return 7e3;
         case "Software Engineering Intern":
@@ -364,21 +365,21 @@ const repForNextRole = function (ns, corpName) {
 };
 const improveCorporateReputation = async function (ns, corpName, reputation) {
     ns.printf(`Waiting to impove reputation with ${corpName}`);
-    while (ns.getCompanyRep(corpName) < reputation) {
-        ns.applyToCompany(corpName, "software");
-        ns.workForCompany(corpName);
-        const currentRep = ns.getCompanyRep(corpName);
+    while (ns.singularity.getCompanyRep(corpName) < reputation) {
+        ns.singularity.applyToCompany(corpName, "software");
+        ns.singularity.workForCompany(corpName);
+        const currentRep = ns.singularity.getCompanyRep(corpName);
         while (currentRep + (ns.getPlayer().workRepGained * 2) < reputation ||
             currentRep + (ns.getPlayer().workRepGained * 2) < repForNextRole(ns, corpName)) {
             await ns.sleep(60 * 1000);
-            if (!ns.isBusy()) {
-                ns.workForCompany(corpName);
+            if (!ns.singularity.isBusy()) {
+                ns.singularity.workForCompany(corpName);
             }
             const repNeeded = ((reputation - currentRep) * 2) - ns.getPlayer().workRepGained;
             ns.printf(`INFO:RepNeeded: ${repNeeded}, repGain: ${ns.getPlayer().workRepGainRate * 5}`);
             ns.printf(`INFO:estimated time remaining: ${ns.tFormat(repNeeded * 1000 / (ns.getPlayer().workRepGainRate * 5))}`);
         }
-        ns.stopAction();
+        ns.singularity.stopAction();
     }
 };
 const unlockFaction = async function (ns, faction) {
@@ -393,13 +394,13 @@ const unlockFaction = async function (ns, faction) {
         return false;
     while (ns.getPlayer().factions.indexOf(faction) === -1) {
         if (requirements.augments) {
-            if (requirements.augments > ns.getOwnedAugmentations(false).length) {
-                ns.printf(`Not enough augments installed ${ns.getOwnedAugmentations(false)}/${requirements.augments}`);
+            if (requirements.augments > ns.singularity.getOwnedAugmentations(false).length) {
+                ns.printf(`Not enough augments installed ${ns.singularity.getOwnedAugmentations(false)}/${requirements.augments}`);
                 return false;
             }
         }
         if (requirements.location && ns.getPlayer().location !== requirements.location) {
-            ns.travelToCity(requirements.location);
+            ns.singularity.travelToCity(requirements.location);
         }
         if (requirements.cash && ns.getPlayer().money < requirements.cash) {
             await ns.sleep(1000 * 60);
@@ -424,7 +425,7 @@ const unlockFaction = async function (ns, faction) {
         if (requirements.backdoor) {
             await waitToBackdoor(ns, requirements.backdoor);
         }
-        ns.joinFaction(faction);
+        ns.singularity.joinFaction(faction);
     }
     return true;
 };
@@ -447,25 +448,25 @@ const improveStat = async function (ns, hacking = 0, combat = 0, charisma = 0) {
         else if (player.hacking < hacking)
             skill = 'hacking';
         if (skill === "") {
-            ns.stopAction();
+            ns.singularity.stopAction();
             break;
         }
-        if (previousSkill !== skill || !ns.isBusy()) {
+        if (previousSkill !== skill || !ns.singularity.isBusy()) {
             previousSkill = skill;
             if (player.location.toLowerCase() !== "sector-12") {
-                ns.goToLocation("sector-12");
+                ns.singularity.goToLocation("sector-12");
             }
             ns.clearLog();
             if (['agility', 'strength', 'defense', 'dexterity'].indexOf(skill) !== -1) {
-                ns.gymWorkout("powerhouse gym", skill);
+                ns.singularity.gymWorkout("powerhouse gym", skill);
                 logging.info(`Working on ${skill} at powerhouse gym`);
             }
             else if (skill === 'charisma') {
-                ns.universityCourse('rothman university', "leadership");
+                ns.singularity.universityCourse('rothman university', "leadership");
                 logging.info(`Working on ${skill} at rothman university`);
             }
             else if (skill === 'hacking') {
-                ns.universityCourse('rothman university', "algorithms");
+                ns.singularity.universityCourse('rothman university', "algorithms");
                 logging.info(`Working on ${skill} at rothman university`);
             }
         }

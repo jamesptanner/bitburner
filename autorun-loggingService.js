@@ -432,11 +432,15 @@ async function main(ns) {
     while (true) {
         await sendLogs(loggingDB, ns, loggingSettings, LoggingTable, sendLog);
         await sendLogs(loggingDB, ns, loggingSettings, MetricTable, sendTrace);
-        await ns.sleep(100);
+        await ns.sleep(500);
     }
 }
 async function sendLogs(loggingDB, ns, loggingSettings, table, sender) {
-    const logLinesGetAll = await loggingDB.transaction(table, 'readonly').store.getAll(null, 5000);
+    const lineCount = await loggingDB.transaction(table, 'readonly').store.count();
+    if (lineCount == 0) {
+        return new Promise((res) => { res(); });
+    }
+    const logLinesGetAll = await loggingDB.transaction(table, 'readonly').store.getAll(null, 2500);
     const linesByTrace = new Map();
     logLinesGetAll.map(x => x.trace).filter(unique).forEach(trace => {
         const lines = logLinesGetAll.filter(v => { return v.trace === trace; });
@@ -466,8 +470,11 @@ async function sendLogs(loggingDB, ns, loggingSettings, table, sender) {
         deletes.push(tx.store.delete(primaryKey));
     });
     deletes.push(tx.done);
-    await Promise.all(deletes)
-        .catch(x => console.log(`failed to delete: ${x}`));
+    return Promise.all(deletes)
+        .then(x => {
+        ns.print(`${x.length - 1} ${table} transactions completed.`);
+    })
+        .catch(x => ns.print(`failed to delete: ${x}`));
 }
 
 export { loggingServicePath, main };

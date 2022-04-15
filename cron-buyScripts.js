@@ -17,7 +17,7 @@ const buyScriptsPath = "/cron/buyScripts.js";
 async function main(ns) {
     const player = ns.getPlayer();
     if (!player.tor) {
-        if (!ns.purchaseTor()) {
+        if (!ns.singularity.purchaseTor()) {
             ns.printf(`not enough money to buy tor router`);
             ns.exit();
         }
@@ -26,7 +26,7 @@ async function main(ns) {
     for (const scriptInfo of scripts) {
         const script = scriptInfo[0];
         if (!ns.fileExists(script)) {
-            if (!ns.purchaseProgram(script)) {
+            if (!ns.singularity.purchaseProgram(script)) {
                 ns.printf(`not enough money to buy ${script}`);
             }
         }

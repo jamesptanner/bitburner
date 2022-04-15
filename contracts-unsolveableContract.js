@@ -360,54 +360,24 @@ const log = function (level, msg, toast) {
     const tx = loggingDB.transaction(LoggingTable, 'readwrite');
     void tx.store.add(logPayload);
 };
-const sendMetric = function (key, value) {
-    const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
-        key: key,
-        value: value,
-    });
-    const tx = loggingDB.transaction(MetricTable, 'readwrite');
-    void tx.store.add(logPayload);
+const warning = function (msg, toast) {
+    log(Level.Warning, msg, toast);
 };
 
-function getAllServers(ns) {
-    return JSON.parse(ns.read("hosts.txt"));
-}
-
-const reportingPath = "/autorun/reporting.js";
+const unsolveableContractPath = "/contracts/unsolveableContract.js";
 async function main(ns) {
     await initLogging(ns);
-    while (true) {
-        const player = ns.getPlayer();
-        sendMetric("player.money", player.money);
-        sendMetric("player.stats.level.hack", player.hacking);
-        sendMetric("player.stats.level.strength", player.strength);
-        sendMetric("player.stats.level.defense", player.defense);
-        sendMetric("player.stats.level.dexterity", player.dexterity);
-        sendMetric("player.stats.level.agility", player.agility);
-        sendMetric("player.stats.level.charisma", player.charisma);
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore property is intentionally undocumented.
-        sendMetric("player.stats.level.karma", ns.heart.break());
-        sendMetric("player.bitnode", player.bitNodeN);
-        getAllServers(ns).concat('home').filter(server => {
-            const serverInfo = ns.getServer(server);
-            return serverInfo.backdoorInstalled || serverInfo.purchasedByPlayer;
-        })
-            .forEach(server => {
-            log(Level.Info, `server:${server} ramused:${ns.getServerUsedRam(server)} rammax:${ns.getServerMaxRam(server)}`);
-        });
-        getAllServers(ns).concat('home')
-            .forEach(server => {
-            const ServerInfo = ns.getServer(server);
-            sendMetric(`server.${server}.backdoorInstalled`, ServerInfo.backdoorInstalled ? 1 : 0);
-            sendMetric(`server.${server}.playerOwned`, ServerInfo.purchasedByPlayer ? 1 : 0);
-            sendMetric(`server.${server}.requiredHacking`, ServerInfo.requiredHackingSkill ? 1 : 0);
-            sendMetric(`server.${server}.backdoorable`, ServerInfo.openPortCount >= ServerInfo.numOpenPortsRequired ? 1 : 0);
-            sendMetric(`server.${server}.maxRam`, ns.getServerMaxRam(server));
-            sendMetric(`server.${server}.usedRam`, ns.getServerUsedRam(server));
-        });
-        await ns.sleep(60000);
+    const args = ns.flags([["file", ""], ["host", ""]]);
+    if (args.host === "" || args.file === "") {
+        warning("Not enough info to find contract", true);
+        ns.exit();
     }
+    const filename = args.file;
+    const host = args.host;
+    const contractDesc = ns.codingcontract.getDescription(filename, host);
+    const contractData = ns.codingcontract.getData(filename, host);
+    const contractType = ns.codingcontract.getContractType(filename, host);
+    await ns.write(filename.replace('cct', 'txt'), [contractType, contractData, contractDesc].join('\n\n'), 'w');
 }
 
-export { main, reportingPath };
+export { main, unsolveableContractPath };

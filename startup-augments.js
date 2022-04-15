@@ -1,5 +1,5 @@
 const needToFocus = function (ns) {
-    if (ns.getOwnedAugmentations(false).indexOf("Neuroreceptor Management Implant") !== -1)
+    if (ns.singularity.getOwnedAugmentations(false).indexOf("Neuroreceptor Management Implant") !== -1)
         return false;
     return true;
 };
@@ -79,7 +79,7 @@ const levelToToast = function (level) {
         case Level.success:
             return "success";
     }
-    return "";
+    return undefined;
 };
 const log = function (level, msg, toast) {
     if (toast) {
@@ -315,12 +315,12 @@ const getAvailableFactions = function (ns) {
     const player = ns.getPlayer();
     return factions.filter(faction => {
         return player.factions.indexOf(faction) != -1 ||
-            ns.checkFactionInvitations().indexOf(faction) != -1;
+            ns.singularity.checkFactionInvitations().indexOf(faction) != -1;
     });
 };
 const getAugmentsAvailableFromFaction = function (ns, faction) {
-    return ns.getAugmentationsFromFaction(faction).filter(augment => {
-        return ns.getOwnedAugmentations(true).indexOf(augment) == -1;
+    return ns.singularity.getAugmentationsFromFaction(faction).filter(augment => {
+        return ns.singularity.getOwnedAugmentations(true).indexOf(augment) == -1;
     });
 };
 const getUniqueAugmentsAvailableFromFaction = function (ns, faction) {
@@ -335,23 +335,24 @@ const waitToBackdoor = async function (ns, server) {
             ns.printf(`improving hacking skills at uni`);
             //improve hacking skill
             if (!ns.getPlayer().isWorking) {
-                if (ns.travelToCity('Volhaven')) {
-                    ns.universityCourse("ZB Institute of Technology", "Algorithms");
+                if (ns.singularity.travelToCity('Volhaven')) {
+                    ns.singularity.universityCourse("ZB Institute of Technology", "Algorithms");
                 }
             }
         }
         await ns.sleep(60 * 1000);
     }
     if (ns.getPlayer().workType === "Studying or Taking a class at university") {
-        ns.stopAction();
+        ns.singularity.stopAction();
     }
 };
 const repForNextRole = function (ns, corpName) {
-    const charInfo = ns.getCharacterInformation();
+    ns.singularity.getCharacterInformation();
+    const jobs = ns.getPlayer().jobs;
     // typedef is incorrect for deprecated charInfo.
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore 
-    switch (charInfo.jobTitles[charInfo.jobs.indexOf(corpName)]) {
+    switch (jobs.get(corpName)) {
         case "IT Intern":
             return 7e3;
         case "Software Engineering Intern":
@@ -380,21 +381,21 @@ const repForNextRole = function (ns, corpName) {
 };
 const improveCorporateReputation = async function (ns, corpName, reputation) {
     ns.printf(`Waiting to impove reputation with ${corpName}`);
-    while (ns.getCompanyRep(corpName) < reputation) {
-        ns.applyToCompany(corpName, "software");
-        ns.workForCompany(corpName);
-        const currentRep = ns.getCompanyRep(corpName);
+    while (ns.singularity.getCompanyRep(corpName) < reputation) {
+        ns.singularity.applyToCompany(corpName, "software");
+        ns.singularity.workForCompany(corpName);
+        const currentRep = ns.singularity.getCompanyRep(corpName);
         while (currentRep + (ns.getPlayer().workRepGained * 2) < reputation ||
             currentRep + (ns.getPlayer().workRepGained * 2) < repForNextRole(ns, corpName)) {
             await ns.sleep(60 * 1000);
-            if (!ns.isBusy()) {
-                ns.workForCompany(corpName);
+            if (!ns.singularity.isBusy()) {
+                ns.singularity.workForCompany(corpName);
             }
             const repNeeded = ((reputation - currentRep) * 2) - ns.getPlayer().workRepGained;
             ns.printf(`INFO:RepNeeded: ${repNeeded}, repGain: ${ns.getPlayer().workRepGainRate * 5}`);
             ns.printf(`INFO:estimated time remaining: ${ns.tFormat(repNeeded * 1000 / (ns.getPlayer().workRepGainRate * 5))}`);
         }
-        ns.stopAction();
+        ns.singularity.stopAction();
     }
 };
 const unlockFaction = async function (ns, faction) {
@@ -409,13 +410,13 @@ const unlockFaction = async function (ns, faction) {
         return false;
     while (ns.getPlayer().factions.indexOf(faction) === -1) {
         if (requirements.augments) {
-            if (requirements.augments > ns.getOwnedAugmentations(false).length) {
-                ns.printf(`Not enough augments installed ${ns.getOwnedAugmentations(false)}/${requirements.augments}`);
+            if (requirements.augments > ns.singularity.getOwnedAugmentations(false).length) {
+                ns.printf(`Not enough augments installed ${ns.singularity.getOwnedAugmentations(false)}/${requirements.augments}`);
                 return false;
             }
         }
         if (requirements.location && ns.getPlayer().location !== requirements.location) {
-            ns.travelToCity(requirements.location);
+            ns.singularity.travelToCity(requirements.location);
         }
         if (requirements.cash && ns.getPlayer().money < requirements.cash) {
             await ns.sleep(1000 * 60);
@@ -440,26 +441,26 @@ const unlockFaction = async function (ns, faction) {
         if (requirements.backdoor) {
             await waitToBackdoor(ns, requirements.backdoor);
         }
-        ns.joinFaction(faction);
+        ns.singularity.joinFaction(faction);
     }
     return true;
 };
 const improveFactionReputation = async function (ns, faction, reputation) {
-    while (reputation > ns.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0)) {
+    while (reputation > ns.singularity.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0)) {
         ns.tail();
-        ns.printf(`INFO: current faction relationship ${faction} is ${ns.nFormat(ns.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0), "0,0.000")}, want ${reputation}.`);
-        ns.printf(`INFO: Time Remaining: ${(ns.getPlayer().currentWorkFactionName === faction ? ns.tFormat(((reputation - (ns.getFactionRep(faction) + ns.getPlayer().workRepGained)) / (ns.getPlayer().workRepGainRate * 5)) * 1000, false) : "unknown")}`);
-        if (!ns.isBusy()) {
+        ns.printf(`INFO: current faction relationship ${faction} is ${ns.nFormat(ns.singularity.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0), "0,0.000")}, want ${reputation}.`);
+        ns.printf(`INFO: Time Remaining: ${(ns.getPlayer().currentWorkFactionName === faction ? ns.tFormat(((reputation - (ns.singularity.getFactionRep(faction) + ns.getPlayer().workRepGained)) / (ns.getPlayer().workRepGainRate * 5)) * 1000, false) : "unknown")}`);
+        if (!ns.singularity.isBusy()) {
             ns.printf(`INFO: improving relationship with ${faction}`);
-            ns.workForFaction(faction, "hacking", true);
+            ns.singularity.workForFaction(faction, "hacking", true);
         }
-        if (!ns.isFocused() && needToFocus(ns)) {
+        if (!ns.singularity.isFocused() && needToFocus(ns)) {
             ns.printf(`focusing on work. ${ns.getPlayer().currentWorkFactionName}`);
-            ns.setFocus(true);
+            ns.singularity.setFocus(true);
         }
         await ns.sleep(1000 * 60);
     }
-    ns.stopAction();
+    ns.singularity.stopAction();
 };
 const improveStat = async function (ns, hacking = 0, combat = 0, charisma = 0) {
     let previousSkill = "";
@@ -480,25 +481,25 @@ const improveStat = async function (ns, hacking = 0, combat = 0, charisma = 0) {
         else if (player.hacking < hacking)
             skill = 'hacking';
         if (skill === "") {
-            ns.stopAction();
+            ns.singularity.stopAction();
             break;
         }
-        if (previousSkill !== skill || !ns.isBusy()) {
+        if (previousSkill !== skill || !ns.singularity.isBusy()) {
             previousSkill = skill;
             if (player.location.toLowerCase() !== "sector-12") {
-                ns.goToLocation("sector-12");
+                ns.singularity.goToLocation("sector-12");
             }
             ns.clearLog();
             if (['agility', 'strength', 'defense', 'dexterity'].indexOf(skill) !== -1) {
-                ns.gymWorkout("powerhouse gym", skill);
+                ns.singularity.gymWorkout("powerhouse gym", skill);
                 logging.info(`Working on ${skill} at powerhouse gym`);
             }
             else if (skill === 'charisma') {
-                ns.universityCourse('rothman university', "leadership");
+                ns.singularity.universityCourse('rothman university', "leadership");
                 logging.info(`Working on ${skill} at rothman university`);
             }
             else if (skill === 'hacking') {
-                ns.universityCourse('rothman university', "algorithms");
+                ns.singularity.universityCourse('rothman university', "algorithms");
                 logging.info(`Working on ${skill} at rothman university`);
             }
         }
@@ -517,7 +518,7 @@ const chooseAFaction = function (ns, skipFactions) {
     });
     if (factionsToComplete.length == 1)
         return factionsToComplete[0];
-    const factionInvites = ns.checkFactionInvitations();
+    const factionInvites = ns.singularity.checkFactionInvitations();
     if (factionInvites.length > 0) {
         const readyNow = intersection(factionInvites, factionsToComplete);
         if (readyNow.length > 0)
@@ -545,36 +546,36 @@ const chooseAFaction = function (ns, skipFactions) {
 const purchaseAugment = async function (ns, faction, augment) {
     ns.printf(`INFO: buying ${augment} from ${faction}`);
     let purchaseAttempt = 0;
-    while (!ns.purchaseAugmentation(faction, augment) && purchaseAttempt < 3) {
+    while (!ns.singularity.purchaseAugmentation(faction, augment) && purchaseAttempt < 3) {
         let lastMoneyCheck = ns.getPlayer().money;
-        while (ns.getPlayer().money < ns.getAugmentationPrice(augment)) {
+        while (ns.getPlayer().money < ns.singularity.getAugmentationPrice(augment)) {
             const currentMoneyCheck = ns.getPlayer().money;
             const moneyDiff = currentMoneyCheck - lastMoneyCheck;
-            ns.printf(`INFO:estimated time remaining: ${ns.tFormat((ns.getAugmentationPrice(augment) - currentMoneyCheck) / (60 * 1000 / moneyDiff))}`);
+            ns.printf(`INFO:estimated time remaining: ${ns.tFormat((ns.singularity.getAugmentationPrice(augment) - currentMoneyCheck) / (60 * 1000 / moneyDiff))}`);
             lastMoneyCheck = currentMoneyCheck;
             await ns.sleep(1000 * 60);
         }
         purchaseAttempt++;
     }
-    if (purchaseAttempt === 3 && ns.getOwnedAugmentations(true).indexOf(augment) === -1) {
+    if (purchaseAttempt === 3 && ns.singularity.getOwnedAugmentations(true).indexOf(augment) === -1) {
         ns.printf(`ERROR: failed to buy ${augment} from ${faction}`);
     }
     ns.printf(`INFO: bought ${augment} from ${faction}`);
 };
 const purchaseAugments = async function (ns, faction, augments) {
     const sortedAugments = augments.sort((a, b) => {
-        return ns.getAugmentationPrice(b) - ns.getAugmentationPrice(a); //prices change but the order wont.
+        return ns.singularity.getAugmentationPrice(b) - ns.singularity.getAugmentationPrice(a); //prices change but the order wont.
     });
     for (const augment of sortedAugments) {
         //double check we have the reputation for the augment
-        if (ns.getAugmentationRepReq(augment) < ns.getFactionRep(faction)) {
-            await improveFactionReputation(ns, faction, ns.getAugmentationRepReq(augment));
+        if (ns.singularity.getAugmentationRepReq(augment) < ns.singularity.getFactionRep(faction)) {
+            await improveFactionReputation(ns, faction, ns.singularity.getAugmentationRepReq(augment));
         }
-        if (ns.getAugmentationPrereq(augment).length > 0) { //handle the augment pre requirements first.
+        if (ns.singularity.getAugmentationPrereq(augment).length > 0) { //handle the augment pre requirements first.
             ns.printf(`WARN: getting prerequisite for ${augment} first`);
-            const unownedPrerequisites = ns.getAugmentationPrereq(augment)
+            const unownedPrerequisites = ns.singularity.getAugmentationPrereq(augment)
                 .filter(preReq => {
-                return ns.getOwnedAugmentations(true).indexOf(preReq) === -1;
+                return ns.singularity.getOwnedAugmentations(true).indexOf(preReq) === -1;
             });
             for (const preReq of unownedPrerequisites) {
                 await purchaseAugments(ns, faction, [preReq]);
@@ -614,7 +615,7 @@ async function unlockNewFactionAndBuyAugments(ns, skippedFactions) {
             ns.printf(`INFO: Unlocking faction ${faction}`);
             unlocked = await unlockFaction(ns, faction);
             if (unlocked) {
-                ns.joinFaction(faction);
+                ns.singularity.joinFaction(faction);
             }
             else {
                 ns.printf(`ERROR: Cant faction ${faction}`);
@@ -634,9 +635,9 @@ async function unlockNewFactionAndBuyAugments(ns, skippedFactions) {
     const augments = getUniqueAugmentsAvailableFromFaction(ns, faction);
     ns.printf(`INFO: augments available [${augments}]`);
     const maxRepNeeded = augments.reduce((repNeeded, augment) => {
-        return Math.max(repNeeded, ns.getAugmentationRepReq(augment));
+        return Math.max(repNeeded, ns.singularity.getAugmentationRepReq(augment));
     }, 0);
-    if (ns.getFactionRep(faction) < maxRepNeeded) {
+    if (ns.singularity.getFactionRep(faction) < maxRepNeeded) {
         ns.printf(`INFO: improving reputation with ${faction}`);
         await improveFactionReputation(ns, faction, maxRepNeeded);
     }
@@ -658,15 +659,15 @@ async function buyExistingAugments(ns, availableAugments) {
             return 1;
         if (a == null)
             return -1;
-        return ns.getAugmentationPrice(a[0]) - ns.getAugmentationPrice(b[0]);
+        return ns.singularity.getAugmentationPrice(a[0]) - ns.singularity.getAugmentationPrice(b[0]);
     })
         .reverse();
     for (const pair of factionForAugment) {
         if (pair === null)
             continue;
         const [augment, faction] = pair;
-        if (ns.getAugmentationRepReq(augment) < ns.getFactionRep(faction)) {
-            await improveFactionReputation(ns, faction, ns.getAugmentationRepReq(augment));
+        if (ns.singularity.getAugmentationRepReq(augment) < ns.singularity.getFactionRep(faction)) {
+            await improveFactionReputation(ns, faction, ns.singularity.getAugmentationRepReq(augment));
         }
         await purchaseAugments(ns, faction, [augment]);
     }
