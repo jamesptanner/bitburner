@@ -37,6 +37,6 @@ export async function main(ns : NS) : Promise<void> {
             sendMetric(`server.${server}.maxRam`, ns.getServerMaxRam(server))
             sendMetric(`server.${server}.usedRam`, ns.getServerUsedRam(server))
         })
-        await ns.sleep(5000)
+        await ns.sleep(60000)
     }
 }

@@ -186,8 +186,109 @@ export function FindValidMathExpressions(ns: NS, data: unknown): number | string
     const result: string[] = [];
     helper(result, "", num, target, 0, 0, 0);
 
-    ns.tprintf(`${Array.from<string>(result)}`);
+    ns.print(`${Array.from<string>(result)}`);
     return result;
+  }
+  throw new Error("Unexpected data types Unable to solve contract.");
+}
+
+// You are given the following encoded binary String:
+// '01010101000'
+// Treat it as a Hammingcode with 1 'possible' error on an random Index.
+// Find the 'possible' wrong bit, fix it and extract the decimal value, which is hidden inside the string.
+
+// Note: The length of the binary string is dynamic, but it's encoding/decoding is following Hammings 'rule'
+// Note 2: Index 0 is an 'overall' parity bit. Watch the Hammingcode-video from 3Blue1Brown for more information
+// Note 3: There's a ~55% chance for an altered Bit. So... MAYBE there is an altered Bit 😉
+// Extranote for automation: return the decimal value as a string
+export function HammingBtoI(ns: NS, data: unknown): number | string[] | undefined {
+  const bin2Dec = function (bin: string): number { 
+    return parseInt(bin,2)
+  }
+
+  if (typeof data === 'string') {
+    const binary = data
+    const bits: number[] = []
+    for (const c of binary) {
+      bits.push(c==='1'?1:0)
+    }
+    const err = bits.map((v, i) => { return v > 0 ? i : 0 }).reduce((p, c) => { return p ^ c })
+    if (err > 0) {
+      ns.tprint(`error at ${err}`)
+      bits[err]  = (bits[err] === 1)? 0 :1
+    }
+    else {
+      ns.tprint('no error detected.')
+    }
+    for (let bit = bits.length - 1; bit >= 0; bit--){
+      if ((bit & (bit - 1)) === 0) {
+        bits.splice(bit,1)
+      }
+    }
+    ns.tprint(`remaining bits: ${bits.join('')}`)
+
+    const integer = bin2Dec(bits.join(''))
+    ns.tprint(`integer value: ${integer}`)
+    return [`${integer}`]
+  }
+  throw new Error("Unexpected data types Unable to solve contract.");
+}
+
+// You are given the following decimal Value:
+// 1084208828266
+// Convert it into a binary string and encode it as a 'Hamming-Code'. eg:
+// Value 8 will result into binary '1000', which will be encoded with the pattern 'pppdpddd', where p is a paritybit and d a databit,
+// or '10101' (Value 21) will result into (pppdpdddpd) '1001101011'.
+
+// NOTE: You need an parity Bit on Index 0 as an 'overall'-paritybit.
+// NOTE 2: You should watch the HammingCode-video from 3Blue1Brown, which explains the 'rule' of encoding, including the first Index parity-bit mentioned on the first note.
+
+// Now the only one rule for this encoding:
+// It's not allowed to add additional leading '0's to the binary value
+// That means, the binary value has to be encoded as it is
+export function HammingItoB(ns: NS, data: unknown): number | string[] | undefined {
+  
+  const decToBin = function (dec: number): number[] { 
+    const bin = []
+    while (dec > 0) {
+      bin.push(dec % 2)
+      dec = Math.floor(dec / 2)
+    }
+    return bin
+  }
+  if(typeof data === 'number'){
+    const decimal = data
+    ns.tprint(`converting: ${decimal}`)
+
+    //convert decimal to binary
+    const bin = decToBin(decimal)
+    ns.tprint(`convert to binary: ${bin.join('')}`)
+    //calculate number of parity bits 
+    const controlBitsIndex: number[] = []
+    let i = 1
+    while ((bin.length + controlBitsIndex.length) / i >= 1) {
+      controlBitsIndex.push(i)
+      i *= 2
+    }
+
+    bin.splice(0,0,0)
+    controlBitsIndex.forEach(i => {
+      bin.splice(i,0,0)
+    })
+    // ns.tprint(`inserted parity: ${bin.join('')}`)
+
+    controlBitsIndex.forEach(i => {
+      // ns.tprint(`calculating parity ${i}`)
+      bin[i] = bin.reduce((prev, curr, index) => {return prev ^ (index & i) ? curr : 0})
+      // ns.tprint(`${i} parity: ${bin[i]}`)
+      // ns.tprint(`bin update: ${bin.join('')}`)
+    })
+
+    // ns.tprint(`calulating parity 0`)
+    bin[0] = bin.reduce((prev, curr) => { return prev ^ curr })
+    // ns.tprint(`0 parity: ${bin[0]}`)
+    ns.tprint(`with parity: ${bin.join('')}`)
+    return [bin.join('')]
   }
   throw new Error("Unexpected data types Unable to solve contract.");
 }

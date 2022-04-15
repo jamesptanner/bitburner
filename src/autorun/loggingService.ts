@@ -151,14 +151,19 @@ export async function main(ns: NS): Promise<void> {
         await sendLogs(loggingDB, ns, loggingSettings, LoggingTable, sendLog);
         await sendLogs(loggingDB, ns, loggingSettings, MetricTable, sendTrace)
 
-        await ns.sleep(100)
+        await ns.sleep(500)
     }
 }
 
 async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSettings: LoggingSettings,
     table: "logging" | "metrics",
-    sender: (ns: NS, settings: LoggingSettings, payload: LoggingPayload[]) => Promise<boolean>) {
-    const logLinesGetAll = await loggingDB.transaction(table, 'readonly').store.getAll(null, 5000);
+    sender: (ns: NS, settings: LoggingSettings, payload: LoggingPayload[]) => Promise<boolean>): Promise<void> {
+    const lineCount = await loggingDB.transaction(table, 'readonly').store.count()
+    if (lineCount == 0) {
+        return new Promise<void>((res) => { res() })
+    }
+    const logLinesGetAll = await loggingDB.transaction(table, 'readonly').store.getAll(null, 2500);
+
     const linesByTrace = new Map<string, [LoggingPayload[], number[]]>()
 
     logLinesGetAll.map(x => x.trace).filter(unique).forEach(trace => {
@@ -190,9 +195,12 @@ async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSetti
         deletes.push(tx.store.delete(primaryKey))
     })
     deletes.push(tx.done)
-    await Promise.all(deletes)
+    return Promise.all(deletes)
+        .then(x => {
+            ns.print(`${x.length - 1} ${table} transactions completed.`)
+    })
         .catch(x =>
-            console.log(`failed to delete: ${x}`)
+            ns.print(`failed to delete: ${x}`)
         )
 
 }

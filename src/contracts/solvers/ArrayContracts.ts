@@ -80,7 +80,7 @@ export function ArrayJump(ns: NS, data: unknown): number | string[] | undefined 
     ns.print(`${JSON.stringify(data)} type:${typeof data}`)
     const numberArray: number[] = data
 
-    const result = checkPosition(ns, numberArray, 0)
+    const result = checkPosition(ns, numberArray, 0,0)
     ns.tprintf(`${result}`)
     if (result) {
         return 1
@@ -90,16 +90,49 @@ export function ArrayJump(ns: NS, data: unknown): number | string[] | undefined 
 throw new Error("Unexpected data types Unable to solve contract.");
 }
 
-function checkPosition(ns: NS, array: number[], pos: number): boolean {
+// "Array Jumping Game II"
+
+// You are given the following array of integers:
+
+// 4,3,7,5
+
+// Each element in the array represents your MAXIMUM jump length at that position. 
+// This means that if you are at position i and your maximum jump length is n, you 
+// can jump to any position from i to i+n.
+
+// Assuming you are initially positioned at the start of the array, determine the 
+// minimum number of jumps to reach the end of the array.
+
+// If it's impossible to reach the end, then the answer should be 0.
+export function ArrayJump2(ns: NS, data: unknown): number | string[] | undefined {
+    if(Array.isArray(data) && data.every(val => typeof val === 'number')){
+    ns.print(`${JSON.stringify(data)} type:${typeof data}`)
+    const numberArray: number[] = data
+
+    const [result, minHops]= checkPosition(ns, numberArray, 0,0)
+    ns.tprintf(`${result}`)
+    if (result) {
+        return minHops
+    }
+    return 0
+}
+throw new Error("Unexpected data types Unable to solve contract.");
+}
+
+function checkPosition(ns: NS, array: number[], pos: number,depth:number): [boolean,number] {
     ns.print(`${array}: checking position ${pos}`)
-    if (pos == array.length - 1) return true
+    if (pos == array.length - 1) return [true,depth]
+    let minHops = array.length
+    let ret = false;
     for (let jumpDist = 1; jumpDist <= array[pos]; jumpDist++) {
         ns.print(`Jumping ${jumpDist}`)
-        if (checkPosition(ns, array, pos + jumpDist)) {
-            return true;
+        const [reachedEnd, hops] = checkPosition(ns, array, pos + jumpDist,depth+1)
+        if (reachedEnd) {
+            minHops = Math.min(minHops,hops)
+            ret = true
         }
     }
-    return false;
+    return ret,minHops;
 }
 
 // "Merge Overlapping Intervals"
