@@ -157,10 +157,10 @@ export async function main(ns: NS): Promise<void> {
 
 async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSettings: LoggingSettings,
     table: "logging" | "metrics",
-    sender: (ns: NS, settings: LoggingSettings, payload: LoggingPayload[]) => Promise<boolean>):Promise<void> {
+    sender: (ns: NS, settings: LoggingSettings, payload: LoggingPayload[]) => Promise<boolean>): Promise<void> {
     const lineCount = await loggingDB.transaction(table, 'readonly').store.count()
     if (lineCount == 0) {
-        return new Promise<void>((res)=>{res()})
+        return new Promise<void>((res) => { res() })
     }
     const logLinesGetAll = await loggingDB.transaction(table, 'readonly').store.getAll(null, 2500);
 
@@ -196,11 +196,11 @@ async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSetti
     })
     deletes.push(tx.done)
     return Promise.all(deletes)
-    .then(x=>{
-        console.log('all transactions completed.')
+        .then(x => {
+            ns.print(`${x.length - 1} ${table} transactions completed.`)
     })
         .catch(x =>
-            console.log(`failed to delete: ${x}`)
+            ns.print(`failed to delete: ${x}`)
         )
 
 }
