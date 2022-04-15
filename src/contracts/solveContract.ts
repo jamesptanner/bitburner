@@ -1,7 +1,7 @@
 import { NS } from '@ns'
 import { asString } from '/shared/utils';
 import { largestPrimeFactor, TotalSums, MaxSubArray } from '/contracts/solvers/MathContracts';
-import { SpiralMatrix, MergeOverlapping, ArrayJump } from '/contracts/solvers/ArrayContracts';
+import { SpiralMatrix, MergeOverlapping, ArrayJump, ArrayJump2 } from '/contracts/solvers/ArrayContracts';
 import { GenerateIPAddresses, FindValidMathExpressions, SanitizeParentheses,HammingBtoI,HammingItoB } from '/contracts/solvers/StringContracts';
 import { StockTrader1, StockTrader2, StockTrader3, StockTrader4 } from '/contracts/solvers/StockContracts';
 import { MinTrianglePath, UniquePath1, UniquePath2 } from '/contracts/solvers/PathContracts';
@@ -26,6 +26,7 @@ const processors = new Map<string, ContractFunction>([
     ["Total Ways to Sum", TotalSums],                               //Maths     DONE
     ["Spiralize Matrix", SpiralMatrix],                             //Arrays    DONE
     ["Array Jumping Game", ArrayJump],                              //Arrays    DONE
+    ["Array Jumping Game II", ArrayJump2],                          //Arrays    DONE
     ["Merge Overlapping Intervals", MergeOverlapping],              //Arrays    DONE
     ["Generate IP Addresses", GenerateIPAddresses],                 //Strings   DONE
     ["Algorithmic Stock Trader I", StockTrader1],                   //Stocks    DONE
@@ -37,8 +38,8 @@ const processors = new Map<string, ContractFunction>([
     ["Unique Paths in a Grid II", UniquePath2],                     //Paths     DONE
     ["Sanitize Parentheses in Expression", SanitizeParentheses],    //Strings   DONE
     ["Find All Valid Math Expressions", FindValidMathExpressions],  //Strings   DONE
-    ["HammingCodes: Encoded Binary to Integer",HammingBtoI],
-    ["HammingCodes: Integer to encoded Binary",HammingItoB],
+    ["HammingCodes: Encoded Binary to Integer",HammingBtoI],        //Strings
+    ["HammingCodes: Integer to encoded Binary",HammingItoB],        //Strings
 
 ])
 
@@ -74,14 +75,8 @@ export async function main(ns: NS): Promise<void> {
             const result = ns.codingcontract.attempt(answer, filename, host,{returnReward:true})
             if (result === "") {
                 ns.toast(`Failed Contract: ${host}.${filename} - '${type}'`,"error")
-                ns.tprintf(`Failed Contract: ${host}.${filename} - '${type}'`)
-                const failed:FailedContract = {
-                    answer: answer,
-                    type: type,
-                    data: data
-                }
-                
-                await ns.write("failedContracts.txt",failed+"\n","a")
+                ns.spawn(unsolveableContractPath,1,"--file",filename,"--host",host)
+
             }
             else {
                 ns.toast(`${result}`,"success")
