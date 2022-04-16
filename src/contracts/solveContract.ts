@@ -55,12 +55,6 @@ export async function main(ns: NS): Promise<void> {
     const filename: string = asString(ns.args[0])
     const host: string = asString(ns.args[1])
 
-    if (!ns.serverExists(host)) {
-        ns.tprintf(`Invalid server: ${host}`)
-        ns.tprintf(usage)
-        ns.exit()
-    }
-
     if (!ns.codingcontract.getContractType(filename, host)) {
         ns.tprintf(`Invalid file ${host}:${filename}`)
         ns.tprintf(usage)
