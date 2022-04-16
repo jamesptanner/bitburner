@@ -118,3 +118,42 @@ export function UniquePath2(ns: NS, data: unknown): number | string[] | undefine
     }
     throw new Error("Unexpected data types Unable to solve contract.");
 }
+
+
+export function ShortestPath(ns: NS, data: unknown): number | string[] | undefined {
+    if (is2DArray<number>(data, (val: unknown): val is number => { return typeof val === 'number' })) {
+
+        const maxX: number = data.length
+        const maxY: number = data[0].length
+
+        const map: number[][] = data
+
+        for (let x = 0; x < maxX; x++) {
+            for (let y = 0; y < maxY; y++) {
+                if (map[x][y] == 1) {
+                    map[x][y] = 0
+                }
+                else {
+                    if (x == 0 && y == 0) {
+                        map[x][y] = 1
+                    }
+                    else if (x == 0 || y == 0) {
+                        if (x > 0) {
+                            map[x][y] = map[x - 1][y] == 0 ? 0 : 1
+                        }
+                        else if (y > 0) {
+                            map[x][y] = map[x][y - 1] == 0 ? 0 : 1
+                        }
+                    }
+                    else {
+                        map[x][y] = map[x - 1][y] + map[x][y - 1];
+                    }
+                }
+            }
+        }
+        ns.print(`${JSON.stringify(map)} type:${typeof data}`)
+        ns.tprintf(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`)
+        // return map[maxX - 1][maxY - 1]
+    }
+    throw new Error("Unexpected data types Unable to solve contract.");
+}
