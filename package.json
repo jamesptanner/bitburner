@@ -10,7 +10,8 @@
     "clean": "rm -rf dist",
     "lint": "eslint . --ext .ts",
     "defs": "node ./updateDefs.js",
-    "createdist": "node ./createDistMap.js"
+    "createdist": "node ./createDistMap.js",
+    "docs": "npx typedoc"
   },
   "author": "",
   "license": "ISC",
