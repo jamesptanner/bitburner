@@ -287,7 +287,7 @@ export function HammingItoB(ns: NS, data: unknown): number | string[] | undefine
     // ns.tprint(`calulating parity 0`)
     bin[0] = bin.reduce((prev, curr) => { return prev ^ curr })
     // ns.tprint(`0 parity: ${bin[0]}`)
-    ns.tprint(`with parity: ${bin.join('')}`)
+    ns.tprint(`with parity: ${bin.reverse().join('')}`)
     return [bin.join('')]
   }
   throw new Error("Unexpected data types Unable to solve contract.");

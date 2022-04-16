@@ -132,7 +132,7 @@ function checkPosition(ns: NS, array: number[], pos: number,depth:number): [bool
             ret = true
         }
     }
-    return ret,minHops;
+    return [ret,minHops];
 }
 
 // "Merge Overlapping Intervals"
