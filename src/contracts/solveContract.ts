@@ -1,6 +1,6 @@
 import { NS } from '@ns'
 import { asString } from '/shared/utils';
-import { largestPrimeFactor, TotalSums, MaxSubArray } from '/contracts/solvers/MathContracts';
+import { largestPrimeFactor, TotalSums, MaxSubArray, TotalSums2 } from '/contracts/solvers/MathContracts';
 import { SpiralMatrix, MergeOverlapping, ArrayJump, ArrayJump2 } from '/contracts/solvers/ArrayContracts';
 import { GenerateIPAddresses, FindValidMathExpressions, SanitizeParentheses,HammingBtoI,HammingItoB } from '/contracts/solvers/StringContracts';
 import { StockTrader1, StockTrader2, StockTrader3, StockTrader4 } from '/contracts/solvers/StockContracts';
@@ -24,6 +24,7 @@ const processors = new Map<string, ContractFunction>([
     ["Find Largest Prime Factor", largestPrimeFactor],              //Maths     DONE
     ["Subarray with Maximum Sum", MaxSubArray],                     //Maths     DONE
     ["Total Ways to Sum", TotalSums],                               //Maths     DONE
+    ["Total Ways to Sum II", TotalSums2],                           //Maths     DONE
     ["Spiralize Matrix", SpiralMatrix],                             //Arrays    DONE
     ["Array Jumping Game", ArrayJump],                              //Arrays    DONE
     ["Array Jumping Game II", ArrayJump2],                          //Arrays    DONE

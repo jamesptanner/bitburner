@@ -69,6 +69,41 @@ export function TotalSums(ns: NS, data: unknown): number | string[] | undefined 
                 sums[j] += sums[j - i]
             }
         }
+        ns.tprintf(`total Sums: ${sums[value]}`)
+
+        return sums[value]
+    }
+    throw new Error("Unexpected data types Unable to solve contract.");
+
+}
+
+// "Total Ways to Sum"
+
+//How many different distinct ways can the number 31 be written as a sum of integers contained in the set:
+// [2,3,4,5,6,8,9,10]?
+
+// You may use each integer in the set zero or more times.
+export function TotalSums2(ns: NS, data: unknown): number | string[] | undefined {
+    if (Array.isArray(data) &&
+      typeof data[0] === 'number' &&
+      Array.isArray(data[1]) &&
+      data[1].every(val => { return typeof val === 'number' })) {
+        const set: number[] = data[1];
+        const value = data[0]
+        ns.tprintf(`total Sums2: target ${value}, set:${set.join()}`)
+        
+
+        // An array to store a partition
+        const sums = new Array(value + 1);
+        sums.fill(0, 0)
+
+        for (let i = 1; i <= value; ++i) {
+            for(let j = 1; j<= i/2;j++){
+                sums[i] += sums[j]*sums[i-j]
+            }
+            if(set.indexOf(i)!== -1) sums[i]++
+            ns.tprintf(`sums after ${i}: ${sums}`)
+        }
 
         //ns.tprintf(`${partitions}`)
         ns.tprintf(`total Sums: ${sums[value]}`)
@@ -79,4 +114,3 @@ export function TotalSums(ns: NS, data: unknown): number | string[] | undefined 
     throw new Error("Unexpected data types Unable to solve contract.");
 
 }
-
