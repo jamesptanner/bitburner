@@ -28,10 +28,10 @@ export const factions: string[] = [
     "Fulcrum Secret Technologies",
     "Slum Snakes",
     "Tetrads",
-    // "Silhouette",                //crime faction not interested in handling yet.
-    // "Speakers for the Dead",     //crime faction not interested in handling yet.
-    // "The Dark Army",             //crime faction not interested in handling yet.
-    // "The Syndicate",             //crime faction not interested in handling yet.
+    "Silhouette",                //crime faction not interested in handling yet.
+    "Speakers for the Dead",     //crime faction not interested in handling yet.
+    "The Dark Army",             //crime faction not interested in handling yet.
+    "The Syndicate",             //crime faction not interested in handling yet.
     "The Covenant",
     "Daedalus",
     "Illuminati",
@@ -243,6 +243,10 @@ export const getAugmentsAvailableFromFaction = function (ns: NS, faction: string
     return ns.singularity.getAugmentationsFromFaction(faction).filter(augment => {
         return ns.singularity.getOwnedAugmentations(true).indexOf(augment) == -1
     })
+}
+
+export const getAllAugmentsFromFaction = function (ns: NS, faction: string): string[] {
+    return ns.singularity.getAugmentationsFromFaction(faction)
 }
 
 export const getUniqueAugmentsAvailableFromFaction = function (ns: NS, faction: string): string[] {
