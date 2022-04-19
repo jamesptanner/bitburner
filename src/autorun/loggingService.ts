@@ -159,6 +159,8 @@ async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSetti
     table: "logging" | "metrics",
     sender: (ns: NS, settings: LoggingSettings, payload: LoggingPayload[]) => Promise<boolean>): Promise<void> {
     const lineCount = await loggingDB.transaction(table, 'readonly').store.count()
+    
+    ns.print(`${lineCount} ${table} transactions queued.`)
     if (lineCount == 0) {
         return new Promise<void>((res) => { res() })
     }
