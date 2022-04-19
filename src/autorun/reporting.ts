@@ -68,12 +68,12 @@ export async function main(ns : NS) : Promise<void> {
         getAllServers(ns).concat('home')
         .forEach(server => {
             const ServerInfo = ns.getServer(server)
-            sendMetric(`server.${server}.backdoorInstalled`, ServerInfo.backdoorInstalled ? 1:0)
-            sendMetric(`server.${server}.playerOwned`, ServerInfo.purchasedByPlayer? 1:0)
-            sendMetric(`server.${server}.requiredHacking`, ServerInfo.requiredHackingSkill? 1:0)
-            sendMetric(`server.${server}.backdoorable`, ServerInfo.openPortCount >= ServerInfo.numOpenPortsRequired? 1:0)
-            sendMetric(`server.${server}.maxRam`, ns.getServerMaxRam(server))
-            sendMetric(`server.${server}.usedRam`, ns.getServerUsedRam(server))
+            sendMetric(`server.${server.replace(".","-")}.backdoorInstalled`, ServerInfo.backdoorInstalled ? 1:0)
+            sendMetric(`server.${server.replace(".","-")}.playerOwned`, ServerInfo.purchasedByPlayer? 1:0)
+            sendMetric(`server.${server.replace(".","-")}.requiredHacking`, ServerInfo.requiredHackingSkill? 1:0)
+            sendMetric(`server.${server.replace(".","-")}.backdoorable`, ServerInfo.openPortCount >= ServerInfo.numOpenPortsRequired? 1:0)
+            sendMetric(`server.${server.replace(".","-")}.maxRam`, ns.getServerMaxRam(server))
+            sendMetric(`server.${server.replace(".","-")}.usedRam`, ns.getServerUsedRam(server))
         })
         await ns.sleep(60000)
     }
