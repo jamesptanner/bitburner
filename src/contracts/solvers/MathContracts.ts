@@ -97,12 +97,10 @@ export function TotalSums2(ns: NS, data: unknown): number | string[] | undefined
         const sums = new Array(value + 1);
         sums.fill(0, 0)
 
-        for (let i = 1; i <= value; ++i) {
-            for(let j = 1; j<= i/2;j++){
-                sums[i] += sums[j]*sums[i-j]
+        for (let i = 1; i <= sums.length; ++i) {
+            for(let j = set[i]; j<= value;j++){
+                sums[i] += sums[j-set[i]]
             }
-            if(set.indexOf(i)!== -1) sums[i]++
-            ns.tprintf(`sums after ${i}: ${sums}`)
         }
 
         //ns.tprintf(`${partitions}`)
