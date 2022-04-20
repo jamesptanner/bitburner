@@ -254,7 +254,7 @@ export function HammingItoB(ns: NS, data: unknown): number | string[] | undefine
       bin.push(dec % 2)
       dec = Math.floor(dec / 2)
     }
-    return bin
+    return bin.reverse()
   }
   if(typeof data === 'number'){
     const decimal = data
@@ -275,11 +275,14 @@ export function HammingItoB(ns: NS, data: unknown): number | string[] | undefine
     controlBitsIndex.forEach(i => {
       bin.splice(i,0,0)
     })
-    // ns.tprint(`inserted parity: ${bin.join('')}`)
+    ns.tprint(`inserted parity: ${bin.join('')}`)
 
     controlBitsIndex.forEach(i => {
       // ns.tprint(`calculating parity ${i}`)
-      bin[i] = bin.reduce((prev, curr, index) => {return prev ^ (index & i) ? curr : 0})
+      bin[i] = bin.filter((v,index)=>{
+        ns.tprintf(`${index} & ${i} == ${index&i}`)
+        return v&i
+      }).reduce((prev, curr, index) => {return prev ^ (index & i) ? curr : 0},0)
       // ns.tprint(`${i} parity: ${bin[i]}`)
       // ns.tprint(`bin update: ${bin.join('')}`)
     })
@@ -287,7 +290,7 @@ export function HammingItoB(ns: NS, data: unknown): number | string[] | undefine
     // ns.tprint(`calulating parity 0`)
     bin[0] = bin.reduce((prev, curr) => { return prev ^ curr })
     // ns.tprint(`0 parity: ${bin[0]}`)
-    ns.tprint(`with parity: ${bin.reverse().join('')}`)
+    ns.tprint(`with parity: ${bin.join('')}`)
     return [bin.join('')]
   }
   throw new Error("Unexpected data types Unable to solve contract.");
