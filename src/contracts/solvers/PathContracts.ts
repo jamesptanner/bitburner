@@ -121,38 +121,106 @@ export function UniquePath2(ns: NS, data: unknown): number | string[] | undefine
 
 
 export function ShortestPath(ns: NS, data: unknown): number | string[] | undefined {
+    type node = {
+        position: {
+            x: number,
+            y: number
+        }
+        minDist: number
+        minDistDir: 'N'|'S'|'E'|'W'|'1'|'U'
+        obstacle:boolean
+    }
+
     if (is2DArray<number>(data, (val: unknown): val is number => { return typeof val === 'number' })) {
 
         const maxX: number = data.length
         const maxY: number = data[0].length
 
-        const map: number[][] = data
+        const originalMap: number[][] = data
+        const nodes: node[] = []
+        const processedNodes: node [][] = new Array<node[]>(maxX)
+        const firstNode:node = {
+            position: {
+                x : 0,
+                y : 0
+            },
+            minDist: 0,
+            obstacle: originalMap[0][0] ==1,
+            minDistDir: 'U'
+        
+            
+        }
+        nodes.push(firstNode)
 
-        for (let x = 0; x < maxX; x++) {
-            for (let y = 0; y < maxY; y++) {
-                if (map[x][y] == 1) {
-                    map[x][y] = 0
+        while(nodes.length>0){
+            const node = nodes.pop() as node
+
+            processedNodes[node.position.x][node.position.y] = node
+            let north = processedNodes[node.position.x][node.position.y-1] 
+            let south = processedNodes[node.position.x][node.position.y+1] 
+            let east = processedNodes[node.position.x+1][node.position.y] 
+            let west = processedNodes[node.position.x-1][node.position.y] 
+
+            if(north===undefined && node.position.y - 1 >= 0){
+                north = {
+                    position: {
+                        x: node.position.x,
+                        y: node.position.y - 1
+                    },
+                    minDist: 0,
+                    obstacle: originalMap[node.position.x][node.position.y - 1] ==1,
+                    minDistDir: 'U'
+                    
+                    
                 }
-                else {
-                    if (x == 0 && y == 0) {
-                        map[x][y] = 1
-                    }
-                    else if (x == 0 || y == 0) {
-                        if (x > 0) {
-                            map[x][y] = map[x - 1][y] == 0 ? 0 : 1
-                        }
-                        else if (y > 0) {
-                            map[x][y] = map[x][y - 1] == 0 ? 0 : 1
-                        }
-                    }
-                    else {
-                        map[x][y] = map[x - 1][y] + map[x][y - 1];
-                    }
+            }
+
+            if(south===undefined && node.position.y + 1 <= maxY){
+                south = {
+                    position: {
+                        x: node.position.x,
+                        y: node.position.y + 1
+                    },
+                    minDist: 0,
+                    obstacle: originalMap[node.position.x][node.position.y + 1] ==1,
+                    minDistDir: 'U'
+                
+                    
+                }
+            }
+
+            if(west === undefined && node.position.x - 1 >=0){
+                west = {
+                    position: {
+                        x: node.position.x-1,
+                        y: node.position.y 
+                    },
+                    minDist: 0,
+                    obstacle: originalMap[node.position.x-1][node.position.y] ==1,
+                    minDistDir: 'U'
+                
+                    
+                }
+            }
+            
+            if(east === undefined && node.position.x + 1 >=maxX){
+                east = {
+                    position: {
+                        x: node.position.x+1,
+                        y: node.position.y 
+                    },
+                    minDist: 0,
+                    obstacle: originalMap[node.position.x+1][node.position.y] ==1,
+                    minDistDir: 'U'
+                
+                    
                 }
             }
         }
-        ns.print(`${JSON.stringify(map)} type:${typeof data}`)
-        ns.tprintf(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`)
+
+
+        //ns.print(`${JSON.stringify(map)} type:${typeof data}`)
+       // ns.tprintf(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`)
         // return map[maxX - 1][maxY - 1]
     }
     throw new Error("Unexpected data types Unable to solve contract.");
