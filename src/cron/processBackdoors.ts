@@ -26,6 +26,5 @@ export async function main(ns: NS): Promise<void> {
             hops.forEach(hop => ns.singularity.connect(hop))
         }
         ns.rm("toBackdoor.txt","home");
-        ns.spawn(MapWindowPath)
     }
 }
