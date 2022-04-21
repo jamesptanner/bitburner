@@ -113,7 +113,7 @@ export function UniquePath2(ns: NS, data: unknown): number | string[] | undefine
             }
         }
         ns.print(`${JSON.stringify(map)} type:${typeof data}`)
-        ns.tprintf(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`)
+        ns.print(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`)
         return map[maxX - 1][maxY - 1]
     }
     throw new Error("Unexpected data types Unable to solve contract.");

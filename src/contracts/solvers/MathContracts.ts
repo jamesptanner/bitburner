@@ -14,7 +14,7 @@ export function largestPrimeFactor(ns: NS, data: unknown): number | string[] | u
             }
             factor++
         } while (factor != num)
-        ns.tprintf(`largest factor = ${factor}`)
+        ns.print(`largest factor = ${factor}`)
 
         return factor
     }
@@ -99,7 +99,7 @@ export function TotalSums2(ns: NS, data: unknown): number | string[] | undefined
 
         for (let i = 1; i <= sums.length; ++i) {
             for(let j = set[i]; j<= value;j++){
-                sums[i] += sums[j-set[i]]
+                sums[j] += sums[j-set[i]]
             }
         }
 
