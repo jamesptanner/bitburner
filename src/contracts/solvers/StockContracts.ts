@@ -28,7 +28,7 @@ export function StockTrader1(ns: NS, data: unknown): number | string[] | undefin
       bestProfit = Math.max(bestProfit, maxCur);
     }
 
-    ns.tprintf(`Stock1 Best profit: ${bestProfit}`);
+    ns.print(`Stock1 Best profit: ${bestProfit}`);
 
     return bestProfit > 0 ? bestProfit : 0;
   }
@@ -53,7 +53,7 @@ export function StockTrader2(ns: NS, data: unknown): number | string[] | undefin
     for (let i = 1; i < stocks.length; ++i) {
       profit += Math.max(0, stocks[i] - stocks[i - 1]);
     }
-    ns.tprintf(`Stock2 Best profit: ${profit}`);
+    ns.print(`Stock2 Best profit: ${profit}`);
 
     return profit > 0 ? profit : 0;
   }

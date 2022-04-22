@@ -27,8 +27,7 @@ export function MinTrianglePath(ns: NS, data: unknown): number | string[] | unde
             }
         }
         ns.print(`${JSON.stringify(numberArray)}`)
-        // return unimplemented(data) 
-        ns.tprintf(`MinPath: ${Math.min(...numberArray[numberArray.length - 1])}`)
+        ns.print(`MinPath: ${Math.min(...numberArray[numberArray.length - 1])}`)
 
         return Math.min(...numberArray[numberArray.length - 1]);
     }
@@ -62,7 +61,7 @@ export function UniquePath1(ns: NS, data: unknown): number | string[] | undefine
                 }
             }
         }
-        ns.tprintf(`paths: ${map[maxX - 1][maxY - 1]}`)
+        ns.print(`paths: ${map[maxX - 1][maxY - 1]}`)
         return map[maxX - 1][maxY - 1]
     }
     throw new Error("Unexpected data types Unable to solve contract.");

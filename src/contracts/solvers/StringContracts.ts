@@ -51,7 +51,7 @@ export function GenerateIPAddresses(ns: NS, data: unknown): number | string[] | 
       }
     }
   }
-  ns.tprintf(
+  ns.print(
     `INFO Valid Addresses ${validAddresses.filter((v, i, self) => {
       return self.indexOf(v) === i;
     })}`
@@ -126,7 +126,7 @@ export function SanitizeParentheses(ns: NS, data: unknown): number | string[] | 
     n++;
   }
 
-  ns.tprintf(
+  ns.print(
     `${JSON.stringify(
       answers.filter((v, i, self) => {
         return self.indexOf(v) === i;

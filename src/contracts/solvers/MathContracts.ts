@@ -69,7 +69,7 @@ export function TotalSums(ns: NS, data: unknown): number | string[] | undefined 
                 sums[j] += sums[j - i]
             }
         }
-        ns.tprintf(`total Sums: ${sums[value]}`)
+        ns.print(`total Sums: ${sums[value]}`)
 
         return sums[value]
     }
@@ -96,8 +96,9 @@ export function TotalSums2(ns: NS, data: unknown): number | string[] | undefined
         // An array to store a partition
         const sums = new Array(value + 1);
         sums.fill(0, 0)
+        sums[0] = 1
 
-        for (let i = 1; i <= sums.length; ++i) {
+        for (let i =0; i <= sums.length; ++i) {
             for(let j = set[i]; j<= value;j++){
                 sums[j] += sums[j-set[i]]
             }
