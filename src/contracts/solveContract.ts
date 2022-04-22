@@ -39,8 +39,8 @@ const processors = new Map<string, ContractFunction>([
     ["Unique Paths in a Grid II", UniquePath2],                     //Paths     DONE
     ["Sanitize Parentheses in Expression", SanitizeParentheses],    //Strings   DONE
     ["Find All Valid Math Expressions", FindValidMathExpressions],  //Strings   DONE
-    ["HammingCodes: Encoded Binary to Integer",HammingBtoI],        //Strings
-    ["HammingCodes: Integer to encoded Binary",HammingItoB],        //Strings
+    ["HammingCodes: Encoded Binary to Integer",HammingBtoI],        //Strings   DONE
+    // ["HammingCodes: Integer to encoded Binary",HammingItoB],        //Strings
 
 ])
 
