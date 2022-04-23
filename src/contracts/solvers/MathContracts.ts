@@ -90,7 +90,7 @@ export function TotalSums2(ns: NS, data: unknown): number | string[] | undefined
       data[1].every(val => { return typeof val === 'number' })) {
         const set: number[] = data[1];
         const value = data[0]
-        ns.tprintf(`total Sums2: target ${value}, set:${set.join()}`)
+        ns.print(`total Sums2: target ${value}, set:${set.join()}`)
         
 
         // An array to store a partition
@@ -105,8 +105,8 @@ export function TotalSums2(ns: NS, data: unknown): number | string[] | undefined
         }
 
         //ns.tprintf(`${partitions}`)
-        ns.tprintf(`total Sums: ${sums[value]}`)
-        ns.tprintf(`total Sums: ${sums}`)
+        ns.print(`total Sums: ${sums[value]}`)
+        ns.print(`total Sums: ${sums}`)
 
         return sums[value]
     }

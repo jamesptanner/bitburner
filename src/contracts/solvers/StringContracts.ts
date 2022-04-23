@@ -214,21 +214,21 @@ export function HammingBtoI(ns: NS, data: unknown): number | string[] | undefine
     }
     const err = bits.map((v, i) => { return v > 0 ? i : 0 }).reduce((p, c) => { return p ^ c })
     if (err > 0) {
-      ns.tprint(`error at ${err}`)
+      ns.print(`error at ${err}`)
       bits[err]  = (bits[err] === 1)? 0 :1
     }
     else {
-      ns.tprint('no error detected.')
+      ns.print('no error detected.')
     }
     for (let bit = bits.length - 1; bit >= 0; bit--){
       if ((bit & (bit - 1)) === 0) {
         bits.splice(bit,1)
       }
     }
-    ns.tprint(`remaining bits: ${bits.join('')}`)
+    ns.print(`remaining bits: ${bits.join('')}`)
 
     const integer = bin2Dec(bits.join(''))
-    ns.tprint(`integer value: ${integer}`)
+    ns.print(`integer value: ${integer}`)
     return [`${integer}`]
   }
   throw new Error("Unexpected data types Unable to solve contract.");
