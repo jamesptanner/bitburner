@@ -8,7 +8,8 @@ export const hackingDaemonPath = "/batching/hackingDaemon.js";
 
 export async function main(ns: NS): Promise<void> {
     ns.disableLog('ALL')
-    const target = findBestTarget(ns)
+    const opts = ns.flags([["server",""]])
+    const target = opts.server.length >0 ? opts.server : findBestTarget(ns)
     const servers = getAllServers(ns)
     // prepare the server for attack. max mon, min sec.
     const hack_time = ns.getHackTime(target)
