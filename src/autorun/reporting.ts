@@ -74,7 +74,11 @@ export async function main(ns : NS) : Promise<void> {
             sendMetric(`server.${server.replaceAll(".","-")}.backdoorable`, ServerInfo.openPortCount >= ServerInfo.numOpenPortsRequired? 1:0)
             sendMetric(`server.${server.replaceAll(".","-")}.maxRam`, ns.getServerMaxRam(server))
             sendMetric(`server.${server.replaceAll(".","-")}.usedRam`, ns.getServerUsedRam(server))
+            sendMetric(`server.${server.replaceAll(".","-")}.securitylevel`, ns.getServerSecurityLevel(server))
+            sendMetric(`server.${server.replaceAll(".","-")}.minsecuritylevel`, ns.getServerMinSecurityLevel(server))
+            sendMetric(`server.${server.replaceAll(".","-")}.money`, ns.getServerMoneyAvailable(server))
+            sendMetric(`server.${server.replaceAll(".","-")}.maxmoney`, ns.getServerMaxMoney(server))
         })
-        await ns.sleep(60000)
+        await ns.sleep(120000)
     }
 }
