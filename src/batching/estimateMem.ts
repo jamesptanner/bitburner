@@ -1,8 +1,6 @@
 import { NS } from '@ns'
-import { findBestTarget, getAllServers } from '/shared/utils';
-import { weakenPath } from './weaken';
-import { hackPath } from '/batching/hack';
-import { growPath } from './grow';
+import { getAllServers } from '/shared/utils';
+
 import { makeTable } from '/shared/ui';
 
 export const hackingDaemonPath = "/batching/hackingDaemon.js";
