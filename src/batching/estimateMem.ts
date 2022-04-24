@@ -8,6 +8,8 @@ export const hackingDaemonPath = "/batching/hackingDaemon.js";
 export async function main(ns: NS): Promise<void> {
     ns.disableLog('ALL')
     ns.clearLog()
+    ns.tail()
+    
     const servers = getAllServers(ns)
 
     const data = servers.filter(s =>{return ns.getServerMaxMoney(s) > 0})

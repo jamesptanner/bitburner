@@ -9,6 +9,8 @@ export const listAugmentsPath = "/utils/listAugments.js";
 export async function main(ns: NS): Promise<void> {
     await initLogging(ns)
     ns.clearLog()
+    ns.tail()
+
     log(Level.Info, `Getting list of augments`)
 
     const playerInFaction = (faction:string):boolean =>{

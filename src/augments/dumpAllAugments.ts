@@ -9,6 +9,7 @@ export const dumpAllAugmentsPath ="/augments/dumpAllAugments.js";
 export async function main(ns : NS) : Promise<void> {
     await initLogging(ns)
     ns.clearLog()
+    ns.tail()
     const augments:string[] = ns.singularity.getOwnedAugmentations(true)
     factions.forEach(faction => {
         augments.push(...getAllAugmentsFromFaction(ns,faction))
