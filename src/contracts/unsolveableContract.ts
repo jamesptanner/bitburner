@@ -1,4 +1,4 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
 import { initLogging, warning } from '/shared/logging';
 
 export const unsolveableContractPath ="/contracts/unsolveableContract.js";

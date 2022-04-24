@@ -1,7 +1,7 @@
-import { NS } from '@ns'
-import { getLoggingDB, LoggingPayload, LoggingTable, initLogging, LogData, LoggingDB } from "/shared/logging";
-import { MetricTable } from '../shared/logging';
+import { NS } from '@ns';
 import { IDBPDatabase } from 'idb';
+import { MetricTable } from '../shared/logging';
+import { getLoggingDB, initLogging, LogData, LoggingDB, LoggingPayload, LoggingTable } from "/shared/logging";
 import { unique } from '/shared/utils';
 
 export const loggingServicePath = "/autorun/loggingService.js";

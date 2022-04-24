@@ -1,6 +1,6 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
 import { growServer } from '/shared/HGW';
-import { asString, asNumber } from '/shared/utils';
+import { asNumber, asString } from '/shared/utils';
 
 export const growPath = "/batching/grow.js";
 

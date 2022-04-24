@@ -1,6 +1,6 @@
-import { NS } from '@ns'
-import { initLogging, logging } from '/shared/logging';
-import { improveStat } from 'shared/factions'
+import { NS } from '@ns';
+import { improveStat } from 'shared/factions';
+import { initLogging } from '/shared/logging';
 
 export const improveCombatStatsPath ="/utils/improveCombatStats.js";
 

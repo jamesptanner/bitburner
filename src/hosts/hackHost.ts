@@ -1,5 +1,5 @@
 import { NS } from "@ns";
-import { growServer, weakenServer, hackServer } from "/shared/HGW";
+import { growServer, hackServer, weakenServer } from "/shared/HGW";
 
 export const hackHostPath ="/hosts/hackHost.js";
 

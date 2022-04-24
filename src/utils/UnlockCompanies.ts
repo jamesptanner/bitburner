@@ -1,4 +1,4 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
 import { unlockFaction } from 'shared/factions';
 
 export const UnlockCompaniesPath ="/utils/UnlockCompanies.js";

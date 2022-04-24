@@ -3,7 +3,7 @@
       "scope": "typescript",
       "prefix": "template",
       "body": [
-        "import { NS } from '@ns'",
+        "import { NS } from '@ns';",
         "import { initLogging } from '/shared/logging';",
         "",
         "export const ${TM_FILENAME_BASE}Path =\"${RELATIVE_FILEPATH/(src[\\\\\\\/])|([\\\\\\\/][\\w]*\\.ts)|([\\\\\\\/])/\\//gm}${TM_FILENAME_BASE}.js\";",

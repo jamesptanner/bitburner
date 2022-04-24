@@ -26,4 +26,4 @@ const DB = {
     open: open
 }
 
-export { DB } 
+export { DB }

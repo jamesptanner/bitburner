@@ -1,4 +1,4 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
 import { solveContractPath } from '/contracts/solveContract';
 
 export const processContractsPath ="/contracts/processContracts.js";

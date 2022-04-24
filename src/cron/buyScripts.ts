@@ -1,4 +1,4 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
 import { scripts } from '/shared/HGW';
 import { getHostsPath } from '/startup/getHosts';
 

@@ -1,4 +1,4 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
 import { is2DArray } from '/shared/utils';
 // "Minimum Path Sum in a Triangle"
 

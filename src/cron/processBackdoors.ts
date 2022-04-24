@@ -1,6 +1,5 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
 import { routeToHost } from '/shared/utils';
-import { MapWindowPath } from '/ui/MapWindow';
 
 export const processBackdoorsPath = "/cron/processBackdoors.js";
 

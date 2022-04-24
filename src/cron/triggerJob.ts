@@ -1,5 +1,5 @@
-import { NS } from '@ns'
-import { asString,asNumber } from '/shared/utils';
+import { NS } from '@ns';
+import { asNumber, asString } from '/shared/utils';
 
 export const triggerJobPath ="/cron/triggerJob.js";
 

@@ -1,4 +1,4 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
 import { processContractsPath } from '/contracts/processContracts';
 import { getAllServers } from '/shared/utils';
 

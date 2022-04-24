@@ -1,6 +1,6 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
 import { hackServer } from '/shared/HGW';
-import { asString, asNumber } from '/shared/utils';
+import { asNumber, asString } from '/shared/utils';
 
 export const hackPath ="/batching/hack.js";
 

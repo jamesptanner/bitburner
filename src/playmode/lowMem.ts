@@ -1,5 +1,5 @@
-import { NS } from '@ns'
-import { runHacknet, simpleNodesPath } from '/hacknet/simpleNodes';
+import { NS } from '@ns';
+import { runHacknet } from '/hacknet/simpleNodes';
 
 export const lowMemPath = "/playmode/lowMem.js";
 

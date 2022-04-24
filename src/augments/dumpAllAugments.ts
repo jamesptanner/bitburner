@@ -1,4 +1,4 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
 import { factions, getAllAugmentsFromFaction } from '/shared/factions';
 import { initLogging } from '/shared/logging';
 import { makeTable } from '/shared/ui';

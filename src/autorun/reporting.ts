@@ -1,6 +1,5 @@
-import { NS } from '@ns'
-import { moveSyntheticComments } from 'typescript';
-import { initLogging, sendMetric,log, Level } from '/shared/logging';
+import { NS } from '@ns';
+import { initLogging, Level, log, sendMetric } from '/shared/logging';
 import { getAllServers } from '/shared/utils';
 
 export const reportingPath ="/autorun/reporting.js";

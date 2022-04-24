@@ -1,4 +1,4 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
 import { initLogging } from '/shared/logging';
 import { routeToHost } from '/shared/utils';
 
