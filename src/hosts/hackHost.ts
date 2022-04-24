@@ -4,7 +4,9 @@ import { growServer, weakenServer, hackServer } from "/shared/HGW";
 export const hackHostPath ="/hosts/hackHost.js";
 
 export async function main(ns: NS): Promise<void> {
-    const target = ns.args[0];
+    const flags = ns.flags([['host',ns.getHostname()]])
+    const target = flags.host;
+
     ns.tprintf(`INFO hacking target: ${target}`);
     if (typeof target === 'string') {
         while (true) {
