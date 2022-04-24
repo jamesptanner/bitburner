@@ -1,6 +1,8 @@
 const checkmemPath = "/utils/checkmem.js";
 async function main(ns) {
     ns.disableLog('ALL');
+    ns.tail();
+    ns.clearLog();
     ns.ls("home", ".js").forEach(script => {
         const totalMem = ns.getServerMaxRam('home');
         const mem = ns.getScriptRam(script);

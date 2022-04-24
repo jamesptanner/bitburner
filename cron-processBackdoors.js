@@ -215,8 +215,6 @@ const routeToHost = function (ns, start, end) {
     return [];
 };
 
-const MapWindowPath = "/ui/MapWindow.js";
-
 const processBackdoorsPath = "/cron/processBackdoors.js";
 async function main(ns) {
     const hosts = JSON.parse(ns.read("toBackdoor.txt"));
@@ -239,7 +237,6 @@ async function main(ns) {
             hops.forEach(hop => ns.singularity.connect(hop));
         }
         ns.rm("toBackdoor.txt", "home");
-        ns.spawn(MapWindowPath);
     }
 }
 

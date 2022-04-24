@@ -1,10 +1,6 @@
-const simpleNodesPath = "/hacknet/simpleNodes.js";
 const nodeMaxedOut = function (node) {
     return node.coreCost == null && node.ramCost === null && node.levelCost === null;
 };
-async function main(ns) {
-    await runHacknet(ns, () => { return true; });
-}
 async function runHacknet(ns, otherCheck) {
     if (ns.hacknet.numNodes() == 0) {
         while (ns.getPlayer().money < ns.hacknet.getPurchaseNodeCost()) {
@@ -60,4 +56,15 @@ async function runHacknet(ns, otherCheck) {
     }
 }
 
-export { main, runHacknet, simpleNodesPath };
+const lowMemPath = "/playmode/lowMem.js";
+async function main(ns) {
+    //not using usual logging until we have more memory.
+    // await initLogging(ns) 
+    while (ns.getServerMaxRam('home') <= 32) {
+        await runHacknet(ns, () => { return ns.getPlayer().money < 10.1e6; });
+        ns.tprint(`Ready to buy at least 32gb memory`);
+        await ns.sleep(15 * 60 * 1000);
+    }
+}
+
+export { lowMemPath, main };

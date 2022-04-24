@@ -1,31 +1,56 @@
 function getAllServers(ns) {
     return JSON.parse(ns.read("hosts.txt"));
 }
-const findBestTarget = function (ns) {
-    let maxFunds = 0;
-    let bestServer = "";
-    getAllServers(ns).forEach(server => {
-        const serverDetails = ns.getServer(server);
-        if (serverDetails.backdoorInstalled && serverDetails.moneyMax > maxFunds) {
-            bestServer = server;
-            maxFunds = serverDetails.moneyMax;
-        }
-    });
-    return bestServer;
+
+const makeTable = function (ns, headers, data, padding = 1) {
+    const getLineLength = function (minColWidths, padding) {
+        //text length + padding each side of text + len(entries)+ seperators
+        return minColWidths.reduce((p, n) => { return p + n + 2 * padding; }) + minColWidths.length + 3;
+    };
+    const getMinColWidth = function (rows, padding) {
+        return rows.map(row => { return row.length; }).reduce((p, n) => {
+            return Math.max(p, n + (padding * 2));
+        });
+    };
+    const makeRowSplit = function (length) {
+        return '-'.repeat(length) + '\n';
+    };
+    const padCell = function (content, width) {
+        const paddingCells = width - content.length;
+        return `${' '.repeat(Math.floor(paddingCells / 2))}${content}${' '.repeat(Math.ceil(paddingCells / 2))}`;
+    };
+    const makeRow = function (values, widths, padding) {
+        const paddedCells = values.map((v, i) => { return `${' '.repeat(padding)}${padCell(v, widths[i])}${' '.repeat(padding)}`; });
+        return `|${paddedCells.join('|')}|\n`;
+    };
+    const extractColumnValues = function (data, column) {
+        return data.map(r => { return r[column]; });
+    };
+    const widths = headers.map((v, i) => { return getMinColWidth([v, ...extractColumnValues(data, i)], padding); });
+    const lineLength = getLineLength(widths, padding);
+    const headerRow = makeRow(headers, widths, padding);
+    const seperator = makeRowSplit(lineLength);
+    const dataRows = data.map(d => { return makeRow(d, widths, padding); });
+    const joinedRows = dataRows.join(`${seperator}`);
+    ns.printf(`${seperator}${headerRow}${seperator}${joinedRows}${seperator}`);
 };
-
-const weakenPath = "/batching/weaken.js";
-
-const hackPath = "/batching/hack.js";
-
-const growPath = "/batching/grow.js";
 
 const hackingDaemonPath = "/batching/hackingDaemon.js";
 async function main(ns) {
     ns.disableLog('ALL');
-    const target = findBestTarget(ns);
+    ns.clearLog();
+    ns.tail();
     const servers = getAllServers(ns);
-    // prepare the server for attack. max mon, min sec.
+    const data = servers.filter(s => { return ns.getServerMaxMoney(s) > 0; })
+        .sort((a, b) => { return ns.getServerMaxMoney(b) - ns.getServerMaxMoney(a); })
+        .map(s => {
+        const { period, depth } = calculateBatchingProfile(ns, s);
+        return [s, `${ns.nFormat(ns.getServerMaxMoney(s), '($0.000a)')}`, `${ns.getServerMinSecurityLevel(s)}`, ns.tFormat(ns.getHackTime(s), true), ns.tFormat(ns.getWeakenTime(s), true), ns.tFormat(ns.getGrowTime(s), true), `${ns.tFormat(period, true)}`, `${depth}`];
+    });
+    const headers = ['server', 'max money', 'min security', 'hack', 'weaken', 'growth', 'period', 'loops'];
+    makeTable(ns, headers, data);
+}
+function calculateBatchingProfile(ns, target) {
     const hack_time = ns.getHackTime(target);
     const weak_time = ns.getWeakenTime(target);
     const grow_time = ns.getGrowTime(target);
@@ -56,19 +81,7 @@ async function main(ns) {
             }
         }
     }
-    //depth - number of batches
-    //period - one full cycle
-    ns.printf(`length of cycle: ${ns.tFormat(period)}`);
-    ns.printf(`Number of cycles needed: ${depth}`);
-    ns.printf(`number of tasks: ${depth * 4}`);
-    const growMem = ns.getScriptRam(growPath);
-    const hackMem = ns.getScriptRam(hackPath);
-    const weakenMem = ns.getScriptRam(weakenPath);
-    const totalMemory = servers.map(x => ns.getServerMaxRam(x)).reduce((prev, next) => {
-        return prev + next;
-    });
-    ns.printf(`totalMemory Available: ${totalMemory}`);
-    ns.printf(`totalMemoryNeeded: ${(growMem + hackMem + (weakenMem * 2)) * depth}`);
+    return { period, depth };
 }
 
 export { hackingDaemonPath, main };

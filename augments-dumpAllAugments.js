@@ -1,3 +1,5 @@
+const unique = (v, i, self) => { return self.indexOf(v) === i; };
+
 const instanceOfAny = (object, constructors) => constructors.some((c) => object instanceof c);
 
 let idbProxyableTypes;
@@ -262,27 +264,6 @@ var Level;
     Level[Level["Info"] = 2] = "Info";
     Level[Level["success"] = 3] = "success";
 })(Level || (Level = {}));
-class LoggingPayload {
-    host;
-    script;
-    trace;
-    timestamp;
-    payload;
-    constructor(host, script, trace, payload) {
-        if (host)
-            this.host = host;
-        if (script)
-            this.script = script;
-        if (trace)
-            this.trace = trace;
-        if (payload)
-            this.payload = payload;
-        this.timestamp = (performance.now() + performance.timeOrigin) * 1000000;
-    }
-    static fromJSON(d) {
-        return Object.assign(new LoggingPayload(), JSON.parse(d));
-    }
-}
 //from https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid.
 //cant import crypto so this should do.
 //TODO keep an eye out for something better.
@@ -302,16 +283,13 @@ function generateUUID() {
         return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
     });
 }
-const loggingTrace = generateUUID();
-let n;
+generateUUID();
 const DBVERSION = 1;
 const LoggingTable = "logging";
 const MetricTable = "metrics";
-let loggingDB;
 const initLogging = async function (ns) {
-    n = ns;
     // loggingDB = await DB.open("BBLogging",DBVERSION,createDB)
-    loggingDB = await openDB("BBLogging", DBVERSION, {
+    await openDB("BBLogging", DBVERSION, {
         upgrade(db, prevVersion) {
             if (prevVersion < 1) {
                 const loggingStore = db.createObjectStore(LoggingTable, { autoIncrement: true });
@@ -322,127 +300,142 @@ const initLogging = async function (ns) {
         }
     });
 };
-const levelToString = function (level) {
-    switch (level) {
-        case Level.Error:
-            return "ERROR";
-        case Level.Info:
-            return "INFO";
-        case Level.Warning:
-            return "WARNING";
-        case Level.success:
-            return "SUCCESS";
-    }
-    return "";
-};
-const levelToToast = function (level) {
-    switch (level) {
-        case Level.Error:
-            return "error";
-        case Level.Info:
-            return "info";
-        case Level.Warning:
-            return "warning";
-        case Level.success:
-            return "success";
-    }
-    return undefined;
-};
-const log = function (level, msg, toast) {
-    if (toast) {
-        n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
-    }
-    n.print(`${levelToString(level)}: ${msg}`);
-    const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
-        level: level,
-        message: msg,
-    });
-    const tx = loggingDB.transaction(LoggingTable, 'readwrite');
-    void tx.store.add(logPayload);
-};
-const sendMetric = function (key, value) {
-    const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
-        key: key,
-        value: value,
-    });
-    const tx = loggingDB.transaction(MetricTable, 'readwrite');
-    void tx.store.add(logPayload);
+
+const factions = [
+    "CyberSec",
+    "Tian Di Hui",
+    "Netburners",
+    "Sector-12",
+    "Chongqing",
+    "New Tokyo",
+    "Ishima",
+    "Aevum",
+    "Volhaven",
+    "NiteSec",
+    "The Black Hand",
+    "BitRunners",
+    "ECorp",
+    "MegaCorp",
+    "KuaiGong International",
+    "Four Sigma",
+    "NWO",
+    "Blade Industries",
+    "OmniTek Incorporated",
+    "Bachman & Associates",
+    "Clarke Incorporated",
+    "Fulcrum Secret Technologies",
+    "Slum Snakes",
+    "Tetrads",
+    "Silhouette",
+    "Speakers for the Dead",
+    "The Dark Army",
+    "The Syndicate",
+    "The Covenant",
+    "Daedalus",
+    "Illuminati",
+    // "Bladeburners",              //not sure who these are yet.
+    // "Church of the Machine God", //not sure who these are yet.
+];
+const getAllAugmentsFromFaction = function (ns, faction) {
+    return ns.singularity.getAugmentationsFromFaction(faction);
 };
 
-function getAllServers(ns) {
-    return JSON.parse(ns.read("hosts.txt"));
-}
+const makeTable = function (ns, headers, data, padding = 1) {
+    const getLineLength = function (minColWidths, padding) {
+        //text length + padding each side of text + len(entries)+ seperators
+        return minColWidths.reduce((p, n) => { return p + n + 2 * padding; }) + minColWidths.length + 3;
+    };
+    const getMinColWidth = function (rows, padding) {
+        return rows.map(row => { return row.length; }).reduce((p, n) => {
+            return Math.max(p, n + (padding * 2));
+        });
+    };
+    const makeRowSplit = function (length) {
+        return '-'.repeat(length) + '\n';
+    };
+    const padCell = function (content, width) {
+        const paddingCells = width - content.length;
+        return `${' '.repeat(Math.floor(paddingCells / 2))}${content}${' '.repeat(Math.ceil(paddingCells / 2))}`;
+    };
+    const makeRow = function (values, widths, padding) {
+        const paddedCells = values.map((v, i) => { return `${' '.repeat(padding)}${padCell(v, widths[i])}${' '.repeat(padding)}`; });
+        return `|${paddedCells.join('|')}|\n`;
+    };
+    const extractColumnValues = function (data, column) {
+        return data.map(r => { return r[column]; });
+    };
+    const widths = headers.map((v, i) => { return getMinColWidth([v, ...extractColumnValues(data, i)], padding); });
+    const lineLength = getLineLength(widths, padding);
+    const headerRow = makeRow(headers, widths, padding);
+    const seperator = makeRowSplit(lineLength);
+    const dataRows = data.map(d => { return makeRow(d, widths, padding); });
+    const joinedRows = dataRows.join(`${seperator}`);
+    ns.printf(`${seperator}${headerRow}${seperator}${joinedRows}${seperator}`);
+};
 
-const reportingPath = "/autorun/reporting.js";
+const dumpAllAugmentsPath = "/augments/dumpAllAugments.js";
 async function main(ns) {
     await initLogging(ns);
-    const constPlayer = ns.getPlayer();
-    // if(constPlayer.bitNodeN !=5 || ns.getOwnedSourceFiles()[5].>){
-    //     const bitnodeMultiplier = ns.getBitNodeMultipliers()
-    // }
-    sendMetric("player.multiplier.hacking.chance", constPlayer.hacking_chance_mult);
-    sendMetric("player.multiplier.hacking.speed", constPlayer.hacking_speed_mult);
-    sendMetric("player.multiplier.hacking.money", constPlayer.hacking_money_mult);
-    sendMetric("player.multiplier.hacking.growth", constPlayer.hacking_grow_mult);
-    sendMetric("player.multiplier.stat.hacking.level", constPlayer.hacking_mult);
-    sendMetric("player.multiplier.stat.hacking.exp", constPlayer.hacking_exp_mult);
-    sendMetric("player.multiplier.stat.strength.level", constPlayer.strength_mult);
-    sendMetric("player.multiplier.stat.strength.exp", constPlayer.strength_exp_mult);
-    sendMetric("player.multiplier.stat.defense.level", constPlayer.defense_mult);
-    sendMetric("player.multiplier.stat.defense.exp", constPlayer.defense_exp_mult);
-    sendMetric("player.multiplier.stat.dexterity.level", constPlayer.dexterity_mult);
-    sendMetric("player.multiplier.stat.dexterity.exp", constPlayer.dexterity_exp_mult);
-    sendMetric("player.multiplier.stat.agility.level", constPlayer.agility_mult);
-    sendMetric("player.multiplier.stat.agility.exp", constPlayer.agility_exp_mult);
-    sendMetric("player.multiplier.stat.charisma.level", constPlayer.charisma_mult);
-    sendMetric("player.multiplier.stat.charisma.exp", constPlayer.charisma_exp_mult);
-    sendMetric("player.multiplier.hacknet.node.production", constPlayer.hacknet_node_money_mult);
-    sendMetric("player.multiplier.hacknet.node.purchase_cost", constPlayer.hacknet_node_purchase_cost_mult);
-    sendMetric("player.multiplier.hacknet.node.ram_upgrade_cost", constPlayer.hacknet_node_ram_cost_mult);
-    sendMetric("player.multiplier.hacknet.node.core_upgrade_cost", constPlayer.hacknet_node_core_cost_mult);
-    sendMetric("player.multiplier.hacknet.node.level_upgrade_cost", constPlayer.hacknet_node_level_cost_mult);
-    sendMetric("player.multiplier.reputation.faction_gain", constPlayer.faction_rep_mult);
-    sendMetric("player.multiplier.reputation.company_gain", constPlayer.company_rep_mult);
-    sendMetric("player.multiplier.reputation.salary", constPlayer.work_money_mult);
-    sendMetric("player.multiplier.hacknet.node.level_upgrade_cost", constPlayer.hacknet_node_level_cost_mult);
-    sendMetric("player.multiplier.crime.success", constPlayer.crime_success_mult);
-    sendMetric("player.multiplier.crime.money", constPlayer.crime_money_mult);
-    while (true) {
-        const player = ns.getPlayer();
-        sendMetric("player.money", player.money);
-        sendMetric("player.stats.level.hack", player.hacking);
-        sendMetric("player.stats.level.strength", player.strength);
-        sendMetric("player.stats.level.defense", player.defense);
-        sendMetric("player.stats.level.dexterity", player.dexterity);
-        sendMetric("player.stats.level.agility", player.agility);
-        sendMetric("player.stats.level.charisma", player.charisma);
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore property is intentionally undocumented.
-        sendMetric("player.stats.level.karma", ns.heart.break());
-        sendMetric("player.bitnode", player.bitNodeN);
-        getAllServers(ns).concat('home').filter(server => {
-            const serverInfo = ns.getServer(server);
-            return serverInfo.backdoorInstalled || serverInfo.purchasedByPlayer;
-        })
-            .forEach(server => {
-            log(Level.Info, `server:${server} ramused:${ns.getServerUsedRam(server)} rammax:${ns.getServerMaxRam(server)}`);
-        });
-        getAllServers(ns).concat('home')
-            .forEach(server => {
-            const ServerInfo = ns.getServer(server);
-            sendMetric(`server.${server.replaceAll(".", "-")}.backdoorInstalled`, ServerInfo.backdoorInstalled ? 1 : 0);
-            sendMetric(`server.${server.replaceAll(".", "-")}.playerOwned`, ServerInfo.purchasedByPlayer ? 1 : 0);
-            sendMetric(`server.${server.replaceAll(".", "-")}.requiredHacking`, ServerInfo.requiredHackingSkill ? 1 : 0);
-            sendMetric(`server.${server.replaceAll(".", "-")}.backdoorable`, ServerInfo.openPortCount >= ServerInfo.numOpenPortsRequired ? 1 : 0);
-            sendMetric(`server.${server.replaceAll(".", "-")}.maxRam`, ns.getServerMaxRam(server));
-            sendMetric(`server.${server.replaceAll(".", "-")}.usedRam`, ns.getServerUsedRam(server));
-            sendMetric(`server.${server.replaceAll(".", "-")}.securitylevel`, ns.getServerSecurityLevel(server));
-            sendMetric(`server.${server.replaceAll(".", "-")}.minsecuritylevel`, ns.getServerMinSecurityLevel(server));
-            sendMetric(`server.${server.replaceAll(".", "-")}.money`, ns.getServerMoneyAvailable(server));
-            sendMetric(`server.${server.replaceAll(".", "-")}.maxmoney`, ns.getServerMaxMoney(server));
-        });
-        await ns.sleep(120000);
+    ns.clearLog();
+    ns.tail();
+    const augments = ns.singularity.getOwnedAugmentations(true);
+    factions.forEach(faction => {
+        augments.push(...getAllAugmentsFromFaction(ns, faction));
+    });
+    const flags = ns.flags([['player', false], ['hacking', false], ['faction', false], ['hacknet', false], ['bladeburner', false], ['all', false]]);
+    const NToS = function (val) {
+        if (val === undefined)
+            return '-';
+        return ns.nFormat(val, '0,0.000');
+    };
+    const augmentData = augments.filter(unique).sort().map(augment => {
+        const augmentInfo = ns.singularity.getAugmentationStats(augment);
+        const player = [NToS(augmentInfo.hacking_mult), NToS(augmentInfo.strength_mult), NToS(augmentInfo.defense_mult), NToS(augmentInfo.dexterity_mult), NToS(augmentInfo.agility_mult), NToS(augmentInfo.charisma_mult),
+            NToS(augmentInfo.hacking_exp_mult), NToS(augmentInfo.strength_exp_mult), NToS(augmentInfo.defense_exp_mult), NToS(augmentInfo.dexterity_exp_mult), NToS(augmentInfo.agility_exp_mult), NToS(augmentInfo.charisma_exp_mult)];
+        const hacking = [NToS(augmentInfo.hacking_chance_mult), NToS(augmentInfo.hacking_speed_mult), NToS(augmentInfo.hacking_money_mult), NToS(augmentInfo.hacking_grow_mult)];
+        const faction = [NToS(augmentInfo.company_rep_mult), NToS(augmentInfo.faction_rep_mult), NToS(augmentInfo.crime_money_mult), NToS(augmentInfo.crime_success_mult), NToS(augmentInfo.work_money_mult)];
+        const hacknet = [NToS(augmentInfo.hacknet_node_money_mult), NToS(augmentInfo.hacknet_node_purchase_cost_mult), NToS(augmentInfo.hacknet_node_ram_cost_mult), NToS(augmentInfo.hacknet_node_core_cost_mult), NToS(augmentInfo.hacknet_node_level_cost_mult)];
+        const bladeburner = [NToS(augmentInfo.bladeburner_max_stamina_mult), NToS(augmentInfo.bladeburner_stamina_gain_mult), NToS(augmentInfo.bladeburner_analysis_mult), NToS(augmentInfo.bladeburner_success_chance_mult)];
+        return [player, hacking, faction, hacknet, bladeburner];
+    });
+    const defaultData = augments.filter(unique).sort().map(augment => { return [augment, ns.nFormat(ns.singularity.getAugmentationPrice(augment), '($ 0.00a)')]; });
+    const defaultHeaders = ['augment', 'price'];
+    const playerHeaders = ['hack', 'str', 'def', 'dex', 'agi', 'cha', 'hack xp', 'str xp', 'def xp', 'dex xp', 'agi xp', 'cha xp'];
+    const hackingHeaders = ['hack chance', 'hack speed', 'hack money', 'hack growth'];
+    const factionHeaders = ['comp rep', 'fact rep', 'crime mon', 'crime success', 'work mon'];
+    const hacknetHeaders = ['hacknet node mon', 'hacknet node cost', 'hacknet ram cost', 'hacknet core cost', 'hacknet level cost'];
+    const bladeburnerHeaders = ['bladeburner stamina', 'bladeburner stamina gain', 'bladeburner analysis', 'bladeburner success'];
+    const playerInfo = augmentData.map(ad => { return ad[0]; });
+    const hackingInfo = augmentData.map(ad => { return ad[1]; });
+    const factionInfo = augmentData.map(ad => { return ad[2]; });
+    const hacknetInfo = augmentData.map(ad => { return ad[3]; });
+    const bladeburnerInfo = augmentData.map(ad => { return ad[4]; });
+    const tableHeaders = defaultHeaders;
+    const tableData = defaultData;
+    if (flags.player || flags.all) {
+        tableHeaders.push(...playerHeaders);
+        tableData.forEach((v, i) => { v.push(...playerInfo[i]); });
     }
+    if (flags.hacking || flags.all) {
+        tableHeaders.push(...hackingHeaders);
+        tableData.forEach((v, i) => { v.push(...hackingInfo[i]); });
+    }
+    if (flags.faction || flags.all) {
+        tableHeaders.push(...factionHeaders);
+        tableData.forEach((v, i) => { v.push(...factionInfo[i]); });
+    }
+    if (flags.hacknet || flags.all) {
+        tableHeaders.push(...hacknetHeaders);
+        tableData.forEach((v, i) => { v.push(...hacknetInfo[i]); });
+    }
+    if (flags.bladeburner || flags.all) {
+        tableHeaders.push(...bladeburnerHeaders);
+        tableData.forEach((v, i) => { v.push(...bladeburnerInfo[i]); });
+    }
+    const filteredData = (flags.all || flags.player || flags.hacking || flags.faction || flags.hacknet || flags.bladeburner) ? tableData.filter(val => {
+        return !val.every((v, i) => { return i === 0 || i === 1 || v === '-'; });
+    }) : tableData;
+    makeTable(ns, tableHeaders, filteredData, 1);
 }
 
-export { main, reportingPath };
+export { dumpAllAugmentsPath, main };

@@ -23,7 +23,8 @@ async function hackServer(ns, target) {
 
 const hackHostPath = "/hosts/hackHost.js";
 async function main(ns) {
-    const target = ns.args[0];
+    const flags = ns.flags([['host', ns.getHostname()]]);
+    const target = flags.host;
     ns.tprintf(`INFO hacking target: ${target}`);
     if (typeof target === 'string') {
         while (true) {

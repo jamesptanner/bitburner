@@ -16,7 +16,7 @@ async function main(ns) {
     ns.tprintf(`INFO: ${oldTarget} attacking ${target} instead.`);
     const memReq = ns.getScriptRam(hackHostPath);
     const availableRam = serverInfo.maxRam - serverInfo.ramUsed;
-    if (ns.exec(hackHostPath, oldTarget, Math.floor(availableRam / memReq), target) == 0) {
+    if (ns.exec(hackHostPath, oldTarget, Math.floor(availableRam / memReq), "--host", target) == 0) {
         ns.tprintf(`failed to launch script on ${oldTarget}`);
     }
 }

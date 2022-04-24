@@ -343,7 +343,7 @@ const sendTrace = async function (ns, settings, payloads) {
             if ("key" in payload.payload) {
                 const metricName = `bitburner.${settings.gameHost}.${payload.payload.key}`;
                 const request = graphiteRequest;
-                request.body = `${metricName} ${payload.payload.value} ${Math.floor(Date.now() / 1000)}\n`;
+                request.body = `${metricName} ${payload.payload.value} ${Math.floor(payload.timestamp / 1e9)}\n`;
                 const response = await fetch(graphiteUrl, request);
                 if (!response.ok) {
                     ns.tprint(`ERROR: Failed to send metric to graphite. HTTP code: ${response.status}`);
@@ -423,20 +423,52 @@ const checkLoggingSettings = async function (ns) {
     }
     return settings;
 };
+async function trimRecords(ns, loggingDB) {
+    ns.print(`Tidying up records`);
+    const deleteTime = (Date.now() - 6 * 60 * 60 * 1000) * 1e6; //drop older than 6hrs converted to nanosec
+    const loggingTX = loggingDB.transaction('logging', 'readwrite');
+    const loggingIndex = loggingTX.store.index('timestamp');
+    const loggingRecords = await loggingIndex.count(IDBKeyRange.upperBound(deleteTime, false));
+    ns.print(`Deleting ${loggingRecords} from logging table`);
+    if (loggingRecords > 0) {
+        for await (const cursor of loggingIndex.iterate(IDBKeyRange.upperBound(deleteTime, false))) {
+            void cursor.delete();
+        }
+    }
+    await loggingTX.done;
+    const metricTX = loggingDB.transaction('metrics', 'readwrite');
+    const metricIndex = metricTX.store.index('timestamp');
+    const metricRecords = await metricIndex.count(IDBKeyRange.upperBound(deleteTime, false));
+    ns.print(`Deleting ${metricRecords} from metrics table`);
+    if (metricRecords > 0) {
+        let cursor = await metricIndex.openCursor(IDBKeyRange.upperBound(deleteTime, false));
+        while (cursor != null) {
+            await cursor.delete();
+            cursor = await cursor.continue();
+        }
+    }
+    await metricTX.done;
+}
 async function main(ns) {
     const loggingSettings = await checkLoggingSettings(ns);
     setupLoki(loggingSettings);
     setupGraphite(loggingSettings);
     await initLogging(ns);
     const loggingDB = getLoggingDB();
+    await trimRecords(ns, loggingDB);
     while (true) {
+        let start = Date.now();
         await sendLogs(loggingDB, ns, loggingSettings, LoggingTable, sendLog);
+        ns.print(`time taken: ${ns.tFormat(Date.now() - start)}`);
+        start = Date.now();
         await sendLogs(loggingDB, ns, loggingSettings, MetricTable, sendTrace);
+        ns.print(`time taken: ${ns.tFormat(Date.now() - start)}`);
         await ns.sleep(500);
     }
 }
 async function sendLogs(loggingDB, ns, loggingSettings, table, sender) {
     const lineCount = await loggingDB.transaction(table, 'readonly').store.count();
+    ns.print(`${lineCount} ${table} transactions queued.`);
     if (lineCount == 0) {
         return new Promise((res) => { res(); });
     }

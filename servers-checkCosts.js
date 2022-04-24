@@ -364,6 +364,8 @@ const log = function (level, msg, toast) {
 const checkCostsPath = "/servers/checkCosts.js";
 async function main(ns) {
     await initLogging(ns);
+    ns.tail();
+    ns.clearLog();
     let mem = 2;
     while (mem <= ns.getPurchasedServerMaxRam()) {
         log(Level.Info, `${Math.log2(mem)} : ${mem}GB = ${ns.nFormat(Math.round(ns.getPurchasedServerCost(mem)), '($ 0.00 a)')}`);

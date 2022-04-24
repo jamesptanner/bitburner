@@ -26,7 +26,7 @@ function largestPrimeFactor(ns, data) {
             }
             factor++;
         } while (factor != num);
-        ns.tprintf(`largest factor = ${factor}`);
+        ns.print(`largest factor = ${factor}`);
         return factor;
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -71,9 +71,35 @@ function TotalSums(ns, data) {
                 sums[j] += sums[j - i];
             }
         }
+        ns.print(`total Sums: ${sums[value]}`);
+        return sums[value];
+    }
+    throw new Error("Unexpected data types Unable to solve contract.");
+}
+// "Total Ways to Sum"
+//How many different distinct ways can the number 31 be written as a sum of integers contained in the set:
+// [2,3,4,5,6,8,9,10]?
+// You may use each integer in the set zero or more times.
+function TotalSums2(ns, data) {
+    if (Array.isArray(data) &&
+        typeof data[0] === 'number' &&
+        Array.isArray(data[1]) &&
+        data[1].every(val => { return typeof val === 'number'; })) {
+        const set = data[1];
+        const value = data[0];
+        ns.print(`total Sums2: target ${value}, set:${set.join()}`);
+        // An array to store a partition
+        const sums = new Array(value + 1);
+        sums.fill(0, 0);
+        sums[0] = 1;
+        for (let i = 0; i <= sums.length; ++i) {
+            for (let j = set[i]; j <= value; j++) {
+                sums[j] += sums[j - set[i]];
+            }
+        }
         //ns.tprintf(`${partitions}`)
-        ns.tprintf(`total Sums: ${sums[value]}`);
-        ns.tprintf(`total Sums: ${sums}`);
+        ns.print(`total Sums: ${sums[value]}`);
+        ns.print(`total Sums: ${sums}`);
         return sums[value];
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -135,7 +161,7 @@ function SpiralMatrix(ns, data) {
             state++;
         }
         //may have undefined entries which we can remove.
-        ns.tprintf(`SpiralMatrix Result: ${JSON.stringify(output.filter(x => x))}`);
+        ns.print(`SpiralMatrix Result: ${JSON.stringify(output.filter(x => x))}`);
         return output.filter(x => x).map(x => x.toString());
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -152,7 +178,7 @@ function ArrayJump(ns, data) {
         ns.print(`${JSON.stringify(data)} type:${typeof data}`);
         const numberArray = data;
         const result = checkPosition(ns, numberArray, 0, 0);
-        ns.tprintf(`${result}`);
+        ns.print(`${result}`);
         if (result) {
             return 1;
         }
@@ -174,7 +200,7 @@ function ArrayJump2(ns, data) {
         ns.print(`${JSON.stringify(data)} type:${typeof data}`);
         const numberArray = data;
         const [result, minHops] = checkPosition(ns, numberArray, 0, 0);
-        ns.tprintf(`${result}`);
+        ns.print(`${result}`);
         if (result) {
             return minHops;
         }
@@ -187,14 +213,16 @@ function checkPosition(ns, array, pos, depth) {
     if (pos == array.length - 1)
         return [true, depth];
     let minHops = array.length;
+    let ret = false;
     for (let jumpDist = 1; jumpDist <= array[pos]; jumpDist++) {
         ns.print(`Jumping ${jumpDist}`);
         const [reachedEnd, hops] = checkPosition(ns, array, pos + jumpDist, depth + 1);
         if (reachedEnd) {
             minHops = Math.min(minHops, hops);
+            ret = true;
         }
     }
-    return minHops;
+    return [ret, minHops];
 }
 // "Merge Overlapping Intervals"
 // Given an array of intervals, merge all overlapping intervals. An interval
@@ -217,7 +245,7 @@ function MergeOverlapping(ns, data) {
                 i--;
             }
         }
-        ns.tprintf(`${JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])}`);
+        ns.print(`${JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])}`);
         return [JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])];
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -271,7 +299,7 @@ function GenerateIPAddresses(ns, data) {
             }
         }
     }
-    ns.tprintf(`INFO Valid Addresses ${validAddresses.filter((v, i, self) => {
+    ns.print(`INFO Valid Addresses ${validAddresses.filter((v, i, self) => {
         return self.indexOf(v) === i;
     })}`);
     return validAddresses.filter((v, i, self) => {
@@ -338,7 +366,7 @@ function SanitizeParentheses(ns, data) {
         }
         n++;
     }
-    ns.tprintf(`${JSON.stringify(answers.filter((v, i, self) => {
+    ns.print(`${JSON.stringify(answers.filter((v, i, self) => {
         return self.indexOf(v) === i;
     }))}`);
     return answers.filter((v, i, self) => {
@@ -412,72 +440,21 @@ function HammingBtoI(ns, data) {
         }
         const err = bits.map((v, i) => { return v > 0 ? i : 0; }).reduce((p, c) => { return p ^ c; });
         if (err > 0) {
-            ns.tprint(`error at ${err}`);
+            ns.print(`error at ${err}`);
             bits[err] = (bits[err] === 1) ? 0 : 1;
         }
         else {
-            ns.tprint('no error detected.');
+            ns.print('no error detected.');
         }
         for (let bit = bits.length - 1; bit >= 0; bit--) {
             if ((bit & (bit - 1)) === 0) {
                 bits.splice(bit, 1);
             }
         }
-        ns.tprint(`remaining bits: ${bits.join('')}`);
+        ns.print(`remaining bits: ${bits.join('')}`);
         const integer = bin2Dec(bits.join(''));
-        ns.tprint(`integer value: ${integer}`);
+        ns.print(`integer value: ${integer}`);
         return [`${integer}`];
-    }
-    throw new Error("Unexpected data types Unable to solve contract.");
-}
-// You are given the following decimal Value:
-// 1084208828266
-// Convert it into a binary string and encode it as a 'Hamming-Code'. eg:
-// Value 8 will result into binary '1000', which will be encoded with the pattern 'pppdpddd', where p is a paritybit and d a databit,
-// or '10101' (Value 21) will result into (pppdpdddpd) '1001101011'.
-// NOTE: You need an parity Bit on Index 0 as an 'overall'-paritybit.
-// NOTE 2: You should watch the HammingCode-video from 3Blue1Brown, which explains the 'rule' of encoding, including the first Index parity-bit mentioned on the first note.
-// Now the only one rule for this encoding:
-// It's not allowed to add additional leading '0's to the binary value
-// That means, the binary value has to be encoded as it is
-function HammingItoB(ns, data) {
-    const decToBin = function (dec) {
-        const bin = [];
-        while (dec > 0) {
-            bin.push(dec % 2);
-            dec = Math.floor(dec / 2);
-        }
-        return bin;
-    };
-    if (typeof data === 'number') {
-        const decimal = data;
-        ns.tprint(`converting: ${decimal}`);
-        //convert decimal to binary
-        const bin = decToBin(decimal);
-        ns.tprint(`convert to binary: ${bin.join('')}`);
-        //calculate number of parity bits 
-        const controlBitsIndex = [];
-        let i = 1;
-        while ((bin.length + controlBitsIndex.length) / i >= 1) {
-            controlBitsIndex.push(i);
-            i *= 2;
-        }
-        bin.splice(0, 0, 0);
-        controlBitsIndex.forEach(i => {
-            bin.splice(i, 0, 0);
-        });
-        // ns.tprint(`inserted parity: ${bin.join('')}`)
-        controlBitsIndex.forEach(i => {
-            // ns.tprint(`calculating parity ${i}`)
-            bin[i] = bin.reduce((prev, curr, index) => { return prev ^ (index & i) ? curr : 0; });
-            // ns.tprint(`${i} parity: ${bin[i]}`)
-            // ns.tprint(`bin update: ${bin.join('')}`)
-        });
-        // ns.tprint(`calulating parity 0`)
-        bin[0] = bin.reduce((prev, curr) => { return prev ^ curr; });
-        // ns.tprint(`0 parity: ${bin[0]}`)
-        ns.tprint(`with parity: ${bin.join('')}`);
-        return [bin.join('')];
     }
     throw new Error("Unexpected data types Unable to solve contract.");
 }
@@ -502,7 +479,7 @@ function StockTrader1(ns, data) {
             maxCur = Math.max(0, (maxCur += stocks[i] - stocks[i - 1]));
             bestProfit = Math.max(bestProfit, maxCur);
         }
-        ns.tprintf(`Stock1 Best profit: ${bestProfit}`);
+        ns.print(`Stock1 Best profit: ${bestProfit}`);
         return bestProfit > 0 ? bestProfit : 0;
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -522,7 +499,7 @@ function StockTrader2(ns, data) {
         for (let i = 1; i < stocks.length; ++i) {
             profit += Math.max(0, stocks[i] - stocks[i - 1]);
         }
-        ns.tprintf(`Stock2 Best profit: ${profit}`);
+        ns.print(`Stock2 Best profit: ${profit}`);
         return profit > 0 ? profit : 0;
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -620,8 +597,7 @@ function MinTrianglePath(ns, data) {
             }
         }
         ns.print(`${JSON.stringify(numberArray)}`);
-        // return unimplemented(data) 
-        ns.tprintf(`MinPath: ${Math.min(...numberArray[numberArray.length - 1])}`);
+        ns.print(`MinPath: ${Math.min(...numberArray[numberArray.length - 1])}`);
         return Math.min(...numberArray[numberArray.length - 1]);
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -648,7 +624,7 @@ function UniquePath1(ns, data) {
                 }
             }
         }
-        ns.tprintf(`paths: ${map[maxX - 1][maxY - 1]}`);
+        ns.print(`paths: ${map[maxX - 1][maxY - 1]}`);
         return map[maxX - 1][maxY - 1];
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -690,7 +666,7 @@ function UniquePath2(ns, data) {
             }
         }
         ns.print(`${JSON.stringify(map)} type:${typeof data}`);
-        ns.tprintf(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`);
+        ns.print(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`);
         return map[maxX - 1][maxY - 1];
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -1069,6 +1045,7 @@ const processors = new Map([
     ["Find Largest Prime Factor", largestPrimeFactor],
     ["Subarray with Maximum Sum", MaxSubArray],
     ["Total Ways to Sum", TotalSums],
+    ["Total Ways to Sum II", TotalSums2],
     ["Spiralize Matrix", SpiralMatrix],
     ["Array Jumping Game", ArrayJump],
     ["Array Jumping Game II", ArrayJump2],
@@ -1083,8 +1060,8 @@ const processors = new Map([
     ["Unique Paths in a Grid II", UniquePath2],
     ["Sanitize Parentheses in Expression", SanitizeParentheses],
     ["Find All Valid Math Expressions", FindValidMathExpressions],
-    ["HammingCodes: Encoded Binary to Integer", HammingBtoI],
-    ["HammingCodes: Integer to encoded Binary", HammingItoB], //Strings
+    ["HammingCodes: Encoded Binary to Integer", HammingBtoI], //Strings   DONE
+    // ["HammingCodes: Integer to encoded Binary",HammingItoB],        //Strings
 ]);
 async function main(ns) {
     await initLogging(ns);
@@ -1096,11 +1073,6 @@ async function main(ns) {
     }
     const filename = asString(ns.args[0]);
     const host = asString(ns.args[1]);
-    if (!ns.serverExists(host)) {
-        ns.tprintf(`Invalid server: ${host}`);
-        ns.tprintf(usage);
-        ns.exit();
-    }
     if (!ns.codingcontract.getContractType(filename, host)) {
         ns.tprintf(`Invalid file ${host}:${filename}`);
         ns.tprintf(usage);

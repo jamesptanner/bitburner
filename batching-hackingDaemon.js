@@ -389,9 +389,13 @@ const hackingDaemonPath = "/batching/hackingDaemon.js";
 async function main(ns) {
     ns.disableLog('ALL');
     await initLogging(ns);
-    const target = findBestTarget(ns);
     const servers = getAllServers(ns);
     await waitForBatchedHackToFinish(ns);
+    // if we dont have a server to target yet, wait until we do have. 
+    while (findBestTarget(ns) === "") {
+        await ns.sleep(60000);
+    }
+    const target = findBestTarget(ns);
     // prepare the server for attack. max mon, min sec.
     for (const server of servers) {
         await ns.scp([prepareHostPath, weakenPath, growPath, hackPath], server);

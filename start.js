@@ -1,4 +1,11 @@
+const lowMemPath = "/playmode/lowMem.js";
+
 async function main(ns) {
+    if (ns.getServerMaxRam("home") <= 32) {
+        ns.tprintf(`low on memory. Working on increasing mem first.`);
+        ns.exec(lowMemPath, "home");
+        ns.exit();
+    }
     const startupFiles = ns.ls("home", "/startup/");
     if (startupFiles.length > 0) {
         startupFiles.forEach(file => {
