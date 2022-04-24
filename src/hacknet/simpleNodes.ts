@@ -15,6 +15,10 @@ type PurchaseOption = {
 }
 
 export async function main(ns: NS): Promise<void> {
+  await runHacknet(ns,()=>{return true});
+}
+
+export async function runHacknet(ns: NS,otherCheck?:()=>boolean):Promise<void> {
   if (ns.hacknet.numNodes() == 0) {
     while (ns.getPlayer().money < ns.hacknet.getPurchaseNodeCost()) {
       await ns.sleep(60 * 1000);
@@ -41,7 +45,8 @@ export async function main(ns: NS): Promise<void> {
       } else if (curr == null || nodeMaxedOut(curr)) {
         return prev;
       } else {
-        if (Math.min(prev.coreCost, prev.levelCost, prev.ramCost) < Math.min(curr.coreCost, curr.levelCost, curr.ramCost)) return prev;
+        if (Math.min(prev.coreCost, prev.levelCost, prev.ramCost) < Math.min(curr.coreCost, curr.levelCost, curr.ramCost))
+          return prev;
         return curr;
       }
     });
@@ -62,5 +67,9 @@ export async function main(ns: NS): Promise<void> {
       }
     }
     await ns.sleep(500);
+
+    if(otherCheck !== undefined && !otherCheck()){
+      break;
+    }
   }
 }
