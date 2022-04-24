@@ -27,8 +27,7 @@ export function MinTrianglePath(ns: NS, data: unknown): number | string[] | unde
             }
         }
         ns.print(`${JSON.stringify(numberArray)}`)
-        // return unimplemented(data) 
-        ns.tprintf(`MinPath: ${Math.min(...numberArray[numberArray.length - 1])}`)
+        ns.print(`MinPath: ${Math.min(...numberArray[numberArray.length - 1])}`)
 
         return Math.min(...numberArray[numberArray.length - 1]);
     }
@@ -62,7 +61,7 @@ export function UniquePath1(ns: NS, data: unknown): number | string[] | undefine
                 }
             }
         }
-        ns.tprintf(`paths: ${map[maxX - 1][maxY - 1]}`)
+        ns.print(`paths: ${map[maxX - 1][maxY - 1]}`)
         return map[maxX - 1][maxY - 1]
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -113,8 +112,115 @@ export function UniquePath2(ns: NS, data: unknown): number | string[] | undefine
             }
         }
         ns.print(`${JSON.stringify(map)} type:${typeof data}`)
-        ns.tprintf(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`)
+        ns.print(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`)
         return map[maxX - 1][maxY - 1]
+    }
+    throw new Error("Unexpected data types Unable to solve contract.");
+}
+
+
+export function ShortestPath(ns: NS, data: unknown): number | string[] | undefined {
+    type node = {
+        position: {
+            x: number,
+            y: number
+        }
+        minDist: number
+        minDistDir: 'N'|'S'|'E'|'W'|'1'|'U'
+        obstacle:boolean
+    }
+
+    if (is2DArray<number>(data, (val: unknown): val is number => { return typeof val === 'number' })) {
+
+        const maxX: number = data.length
+        const maxY: number = data[0].length
+
+        const originalMap: number[][] = data
+        const nodes: node[] = []
+        const processedNodes: node [][] = new Array<node[]>(maxX)
+        const firstNode:node = {
+            position: {
+                x : 0,
+                y : 0
+            },
+            minDist: 0,
+            obstacle: originalMap[0][0] ==1,
+            minDistDir: 'U'
+        
+            
+        }
+        nodes.push(firstNode)
+
+        while(nodes.length>0){
+            const node = nodes.pop() as node
+
+            processedNodes[node.position.x][node.position.y] = node
+            let north = processedNodes[node.position.x][node.position.y-1] 
+            let south = processedNodes[node.position.x][node.position.y+1] 
+            let east = processedNodes[node.position.x+1][node.position.y] 
+            let west = processedNodes[node.position.x-1][node.position.y] 
+
+            if(north===undefined && node.position.y - 1 >= 0){
+                north = {
+                    position: {
+                        x: node.position.x,
+                        y: node.position.y - 1
+                    },
+                    minDist: 0,
+                    obstacle: originalMap[node.position.x][node.position.y - 1] ==1,
+                    minDistDir: 'U'
+                    
+                    
+                }
+            }
+
+            if(south===undefined && node.position.y + 1 <= maxY){
+                south = {
+                    position: {
+                        x: node.position.x,
+                        y: node.position.y + 1
+                    },
+                    minDist: 0,
+                    obstacle: originalMap[node.position.x][node.position.y + 1] ==1,
+                    minDistDir: 'U'
+                
+                    
+                }
+            }
+
+            if(west === undefined && node.position.x - 1 >=0){
+                west = {
+                    position: {
+                        x: node.position.x-1,
+                        y: node.position.y 
+                    },
+                    minDist: 0,
+                    obstacle: originalMap[node.position.x-1][node.position.y] ==1,
+                    minDistDir: 'U'
+                
+                    
+                }
+            }
+            
+            if(east === undefined && node.position.x + 1 >=maxX){
+                east = {
+                    position: {
+                        x: node.position.x+1,
+                        y: node.position.y 
+                    },
+                    minDist: 0,
+                    obstacle: originalMap[node.position.x+1][node.position.y] ==1,
+                    minDistDir: 'U'
+                
+                    
+                }
+            }
+        }
+
+
+        //ns.print(`${JSON.stringify(map)} type:${typeof data}`)
+       // ns.tprintf(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`)
+        // return map[maxX - 1][maxY - 1]
     }
     throw new Error("Unexpected data types Unable to solve contract.");
 }

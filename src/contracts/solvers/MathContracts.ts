@@ -14,7 +14,7 @@ export function largestPrimeFactor(ns: NS, data: unknown): number | string[] | u
             }
             factor++
         } while (factor != num)
-        ns.tprintf(`largest factor = ${factor}`)
+        ns.print(`largest factor = ${factor}`)
 
         return factor
     }
@@ -69,10 +69,7 @@ export function TotalSums(ns: NS, data: unknown): number | string[] | undefined 
                 sums[j] += sums[j - i]
             }
         }
-
-        //ns.tprintf(`${partitions}`)
-        ns.tprintf(`total Sums: ${sums[value]}`)
-        ns.tprintf(`total Sums: ${sums}`)
+        ns.print(`total Sums: ${sums[value]}`)
 
         return sums[value]
     }
@@ -80,3 +77,39 @@ export function TotalSums(ns: NS, data: unknown): number | string[] | undefined 
 
 }
 
+// "Total Ways to Sum"
+
+//How many different distinct ways can the number 31 be written as a sum of integers contained in the set:
+// [2,3,4,5,6,8,9,10]?
+
+// You may use each integer in the set zero or more times.
+export function TotalSums2(ns: NS, data: unknown): number | string[] | undefined {
+    if (Array.isArray(data) &&
+      typeof data[0] === 'number' &&
+      Array.isArray(data[1]) &&
+      data[1].every(val => { return typeof val === 'number' })) {
+        const set: number[] = data[1];
+        const value = data[0]
+        ns.print(`total Sums2: target ${value}, set:${set.join()}`)
+        
+
+        // An array to store a partition
+        const sums = new Array(value + 1);
+        sums.fill(0, 0)
+        sums[0] = 1
+
+        for (let i =0; i <= sums.length; ++i) {
+            for(let j = set[i]; j<= value;j++){
+                sums[j] += sums[j-set[i]]
+            }
+        }
+
+        //ns.tprintf(`${partitions}`)
+        ns.print(`total Sums: ${sums[value]}`)
+        ns.print(`total Sums: ${sums}`)
+
+        return sums[value]
+    }
+    throw new Error("Unexpected data types Unable to solve contract.");
+
+}

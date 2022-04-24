@@ -28,10 +28,10 @@ export const factions: string[] = [
     "Fulcrum Secret Technologies",
     "Slum Snakes",
     "Tetrads",
-    // "Silhouette",                //crime faction not interested in handling yet.
-    // "Speakers for the Dead",     //crime faction not interested in handling yet.
-    // "The Dark Army",             //crime faction not interested in handling yet.
-    // "The Syndicate",             //crime faction not interested in handling yet.
+    "Silhouette",                //crime faction not interested in handling yet.
+    "Speakers for the Dead",     //crime faction not interested in handling yet.
+    "The Dark Army",             //crime faction not interested in handling yet.
+    "The Syndicate",             //crime faction not interested in handling yet.
     "The Covenant",
     "Daedalus",
     "Illuminati",
@@ -245,6 +245,10 @@ export const getAugmentsAvailableFromFaction = function (ns: NS, faction: string
     })
 }
 
+export const getAllAugmentsFromFaction = function (ns: NS, faction: string): string[] {
+    return ns.singularity.getAugmentationsFromFaction(faction)
+}
+
 export const getUniqueAugmentsAvailableFromFaction = function (ns: NS, faction: string): string[] {
     return getAugmentsAvailableFromFaction(ns, faction).filter(augment => {
         return augment !== "NeuroFlux Governor"
@@ -270,7 +274,6 @@ const waitToBackdoor = async function (ns:NS, server:string){
 }
 
 const repForNextRole = function(ns:NS,corpName:string): number {
-    const charInfo = ns.singularity.getCharacterInformation()
     const jobs = ns.getPlayer().jobs as Map<string,string>
     // typedef is incorrect for deprecated charInfo.
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment

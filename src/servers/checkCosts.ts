@@ -6,6 +6,8 @@ export const checkCostsPath ="/servers/checkCosts.js";
 
 export async function main(ns : NS) : Promise<void> {
     await initLogging(ns)
+    ns.tail()
+    ns.clearLog()
 
     let mem = 2
     while(mem <= ns.getPurchasedServerMaxRam()){

@@ -1,6 +1,6 @@
 import { NS } from '@ns'
 import { asString } from '/shared/utils';
-import { largestPrimeFactor, TotalSums, MaxSubArray } from '/contracts/solvers/MathContracts';
+import { largestPrimeFactor, TotalSums, MaxSubArray, TotalSums2 } from '/contracts/solvers/MathContracts';
 import { SpiralMatrix, MergeOverlapping, ArrayJump, ArrayJump2 } from '/contracts/solvers/ArrayContracts';
 import { GenerateIPAddresses, FindValidMathExpressions, SanitizeParentheses,HammingBtoI,HammingItoB } from '/contracts/solvers/StringContracts';
 import { StockTrader1, StockTrader2, StockTrader3, StockTrader4 } from '/contracts/solvers/StockContracts';
@@ -24,6 +24,7 @@ const processors = new Map<string, ContractFunction>([
     ["Find Largest Prime Factor", largestPrimeFactor],              //Maths     DONE
     ["Subarray with Maximum Sum", MaxSubArray],                     //Maths     DONE
     ["Total Ways to Sum", TotalSums],                               //Maths     DONE
+    ["Total Ways to Sum II", TotalSums2],                           //Maths     DONE
     ["Spiralize Matrix", SpiralMatrix],                             //Arrays    DONE
     ["Array Jumping Game", ArrayJump],                              //Arrays    DONE
     ["Array Jumping Game II", ArrayJump2],                          //Arrays    DONE
@@ -38,8 +39,8 @@ const processors = new Map<string, ContractFunction>([
     ["Unique Paths in a Grid II", UniquePath2],                     //Paths     DONE
     ["Sanitize Parentheses in Expression", SanitizeParentheses],    //Strings   DONE
     ["Find All Valid Math Expressions", FindValidMathExpressions],  //Strings   DONE
-    ["HammingCodes: Encoded Binary to Integer",HammingBtoI],        //Strings
-    ["HammingCodes: Integer to encoded Binary",HammingItoB],        //Strings
+    ["HammingCodes: Encoded Binary to Integer",HammingBtoI],        //Strings   DONE
+    // ["HammingCodes: Integer to encoded Binary",HammingItoB],        //Strings
 
 ])
 
@@ -54,12 +55,6 @@ export async function main(ns: NS): Promise<void> {
 
     const filename: string = asString(ns.args[0])
     const host: string = asString(ns.args[1])
-
-    if (!ns.serverExists(host)) {
-        ns.tprintf(`Invalid server: ${host}`)
-        ns.tprintf(usage)
-        ns.exit()
-    }
 
     if (!ns.codingcontract.getContractType(filename, host)) {
         ns.tprintf(`Invalid file ${host}:${filename}`)

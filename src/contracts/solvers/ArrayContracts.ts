@@ -60,7 +60,7 @@ export function SpiralMatrix(ns: NS, data: unknown): number | string[] | undefin
             state++
         }
         //may have undefined entries which we can remove.
-        ns.tprintf(`SpiralMatrix Result: ${JSON.stringify(output.filter(x => x))}`)
+        ns.print(`SpiralMatrix Result: ${JSON.stringify(output.filter(x => x))}`)
         return output.filter(x => x).map<string>(x => x.toString())
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -81,7 +81,7 @@ export function ArrayJump(ns: NS, data: unknown): number | string[] | undefined 
     const numberArray: number[] = data
 
     const result = checkPosition(ns, numberArray, 0,0)
-    ns.tprintf(`${result}`)
+    ns.print(`${result}`)
     if (result) {
         return 1
     }
@@ -110,7 +110,7 @@ export function ArrayJump2(ns: NS, data: unknown): number | string[] | undefined
     const numberArray: number[] = data
 
     const [result, minHops]= checkPosition(ns, numberArray, 0,0)
-    ns.tprintf(`${result}`)
+    ns.print(`${result}`)
     if (result) {
         return minHops
     }
@@ -132,7 +132,7 @@ function checkPosition(ns: NS, array: number[], pos: number,depth:number): [bool
             ret = true
         }
     }
-    return ret,minHops;
+    return [ret,minHops];
 }
 
 // "Merge Overlapping Intervals"
@@ -162,7 +162,7 @@ export function MergeOverlapping(ns: NS, data: unknown): number | string[] | und
             }
         }
 
-        ns.tprintf(`${JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])}`)
+        ns.print(`${JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])}`)
         return [JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])]
     }
     throw new Error("Unexpected data types Unable to solve contract.");

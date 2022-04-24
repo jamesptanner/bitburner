@@ -46,7 +46,7 @@ const sendTrace = async function (ns: NS, settings: LoggingSettings, payloads: L
 
                 const metricName = `bitburner.${settings.gameHost}.${payload.payload.key}`;
                 const request = graphiteRequest;
-                request.body = `${metricName} ${payload.payload.value} ${Math.floor(Date.now() / 1000)}\n`;
+                request.body = `${metricName} ${payload.payload.value} ${Math.floor(payload.timestamp / 1e9)}\n`;
 
                 const response = await fetch(graphiteUrl, request);
                 if (!response.ok) {
@@ -140,6 +140,36 @@ const checkLoggingSettings = async function (ns: NS): Promise<LoggingSettings> {
     return settings
 }
 
+async function trimRecords(ns: NS, loggingDB: IDBPDatabase<LoggingDB>): Promise<void> {
+    ns.print(`Tidying up records`)
+    const deleteTime = (Date.now() - 6 * 60 * 60 * 1000) * 1e6 //drop older than 6hrs converted to nanosec
+
+    const loggingTX = loggingDB.transaction('logging', 'readwrite')
+    const loggingIndex = loggingTX.store.index('timestamp')
+    const loggingRecords = await loggingIndex.count(IDBKeyRange.upperBound(deleteTime, false))
+    ns.print(`Deleting ${loggingRecords} from logging table`)
+    if (loggingRecords > 0) {
+        for await (const cursor of loggingIndex.iterate(IDBKeyRange.upperBound(deleteTime, false))) {
+            void cursor.delete()
+        }
+    }
+    await loggingTX.done
+
+    const metricTX = loggingDB.transaction('metrics', 'readwrite')
+    const metricIndex = metricTX.store.index('timestamp')
+    const metricRecords = await metricIndex.count(IDBKeyRange.upperBound(deleteTime, false))
+    ns.print(`Deleting ${metricRecords} from metrics table`)
+    if (metricRecords > 0) {
+        let cursor = await metricIndex.openCursor(IDBKeyRange.upperBound(deleteTime, false))
+        while (cursor != null){
+            await cursor.delete()
+            cursor = await cursor.continue()
+        }
+    }
+    await metricTX.done
+
+}
+
 export async function main(ns: NS): Promise<void> {
     const loggingSettings = await checkLoggingSettings(ns)
     setupLoki(loggingSettings)
@@ -147,9 +177,15 @@ export async function main(ns: NS): Promise<void> {
 
     await initLogging(ns)
     const loggingDB = getLoggingDB()
+
+    await trimRecords(ns, loggingDB)
     while (true) {
+        let start = Date.now()
         await sendLogs(loggingDB, ns, loggingSettings, LoggingTable, sendLog);
+        ns.print(`time taken: ${ns.tFormat(Date.now() - start)}`)
+        start = Date.now()
         await sendLogs(loggingDB, ns, loggingSettings, MetricTable, sendTrace)
+        ns.print(`time taken: ${ns.tFormat(Date.now() - start)}`)
 
         await ns.sleep(500)
     }
@@ -159,6 +195,8 @@ async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSetti
     table: "logging" | "metrics",
     sender: (ns: NS, settings: LoggingSettings, payload: LoggingPayload[]) => Promise<boolean>): Promise<void> {
     const lineCount = await loggingDB.transaction(table, 'readonly').store.count()
+
+    ns.print(`${lineCount} ${table} transactions queued.`)
     if (lineCount == 0) {
         return new Promise<void>((res) => { res() })
     }
@@ -198,7 +236,7 @@ async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSetti
     return Promise.all(deletes)
         .then(x => {
             ns.print(`${x.length - 1} ${table} transactions completed.`)
-    })
+        })
         .catch(x =>
             ns.print(`failed to delete: ${x}`)
         )

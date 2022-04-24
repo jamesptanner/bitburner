@@ -9,7 +9,7 @@ export async function main(ns: NS): Promise<void> {
         const cost = iterator[1];
         if (!ns.fileExists(script) && player.hacking >= cost) {
             // ns.tprintf(`INFO: You should work on new script: ${script}`);
-            if(!ns.singularity.isBusy() || ns.getPlayer().workType.includes('Program')){
+            if(!ns.singularity.isBusy() || ns.getPlayer().workType.includes('program')){
                 ns.printf(`INFO: working on new script ${script}`)
                 ns.singularity.createProgram(script,true)
             }

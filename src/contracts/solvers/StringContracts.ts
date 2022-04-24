@@ -51,7 +51,7 @@ export function GenerateIPAddresses(ns: NS, data: unknown): number | string[] | 
       }
     }
   }
-  ns.tprintf(
+  ns.print(
     `INFO Valid Addresses ${validAddresses.filter((v, i, self) => {
       return self.indexOf(v) === i;
     })}`
@@ -126,7 +126,7 @@ export function SanitizeParentheses(ns: NS, data: unknown): number | string[] | 
     n++;
   }
 
-  ns.tprintf(
+  ns.print(
     `${JSON.stringify(
       answers.filter((v, i, self) => {
         return self.indexOf(v) === i;
@@ -214,21 +214,21 @@ export function HammingBtoI(ns: NS, data: unknown): number | string[] | undefine
     }
     const err = bits.map((v, i) => { return v > 0 ? i : 0 }).reduce((p, c) => { return p ^ c })
     if (err > 0) {
-      ns.tprint(`error at ${err}`)
+      ns.print(`error at ${err}`)
       bits[err]  = (bits[err] === 1)? 0 :1
     }
     else {
-      ns.tprint('no error detected.')
+      ns.print('no error detected.')
     }
     for (let bit = bits.length - 1; bit >= 0; bit--){
       if ((bit & (bit - 1)) === 0) {
         bits.splice(bit,1)
       }
     }
-    ns.tprint(`remaining bits: ${bits.join('')}`)
+    ns.print(`remaining bits: ${bits.join('')}`)
 
     const integer = bin2Dec(bits.join(''))
-    ns.tprint(`integer value: ${integer}`)
+    ns.print(`integer value: ${integer}`)
     return [`${integer}`]
   }
   throw new Error("Unexpected data types Unable to solve contract.");
@@ -254,7 +254,7 @@ export function HammingItoB(ns: NS, data: unknown): number | string[] | undefine
       bin.push(dec % 2)
       dec = Math.floor(dec / 2)
     }
-    return bin
+    return bin.reverse()
   }
   if(typeof data === 'number'){
     const decimal = data
@@ -275,11 +275,14 @@ export function HammingItoB(ns: NS, data: unknown): number | string[] | undefine
     controlBitsIndex.forEach(i => {
       bin.splice(i,0,0)
     })
-    // ns.tprint(`inserted parity: ${bin.join('')}`)
+    ns.tprint(`inserted parity: ${bin.join('')}`)
 
     controlBitsIndex.forEach(i => {
       // ns.tprint(`calculating parity ${i}`)
-      bin[i] = bin.reduce((prev, curr, index) => {return prev ^ (index & i) ? curr : 0})
+      bin[i] = bin.filter((v,index)=>{
+        ns.tprintf(`${index} & ${i} == ${index&i}`)
+        return v&i
+      }).reduce((prev, curr, index) => {return prev ^ (index & i) ? curr : 0},0)
       // ns.tprint(`${i} parity: ${bin[i]}`)
       // ns.tprint(`bin update: ${bin.join('')}`)
     })
