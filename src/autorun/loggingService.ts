@@ -117,7 +117,7 @@ const setupLoki = function (settings: LoggingSettings) {
 const loggingSettingsFile = "loggingSettings.txt";
 
 const checkLoggingSettings = async function (ns: NS): Promise<LoggingSettings> {
-    if
+    
     const settings = LoggingSettings.fromJSON(ns.read(loggingSettingsFile) as string)
     let saveSettings = false
     if (!settings.gameHost) {
