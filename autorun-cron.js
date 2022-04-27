@@ -38,6 +38,12 @@ const jobs = [
         interval: 5 * 60 * 1000,
         disable: false
     },
+    {
+        script: "cron/checkForUpdate.js",
+        args: [],
+        interval: 60 * 60 * 1000,
+        disable: false
+    },
 ];
 async function main(ns) {
     ns.ps().filter(proc => { return proc.filename.indexOf(triggerJobPath) != -1; }).forEach(proc => ns.kill(proc.pid));
