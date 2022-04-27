@@ -16,6 +16,9 @@ class LoggingSettings {
         if (metricHost) this.metricHost = metricHost
     }
     static fromJSON(d: string): LoggingSettings {
+        if (d === ""){
+            return new LoggingSettings()
+        }
         return Object.assign(new LoggingSettings(), JSON.parse(d))
     }
 }
@@ -114,6 +117,7 @@ const setupLoki = function (settings: LoggingSettings) {
 const loggingSettingsFile = "loggingSettings.txt";
 
 const checkLoggingSettings = async function (ns: NS): Promise<LoggingSettings> {
+    if
     const settings = LoggingSettings.fromJSON(ns.read(loggingSettingsFile) as string)
     let saveSettings = false
     if (!settings.gameHost) {
