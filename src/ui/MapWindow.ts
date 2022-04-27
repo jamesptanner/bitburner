@@ -1,4 +1,4 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
 import { createDotGraph } from '/extern/netgraph';
 
 export const MapWindowPath = "/ui/MapWindow.js";

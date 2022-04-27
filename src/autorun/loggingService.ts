@@ -1,7 +1,7 @@
-import { NS } from '@ns'
-import { getLoggingDB, LoggingPayload, LoggingTable, initLogging, LogData, LoggingDB } from "/shared/logging";
-import { MetricTable } from '../shared/logging';
+import { NS } from '@ns';
 import { IDBPDatabase } from 'idb';
+import { MetricTable } from '../shared/logging';
+import { getLoggingDB, initLogging, LogData, LoggingDB, LoggingPayload, LoggingTable } from "/shared/logging";
 import { unique } from '/shared/utils';
 
 export const loggingServicePath = "/autorun/loggingService.js";
@@ -16,6 +16,9 @@ class LoggingSettings {
         if (metricHost) this.metricHost = metricHost
     }
     static fromJSON(d: string): LoggingSettings {
+        if (d === ""){
+            return new LoggingSettings()
+        }
         return Object.assign(new LoggingSettings(), JSON.parse(d))
     }
 }
@@ -114,6 +117,7 @@ const setupLoki = function (settings: LoggingSettings) {
 const loggingSettingsFile = "loggingSettings.txt";
 
 const checkLoggingSettings = async function (ns: NS): Promise<LoggingSettings> {
+    if
     const settings = LoggingSettings.fromJSON(ns.read(loggingSettingsFile) as string)
     let saveSettings = false
     if (!settings.gameHost) {
@@ -149,8 +153,10 @@ async function trimRecords(ns: NS, loggingDB: IDBPDatabase<LoggingDB>): Promise<
     const loggingRecords = await loggingIndex.count(IDBKeyRange.upperBound(deleteTime, false))
     ns.print(`Deleting ${loggingRecords} from logging table`)
     if (loggingRecords > 0) {
-        for await (const cursor of loggingIndex.iterate(IDBKeyRange.upperBound(deleteTime, false))) {
-            void cursor.delete()
+        let cursor = await loggingIndex.openCursor(IDBKeyRange.upperBound(deleteTime, false))
+        while (cursor != null){
+            await cursor.delete()
+            cursor = await cursor.continue()
         }
     }
     await loggingTX.done

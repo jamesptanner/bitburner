@@ -1,6 +1,6 @@
 import { NS } from '@ns';
+import { Dijkstra, Graph, Node } from 'dijkstra-pathfinder';
 
-import { Graph, Node, Dijkstra } from 'dijkstra-pathfinder'
 
 export function asString(val: unknown): string {
   if (typeof val === "string") return val;

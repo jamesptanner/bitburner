@@ -1,7 +1,7 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
+import { makeTable } from '/shared/ui';
 import { getAllServers } from '/shared/utils';
 
-import { makeTable } from '/shared/ui';
 
 export const hackingDaemonPath = "/batching/hackingDaemon.js";
 

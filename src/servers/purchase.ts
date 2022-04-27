@@ -1,4 +1,4 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
 import { getHostsPath } from '/startup/getHosts';
 
 export const purchasePath = "/servers/purchase.js";

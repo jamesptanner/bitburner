@@ -1,7 +1,7 @@
-import { NS } from '@ns'
-import { initLogging, Level, log } from '/shared/logging';
+import { NS } from '@ns';
 import { factions } from 'shared/factions';
 import { getAugmentsAvailableFromFaction } from '../shared/factions';
+import { initLogging, Level, log } from '/shared/logging';
 import { makeTable } from '/shared/ui';
 
 export const listAugmentsPath = "/utils/listAugments.js";

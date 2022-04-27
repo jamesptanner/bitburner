@@ -1,7 +1,7 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
+import { infiltratePath } from "/hosts/infiltrate";
 import { getAllServers } from "/shared/utils";
 
-import {infiltratePath} from "/hosts/infiltrate"
 
 export async function main(ns: NS): Promise<void> {
     const toBackdoor: string[] = []

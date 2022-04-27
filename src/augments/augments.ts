@@ -1,5 +1,5 @@
-import { NS } from '@ns'
-import {improveFactionReputation, unlockFaction,factionUnlockRequirements,getUniqueAugmentsAvailableFromFaction,factions, getAvailableFactions} from 'shared/factions'
+import { NS } from '@ns';
+import { factions, factionUnlockRequirements, getAvailableFactions, getUniqueAugmentsAvailableFromFaction, improveFactionReputation, unlockFaction } from 'shared/factions';
 import { getAugmentsAvailableFromFaction } from '../shared/factions';
 
 

@@ -1,4 +1,4 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
 import { getAllServers } from '/shared/utils';
 
 export const killscriptPath ="/utils/killscript.js";

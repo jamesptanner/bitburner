@@ -5,10 +5,8 @@ export async function main(ns : NS) : Promise<void> {
 
     if(ns.getServerMaxRam("home") <= 32){
         ns.tprintf(`low on memory. Working on increasing mem first.`)
-        ns.exec(lowMemPath,"home")
-        ns.exit()
+        ns.spawn(lowMemPath,1)
     }
-
 
     const startupFiles = ns.ls("home","/startup/")
     if(startupFiles.length>0){

@@ -1,10 +1,10 @@
-import { NS, ProcessInfo } from '@ns'
-import { prepareHostPath } from '/batching/prepareHost';
-import { findBestTarget, getAllServers } from '/shared/utils';
+import { NS, ProcessInfo } from '@ns';
+import { growPath } from './grow';
 import { weakenPath } from './weaken';
 import { hackPath } from '/batching/hack';
-import { growPath } from './grow';
-import { initLogging, log, Level } from '/shared/logging';
+import { prepareHostPath } from '/batching/prepareHost';
+import { initLogging, Level, log } from '/shared/logging';
+import { findBestTarget, getAllServers } from '/shared/utils';
 
 export const hackingDaemonPath = "/batching/hackingDaemon.js";
 

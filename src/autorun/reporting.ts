@@ -1,6 +1,5 @@
-import { NS } from '@ns'
-import { moveSyntheticComments } from 'typescript';
-import { initLogging, sendMetric,log, Level } from '/shared/logging';
+import { NS } from '@ns';
+import { initLogging, Level, log, sendMetric } from '/shared/logging';
 import { getAllServers } from '/shared/utils';
 
 export const reportingPath ="/autorun/reporting.js";
@@ -79,6 +78,6 @@ export async function main(ns : NS) : Promise<void> {
             sendMetric(`server.${server.replaceAll(".","-")}.money`, ns.getServerMoneyAvailable(server))
             sendMetric(`server.${server.replaceAll(".","-")}.maxmoney`, ns.getServerMaxMoney(server))
         })
-        await ns.sleep(120000)
+        await ns.sleep(60000)
     }
 }

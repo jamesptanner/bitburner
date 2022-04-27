@@ -1,6 +1,6 @@
-import { NS } from '@ns'
-import { asString, getAllServers } from "/shared/utils";
+import { NS } from '@ns';
 import { hackHostPath } from "/hosts/hackHost";
+import { asString, getAllServers } from "/shared/utils";
 
 export async function main(ns : NS) : Promise<void> {
     const oldTarget = asString(ns.args[0])

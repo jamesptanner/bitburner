@@ -1,5 +1,5 @@
+import { logging } from 'shared/logging';
 import { needToFocus } from "/shared/utils";
-import { logging } from 'shared/logging'
 
 export const factionsPath ="/shared/factions.js";
 

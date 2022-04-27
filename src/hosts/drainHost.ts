@@ -1,5 +1,5 @@
 import { NS } from "@ns";
-import { weakenServer, hackServer } from "/shared/HGW";
+import { hackServer, weakenServer } from "/shared/HGW";
 
 export async function main(ns: NS): Promise<void> {
     const target = ns.args[0];

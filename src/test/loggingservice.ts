@@ -1,5 +1,5 @@
-import { NS } from '@ns'
-import { log,Level,initLogging,sendMetric } from '/shared/logging';
+import { NS } from '@ns';
+import { initLogging, Level, log, sendMetric } from '/shared/logging';
 
 export const loggingservicePath ="/test/loggingservice.js";
 

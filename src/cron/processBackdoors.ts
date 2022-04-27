@@ -1,6 +1,5 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
 import { routeToHost } from '/shared/utils';
-import { MapWindowPath } from '/ui/MapWindow';
 
 export const processBackdoorsPath = "/cron/processBackdoors.js";
 
@@ -9,8 +8,9 @@ export async function main(ns: NS): Promise<void> {
     if (hosts.length > 0) {
         ns.tprintf(`need to backdoor : ${hosts.join()}`)
         for (const host of hosts) {
-            ns.tprintf(`backdooring ${host} starting at ${ns.singularity.getCurrentServer()}`)
-            const hops = routeToHost(ns, ns.singularity.getCurrentServer(), host)
+            ns.singularity.connect("home")
+            ns.tprintf(`backdooring ${host} starting at home}`)
+            const hops = routeToHost(ns, 'home', host)
             if (hops && hops.length > 0) {
                 ns.tprintf(`routing via ${hops}`)
 
@@ -20,11 +20,7 @@ export async function main(ns: NS): Promise<void> {
             }
         }
         ns.printf(`returning home`)
-        const hops = routeToHost(ns, ns.singularity.getCurrentServer(), "home")
-        if (hops && hops.length > 0) {
-            ns.tprintf(`routing via ${hops}`)
-            hops.forEach(hop => ns.singularity.connect(hop))
-        }
+        ns.singularity.connect("home")
         ns.rm("toBackdoor.txt","home");
     }
 }

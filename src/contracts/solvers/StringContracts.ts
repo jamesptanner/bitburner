@@ -1,5 +1,5 @@
-import { NS } from '@ns'
-import { asString, asNumber } from "/shared/utils";
+import { NS } from '@ns';
+import { asNumber, asString } from "/shared/utils";
 // "Generate IP Addresses"
 
 // Given a string containing only digits, return an array with all possible

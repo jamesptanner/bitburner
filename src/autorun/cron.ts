@@ -1,4 +1,4 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
 import { triggerJobPath } from '/cron/triggerJob';
 
 interface Job {

@@ -1,6 +1,6 @@
-import { NS } from '@ns'
+import { NS } from '@ns';
 import { weakenServer } from '/shared/HGW';
-import { asString, asNumber } from '/shared/utils';
+import { asNumber, asString } from '/shared/utils';
 
 export const weakenPath ="/batching/weaken.js";
 
