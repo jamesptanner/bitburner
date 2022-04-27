@@ -1,8 +1,8 @@
+const simpleNodesPath = "/hacknet/simpleNodes.js";
+
 function hasFormulas(ns) {
     return ns.fileExists("Formulas.exe");
 }
-
-const simpleNodesPath = "/hacknet/simpleNodes.js";
 
 const hacknetPath = "/autorun/hacknet.js";
 async function main(ns) {

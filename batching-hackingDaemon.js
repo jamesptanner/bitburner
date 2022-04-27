@@ -1,5 +1,3 @@
-const prepareHostPath = "/batching/prepareHost.js";
-
 function getAllServers(ns) {
     return JSON.parse(ns.read("hosts.txt"));
 }
@@ -16,11 +14,13 @@ const findBestTarget = function (ns) {
     return bestServer;
 };
 
+const growPath = "/batching/grow.js";
+
 const weakenPath = "/batching/weaken.js";
 
 const hackPath = "/batching/hack.js";
 
-const growPath = "/batching/grow.js";
+const prepareHostPath = "/batching/prepareHost.js";
 
 const instanceOfAny = (object, constructors) => constructors.some((c) => object instanceof c);
 

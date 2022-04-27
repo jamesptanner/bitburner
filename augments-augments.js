@@ -1,9 +1,3 @@
-const needToFocus = function (ns) {
-    if (ns.singularity.getOwnedAugmentations(false).indexOf("Neuroreceptor Management Implant") !== -1)
-        return false;
-    return true;
-};
-
 var Level;
 (function (Level) {
     Level[Level["Error"] = 0] = "Error";
@@ -111,6 +105,12 @@ const logging = {
     warning: warning,
     success: success,
     info: info
+};
+
+const needToFocus = function (ns) {
+    if (ns.singularity.getOwnedAugmentations(false).indexOf("Neuroreceptor Management Implant") !== -1)
+        return false;
+    return true;
 };
 
 const factions = [

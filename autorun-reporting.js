@@ -441,7 +441,7 @@ async function main(ns) {
             sendMetric(`server.${server.replaceAll(".", "-")}.money`, ns.getServerMoneyAvailable(server));
             sendMetric(`server.${server.replaceAll(".", "-")}.maxmoney`, ns.getServerMaxMoney(server));
         });
-        await ns.sleep(120000);
+        await ns.sleep(60000);
     }
 }
 

@@ -1,8 +1,8 @@
+const infiltratePath = "/hosts/infiltrate.js";
+
 function getAllServers(ns) {
     return JSON.parse(ns.read("hosts.txt"));
 }
-
-const infiltratePath = "/hosts/infiltrate.js";
 
 async function main(ns) {
     const toBackdoor = [];

@@ -319,6 +319,9 @@ class LoggingSettings {
             this.metricHost = metricHost;
     }
     static fromJSON(d) {
+        if (d === "") {
+            return new LoggingSettings();
+        }
         return Object.assign(new LoggingSettings(), JSON.parse(d));
     }
 }
@@ -431,8 +434,10 @@ async function trimRecords(ns, loggingDB) {
     const loggingRecords = await loggingIndex.count(IDBKeyRange.upperBound(deleteTime, false));
     ns.print(`Deleting ${loggingRecords} from logging table`);
     if (loggingRecords > 0) {
-        for await (const cursor of loggingIndex.iterate(IDBKeyRange.upperBound(deleteTime, false))) {
-            void cursor.delete();
+        let cursor = await loggingIndex.openCursor(IDBKeyRange.upperBound(deleteTime, false));
+        while (cursor != null) {
+            await cursor.delete();
+            cursor = await cursor.continue();
         }
     }
     await loggingTX.done;

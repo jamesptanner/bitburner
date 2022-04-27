@@ -1,7 +1,3 @@
-function getAllServers(ns) {
-    return JSON.parse(ns.read("hosts.txt"));
-}
-
 const makeTable = function (ns, headers, data, padding = 1) {
     const getLineLength = function (minColWidths, padding) {
         //text length + padding each side of text + len(entries)+ seperators
@@ -34,6 +30,10 @@ const makeTable = function (ns, headers, data, padding = 1) {
     const joinedRows = dataRows.join(`${seperator}`);
     ns.printf(`${seperator}${headerRow}${seperator}${joinedRows}${seperator}`);
 };
+
+function getAllServers(ns) {
+    return JSON.parse(ns.read("hosts.txt"));
+}
 
 const hackingDaemonPath = "/batching/hackingDaemon.js";
 async function main(ns) {

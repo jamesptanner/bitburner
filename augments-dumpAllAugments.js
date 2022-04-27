@@ -1,5 +1,3 @@
-const unique = (v, i, self) => { return self.indexOf(v) === i; };
-
 const instanceOfAny = (object, constructors) => constructors.some((c) => object instanceof c);
 
 let idbProxyableTypes;
@@ -300,6 +298,8 @@ const initLogging = async function (ns) {
         }
     });
 };
+
+const unique = (v, i, self) => { return self.indexOf(v) === i; };
 
 const factions = [
     "CyberSec",

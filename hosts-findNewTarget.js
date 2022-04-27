@@ -1,3 +1,5 @@
+const hackHostPath = "/hosts/hackHost.js";
+
 function asString(val) {
     if (typeof val === "string")
         return val;
@@ -6,8 +8,6 @@ function asString(val) {
 function getAllServers(ns) {
     return JSON.parse(ns.read("hosts.txt"));
 }
-
-const hackHostPath = "/hosts/hackHost.js";
 
 async function main(ns) {
     const oldTarget = asString(ns.args[0]);
