@@ -47,6 +47,12 @@ const jobs: Job[] = [
         interval:5*60*1000,
         disable:false
     },
+    {
+        script:"cron/checkForUpdate.js",
+        args:[],
+        interval:60*60*1000,
+        disable:false
+    },
 
 ]
 
