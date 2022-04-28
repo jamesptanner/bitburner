@@ -1,4 +1,5 @@
 import { NS } from '@ns';
+import { stringify } from 'querystring';
 import { asNumber, asString } from "/shared/utils";
 // "Generate IP Addresses"
 
@@ -254,7 +255,7 @@ export function HammingItoB(ns: NS, data: unknown): number | string[] | undefine
       bin.push(dec % 2)
       dec = Math.floor(dec / 2)
     }
-    return bin.reverse()
+    return bin
   }
   if(typeof data === 'number'){
     const decimal = data
@@ -280,7 +281,7 @@ export function HammingItoB(ns: NS, data: unknown): number | string[] | undefine
     controlBitsIndex.forEach(i => {
       // ns.tprint(`calculating parity ${i}`)
       bin[i] = bin.filter((v,index)=>{
-        ns.tprintf(`${index} & ${i} == ${index&i}`)
+        // ns.tprintf(`${index} & ${i} == ${index&i}`)
         return v&i
       }).reduce((prev, curr, index) => {return prev ^ (index & i) ? curr : 0},0)
       // ns.tprint(`${i} parity: ${bin[i]}`)
@@ -291,7 +292,74 @@ export function HammingItoB(ns: NS, data: unknown): number | string[] | undefine
     bin[0] = bin.reduce((prev, curr) => { return prev ^ curr })
     // ns.tprint(`0 parity: ${bin[0]}`)
     ns.tprint(`with parity: ${bin.join('')}`)
-    return [bin.join('')]
+   return [bin.join('')]
+  }
+  throw new Error("Unexpected data types Unable to solve contract.");
+}
+
+export function runLengthEncoding(ns: NS, data: unknown): number | string[] | undefined {
+  if (typeof data === 'string') {
+    const dataArray = [...data]
+    ns.print(data)
+
+    type pairs = {
+      char:string
+      count:number
+    }
+    const rlPairs = dataArray.reduce<pairs[]>((prev,curr)=>{
+      if(prev.length===0 || curr !== prev[prev.length-1].char){
+        prev.push({char:curr, count:1})
+        return prev
+      }
+      else {
+        prev[prev.length-1] = {char:curr,count:prev[prev.length-1].count+1}
+        return prev
+      }
+    },[])
+    ns.print(rlPairs)
+    let retData = ""
+    while (rlPairs.length > 0){
+      if(rlPairs[0].count > 9){
+        retData = `${retData}9${rlPairs[0].char}`
+        rlPairs[0].count = rlPairs[0].count-9
+      }
+      else{
+        retData = `${retData}${rlPairs[0].count}${rlPairs[0].char}`
+        rlPairs.splice(0,1)
+      } 
+    }
+    ns.print(retData)
+    return [retData]
+  }
+  throw new Error("Unexpected data types Unable to solve contract.");
+}
+
+export function lzDecompression(ns: NS, data: unknown): number | string[] | undefined {
+  if (typeof data === 'string') {
+    ns.print(data)
+    const datArr = [...data]
+    let ret = ""
+    while (datArr.length > 0){
+      //copy
+      const count = parseInt(datArr.splice(0,1)[0])
+      if(count !== 0)
+      {
+        ret = ret + datArr.splice(0,count).join('')
+        if (datArr.length === 0) {
+          break
+        }
+      }
+      //ref
+      const count2 = parseInt(datArr.splice(0,1)[0])
+      if(count !==0){
+        const pos = parseInt(datArr.splice(0,1)[0])
+        for(let i = 0; i < count2;  i++){
+          ret = ret + ret[ret.length - pos-1]
+        }
+      }
+    }
+    ns.print(ret)
+    // return [ret]
   }
   throw new Error("Unexpected data types Unable to solve contract.");
 }

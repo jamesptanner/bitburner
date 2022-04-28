@@ -4,9 +4,10 @@ import { ArrayJump, ArrayJump2, MergeOverlapping, SpiralMatrix } from '/contract
 import { largestPrimeFactor, MaxSubArray, TotalSums, TotalSums2 } from '/contracts/solvers/MathContracts';
 import { MinTrianglePath, UniquePath1, UniquePath2 } from '/contracts/solvers/PathContracts';
 import { StockTrader1, StockTrader2, StockTrader3, StockTrader4 } from '/contracts/solvers/StockContracts';
-import { FindValidMathExpressions, GenerateIPAddresses, HammingBtoI, SanitizeParentheses } from '/contracts/solvers/StringContracts';
+import { FindValidMathExpressions, GenerateIPAddresses, HammingBtoI, runLengthEncoding, SanitizeParentheses, HammingItoB } from '/contracts/solvers/StringContracts';
 import { error, initLogging } from '/shared/logging';
 import { asString } from '/shared/utils';
+import { lzDecompression } from './solvers/StringContracts';
 
 export const solveContractPath = "/contracts/solveContract.js";
 
@@ -40,7 +41,9 @@ const processors = new Map<string, ContractFunction>([
     ["Sanitize Parentheses in Expression", SanitizeParentheses],    //Strings   DONE
     ["Find All Valid Math Expressions", FindValidMathExpressions],  //Strings   DONE
     ["HammingCodes: Encoded Binary to Integer",HammingBtoI],        //Strings   DONE
-    // ["HammingCodes: Integer to encoded Binary",HammingItoB],        //Strings
+    ["HammingCodes: Integer to encoded Binary",HammingItoB],        //Strings
+    ["Compression I: RLE Compression",runLengthEncoding],           //Strings   
+    ["Compression II: LZ Decompression",lzDecompression],           //Strings   
 
 ])
 
