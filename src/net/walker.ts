@@ -1,6 +1,6 @@
 import { NS } from '@ns';
 import { infiltratePath } from "/hosts/infiltrate";
-import { getAllServers } from "/shared/utils";
+import { getAllServers, routeToHost } from "/shared/utils";
 
 
 export async function main(ns: NS): Promise<void> {
