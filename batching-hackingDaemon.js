@@ -390,6 +390,7 @@ async function main(ns) {
     ns.disableLog('ALL');
     await initLogging(ns);
     const servers = getAllServers(ns);
+    killPrepScripts(ns);
     await waitForBatchedHackToFinish(ns);
     // if we dont have a server to target yet, wait until we do have. 
     while (findBestTarget(ns) === "") {
@@ -478,6 +479,21 @@ async function waitForBatchedHackToFinish(ns) {
     })
         .map(procInfo => procInfo.pid);
     await waitForPids(pids, ns);
+}
+function killPrepScripts(ns) {
+    ns.printf(`Killing any preparation scripts.`);
+    getAllServers(ns).map(server => {
+        return ns.ps(server);
+    })
+        .reduce((prev, curr) => {
+        return prev.concat(...curr);
+    }, [])
+        .filter(proc => {
+        return proc.filename == prepareHostPath;
+    })
+        .forEach(proc => {
+        ns.kill(proc.pid);
+    });
 }
 async function waitForPids(pids, ns) {
     do {

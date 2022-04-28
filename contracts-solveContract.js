@@ -1039,6 +1039,119 @@ function HammingBtoI(ns, data) {
     }
     throw new Error("Unexpected data types Unable to solve contract.");
 }
+// You are given the following decimal Value:
+// 1084208828266
+// Convert it into a binary string and encode it as a 'Hamming-Code'. eg:
+// Value 8 will result into binary '1000', which will be encoded with the pattern 'pppdpddd', where p is a paritybit and d a databit,
+// or '10101' (Value 21) will result into (pppdpdddpd) '1001101011'.
+// NOTE: You need an parity Bit on Index 0 as an 'overall'-paritybit.
+// NOTE 2: You should watch the HammingCode-video from 3Blue1Brown, which explains the 'rule' of encoding, including the first Index parity-bit mentioned on the first note.
+// Now the only one rule for this encoding:
+// It's not allowed to add additional leading '0's to the binary value
+// That means, the binary value has to be encoded as it is
+function HammingItoB(ns, data) {
+    const decToBin = function (dec) {
+        const bin = [];
+        while (dec > 0) {
+            bin.push(dec % 2);
+            dec = Math.floor(dec / 2);
+        }
+        return bin;
+    };
+    if (typeof data === 'number') {
+        const decimal = data;
+        ns.tprint(`converting: ${decimal}`);
+        //convert decimal to binary
+        const bin = decToBin(decimal);
+        ns.tprint(`convert to binary: ${bin.join('')}`);
+        //calculate number of parity bits 
+        const controlBitsIndex = [];
+        let i = 1;
+        while ((bin.length + controlBitsIndex.length) / i >= 1) {
+            controlBitsIndex.push(i);
+            i *= 2;
+        }
+        bin.splice(0, 0, 0);
+        controlBitsIndex.forEach(i => {
+            bin.splice(i, 0, 0);
+        });
+        ns.tprint(`inserted parity: ${bin.join('')}`);
+        controlBitsIndex.forEach(i => {
+            // ns.tprint(`calculating parity ${i}`)
+            bin[i] = bin.filter((v, index) => {
+                // ns.tprintf(`${index} & ${i} == ${index&i}`)
+                return v & i;
+            }).reduce((prev, curr, index) => { return prev ^ (index & i) ? curr : 0; }, 0);
+            // ns.tprint(`${i} parity: ${bin[i]}`)
+            // ns.tprint(`bin update: ${bin.join('')}`)
+        });
+        // ns.tprint(`calulating parity 0`)
+        bin[0] = bin.reduce((prev, curr) => { return prev ^ curr; });
+        // ns.tprint(`0 parity: ${bin[0]}`)
+        ns.tprint(`with parity: ${bin.join('')}`);
+        return [bin.join('')];
+    }
+    throw new Error("Unexpected data types Unable to solve contract.");
+}
+function runLengthEncoding(ns, data) {
+    if (typeof data === 'string') {
+        const dataArray = [...data];
+        ns.print(data);
+        const rlPairs = dataArray.reduce((prev, curr) => {
+            if (prev.length === 0 || curr !== prev[prev.length - 1].char) {
+                prev.push({ char: curr, count: 1 });
+                return prev;
+            }
+            else {
+                prev[prev.length - 1] = { char: curr, count: prev[prev.length - 1].count + 1 };
+                return prev;
+            }
+        }, []);
+        ns.print(rlPairs);
+        let retData = "";
+        while (rlPairs.length > 0) {
+            if (rlPairs[0].count > 9) {
+                retData = `${retData}9${rlPairs[0].char}`;
+                rlPairs[0].count = rlPairs[0].count - 9;
+            }
+            else {
+                retData = `${retData}${rlPairs[0].count}${rlPairs[0].char}`;
+                rlPairs.splice(0, 1);
+            }
+        }
+        ns.print(retData);
+        return [retData];
+    }
+    throw new Error("Unexpected data types Unable to solve contract.");
+}
+function lzDecompression(ns, data) {
+    if (typeof data === 'string') {
+        ns.print(data);
+        const datArr = [...data];
+        let ret = "";
+        while (datArr.length > 0) {
+            //copy
+            const count = parseInt(datArr.splice(0, 1)[0]);
+            if (count !== 0) {
+                ret = ret + datArr.splice(0, count).join('');
+                if (datArr.length === 0) {
+                    break;
+                }
+            }
+            //ref
+            const count2 = parseInt(datArr.splice(0, 1)[0]);
+            if (count !== 0) {
+                const pos = parseInt(datArr.splice(0, 1)[0]);
+                for (let i = 0; i < count2; i++) {
+                    ret = ret + ret[ret.length - pos - 1];
+                }
+            }
+        }
+        ns.print(ret);
+        // return [ret]
+    }
+    throw new Error("Unexpected data types Unable to solve contract.");
+}
 
 const solveContractPath = "/contracts/solveContract.js";
 const processors = new Map([
@@ -1060,8 +1173,10 @@ const processors = new Map([
     ["Unique Paths in a Grid II", UniquePath2],
     ["Sanitize Parentheses in Expression", SanitizeParentheses],
     ["Find All Valid Math Expressions", FindValidMathExpressions],
-    ["HammingCodes: Encoded Binary to Integer", HammingBtoI], //Strings   DONE
-    // ["HammingCodes: Integer to encoded Binary",HammingItoB],        //Strings
+    ["HammingCodes: Encoded Binary to Integer", HammingBtoI],
+    ["HammingCodes: Integer to encoded Binary", HammingItoB],
+    ["Compression I: RLE Compression", runLengthEncoding],
+    ["Compression II: LZ Decompression", lzDecompression], //Strings   
 ]);
 async function main(ns) {
     await initLogging(ns);
