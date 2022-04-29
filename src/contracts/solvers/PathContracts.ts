@@ -234,7 +234,7 @@ export function colorGraph(ns: NS, data: unknown): number | string[] | undefined
         out.fill(-1,0)
         //start with vertex 0 
         out[0] = 0
-        ns.tprint(edges)
+        ns.print(edges)
         let count = 0
         while(out.some(v =>{return v === -1})&&count < 10){
             for (let index = 0; index < out.length; index++) {
@@ -257,7 +257,7 @@ export function colorGraph(ns: NS, data: unknown): number | string[] | undefined
                     throw new Error("Going to clash."); 
                 }
                 matchingEdges.forEach(edge =>{ out[edge[1]] = (out[index] === 1) ? 0:1 })
-                ns.tprint(`i:${index} out: ${out}`)
+                ns.print(`i:${index} out: ${out}`)
             }
             count++
         }
