@@ -2,9 +2,9 @@ import { NS } from '@ns';
 import { unsolveableContractPath } from './unsolveableContract';
 import { ArrayJump, ArrayJump2, MergeOverlapping, SpiralMatrix } from '/contracts/solvers/ArrayContracts';
 import { largestPrimeFactor, MaxSubArray, TotalSums, TotalSums2 } from '/contracts/solvers/MathContracts';
-import { MinTrianglePath, UniquePath1, UniquePath2 } from '/contracts/solvers/PathContracts';
+import { colorGraph, MinTrianglePath, UniquePath1, UniquePath2 } from '/contracts/solvers/PathContracts';
 import { StockTrader1, StockTrader2, StockTrader3, StockTrader4 } from '/contracts/solvers/StockContracts';
-import { FindValidMathExpressions, GenerateIPAddresses, HammingBtoI, runLengthEncoding, SanitizeParentheses, HammingItoB } from '/contracts/solvers/StringContracts';
+import { FindValidMathExpressions, GenerateIPAddresses, HammingBtoI, runLengthEncoding, SanitizeParentheses, HammingItoB, lzCompression } from '/contracts/solvers/StringContracts';
 import { error, initLogging } from '/shared/logging';
 import { asString } from '/shared/utils';
 import { lzDecompression } from './solvers/StringContracts';
@@ -44,6 +44,8 @@ const processors = new Map<string, ContractFunction>([
     ["HammingCodes: Integer to encoded Binary",HammingItoB],        //Strings
     ["Compression I: RLE Compression",runLengthEncoding],           //Strings   
     ["Compression II: LZ Decompression",lzDecompression],           //Strings   
+    ["Compression III: LZ Compression",lzCompression],              //Strings   
+    ["Proper 2-Coloring of a Graph",colorGraph],                     //Paths
 
 ])
 

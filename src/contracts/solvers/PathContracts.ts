@@ -224,3 +224,44 @@ export function ShortestPath(ns: NS, data: unknown): number | string[] | undefin
     }
     throw new Error("Unexpected data types Unable to solve contract.");
 }
+
+
+export function colorGraph(ns: NS, data: unknown): number | string[] | undefined {
+    if (Array.isArray(data) && typeof data[0] === 'number' && is2DArray<number>(data[1], (val: unknown): val is number => { return typeof val === 'number' })) {
+        const nodeCount = data[0] as number
+        const edges = (data[1] as number[][]).sort((a,b)=>{ return a[0] - b[0] })
+        const out = new Array(nodeCount)
+        out.fill(-1,0)
+        //start with vertex 0 
+        out[0] = 0
+        ns.tprint(edges)
+        let count = 0
+        while(out.some(v =>{return v === -1})&&count < 10){
+            for (let index = 0; index < out.length; index++) {
+                const matchingEdges = edges.filter(v =>{return v[0]=== index})
+                if(out[index]===-1){
+                    //do we have a value for any of the opposite?
+                    const usableEdges = matchingEdges.filter(v=>{return v[1]!=-1})
+                    if(usableEdges.length>=1) 
+                    { 
+                        out[index] = out[usableEdges[0][1]] === 1 ? 0 : 1
+                    }
+                    else {
+                        continue;
+                    }
+                }
+
+                if(matchingEdges.some(edge =>{ return out[index] === out[edge[1]] }))
+                {
+                    return []
+                    throw new Error("Going to clash."); 
+                }
+                matchingEdges.forEach(edge =>{ out[edge[1]] = (out[index] === 1) ? 0:1 })
+                ns.tprint(`i:${index} out: ${out}`)
+            }
+            count++
+        }
+        return out
+    }
+throw new Error("Unexpected data types Unable to solve contract.");
+}
