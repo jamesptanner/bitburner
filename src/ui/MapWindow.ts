@@ -83,7 +83,7 @@ export async function main(ns: NS): Promise<void> {
         const mapWin = doc.createElement('div')
         mapWin.id = "mapWindow"
         mapWin.style.width = "34vh"
-        mapWin.style.height = "54vh"
+        mapWin.style.height = "fit-content"
         mapWin.style.position = "fixed"
         mapWin.style.transform = "translate(-18px, -18px)"
         mapWin.style.zIndex = "1000"
