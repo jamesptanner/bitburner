@@ -363,3 +363,12 @@ export function lzDecompression(ns: NS, data: unknown): number | string[] | unde
   }
   throw new Error("Unexpected data types Unable to solve contract.");
 }
+
+export function lzCompression(ns: NS, data: unknown): number | string[] | undefined {
+  if (typeof data === 'string') {
+    const ret = ""
+    ns.tprint(`${data} -> ${ret}`)
+    // return [ret]
+  }
+  throw new Error("Unexpected data types Unable to solve contract."); 
+}
