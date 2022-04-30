@@ -282,7 +282,7 @@ export function HammingItoB(ns: NS, data: unknown): number | string[] | undefine
       // ns.tprint(`calculating parity ${i}`)
       bin[i] = bin.filter((v,index)=>{
         // ns.tprintf(`${index} & ${i} == ${index&i}`)
-        return v&i
+        return (i & index) !== 0
       }).reduce((prev, curr, index) => {return prev ^ (index & i) ? curr : 0},0)
       // ns.tprint(`${i} parity: ${bin[i]}`)
       // ns.tprint(`bin update: ${bin.join('')}`)
