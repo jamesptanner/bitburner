@@ -716,6 +716,41 @@ function UniquePath2(ns, data) {
     }
     throw new Error("Unexpected data types Unable to solve contract.");
 }
+function colorGraph(ns, data) {
+    if (Array.isArray(data) && typeof data[0] === 'number' && is2DArray(data[1], (val) => { return typeof val === 'number'; })) {
+        const nodeCount = data[0];
+        const edges = data[1].sort((a, b) => { return a[0] - b[0]; });
+        const out = new Array(nodeCount);
+        out.fill(-1, 0);
+        //start with vertex 0 
+        out[0] = 0;
+        ns.print(edges);
+        let count = 0;
+        while (out.some(v => { return v === -1; }) && count < 10) {
+            for (let index = 0; index < out.length; index++) {
+                const matchingEdges = edges.filter(v => { return v[0] === index; });
+                if (out[index] === -1) {
+                    //do we have a value for any of the opposite?
+                    const usableEdges = matchingEdges.filter(v => { return v[1] != -1; });
+                    if (usableEdges.length >= 1) {
+                        out[index] = out[usableEdges[0][1]] === 1 ? 0 : 1;
+                    }
+                    else {
+                        continue;
+                    }
+                }
+                if (matchingEdges.some(edge => { return out[index] === out[edge[1]]; })) {
+                    return [];
+                }
+                matchingEdges.forEach(edge => { out[edge[1]] = (out[index] === 1) ? 0 : 1; });
+                ns.print(`i:${index} out: ${out}`);
+            }
+            count++;
+        }
+        return out;
+    }
+    throw new Error("Unexpected data types Unable to solve contract.");
+}
 
 // "Algorithmic Stock Trader I"
 // Determine the maximum possible profit you can earn using at most one
@@ -1152,6 +1187,14 @@ function lzDecompression(ns, data) {
     }
     throw new Error("Unexpected data types Unable to solve contract.");
 }
+function lzCompression(ns, data) {
+    if (typeof data === 'string') {
+        const ret = "";
+        ns.tprint(`${data} -> ${ret}`);
+        // return [ret]
+    }
+    throw new Error("Unexpected data types Unable to solve contract.");
+}
 
 const solveContractPath = "/contracts/solveContract.js";
 const processors = new Map([
@@ -1176,7 +1219,9 @@ const processors = new Map([
     ["HammingCodes: Encoded Binary to Integer", HammingBtoI],
     ["HammingCodes: Integer to encoded Binary", HammingItoB],
     ["Compression I: RLE Compression", runLengthEncoding],
-    ["Compression II: LZ Decompression", lzDecompression], //Strings   
+    ["Compression II: LZ Decompression", lzDecompression],
+    ["Compression III: LZ Compression", lzCompression],
+    ["Proper 2-Coloring of a Graph", colorGraph], //Paths
 ]);
 async function main(ns) {
     await initLogging(ns);
