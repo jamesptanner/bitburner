@@ -41,11 +41,11 @@ const processors = new Map<string, ContractFunction>([
     ["Sanitize Parentheses in Expression", SanitizeParentheses],    //Strings   DONE
     ["Find All Valid Math Expressions", FindValidMathExpressions],  //Strings   DONE
     ["HammingCodes: Encoded Binary to Integer",HammingBtoI],        //Strings   DONE
-    ["HammingCodes: Integer to encoded Binary",HammingItoB],        //Strings
-    ["Compression I: RLE Compression",runLengthEncoding],           //Strings   
+    // ["HammingCodes: Integer to encoded Binary",HammingItoB],        //Strings
+    ["Compression I: RLE Compression",runLengthEncoding],           //Strings   DONE
     ["Compression II: LZ Decompression",lzDecompression],           //Strings   
-    ["Compression III: LZ Compression",lzCompression],              //Strings   
-    ["Proper 2-Coloring of a Graph",colorGraph],                     //Paths
+    // ["Compression III: LZ Compression",lzCompression],              //Strings   
+    ["Proper 2-Coloring of a Graph",colorGraph],                     //Paths    DONE
 
 ])
 
