@@ -1,7 +1,7 @@
 import { logging } from 'shared/logging';
 import { needToFocus } from "/shared/utils";
 
-export const factionsPath ="/shared/factions.js";
+export const factionsPath = "/shared/factions.js";
 
 export const factions: string[] = [
     "CyberSec",
@@ -28,10 +28,10 @@ export const factions: string[] = [
     "Fulcrum Secret Technologies",
     "Slum Snakes",
     "Tetrads",
-    "Silhouette",                //crime faction not interested in handling yet.
-    "Speakers for the Dead",     //crime faction not interested in handling yet.
-    "The Dark Army",             //crime faction not interested in handling yet.
-    "The Syndicate",             //crime faction not interested in handling yet.
+    "Silhouette",
+    "Speakers for the Dead",
+    "The Dark Army",
+    "The Syndicate",
     "The Covenant",
     "Daedalus",
     "Illuminati",
@@ -255,85 +255,87 @@ export const getUniqueAugmentsAvailableFromFaction = function (ns: NS, faction: 
     })
 }
 
-const waitToBackdoor = async function (ns:NS, server:string){
+const waitToBackdoor = async function (ns: NS, server: string) {
     ns.printf(`Waiting for ${server} to be backdoored`)
-    while(!ns.getServer(server).backdoorInstalled)
-    {
-        if(ns.getPlayer().workType !== "Studying or Taking a class at university") {
+    while (!ns.getServer(server).backdoorInstalled) {
+        if (ns.getPlayer().workType !== "Studying or Taking a class at university") {
             ns.printf(`improving hacking skills at uni`)
             //improve hacking skill
-            if(!ns.getPlayer().isWorking){
-                if(ns.singularity.travelToCity('Volhaven')){ ns.singularity.universityCourse("ZB Institute of Technology","Algorithms")}
+            if (!ns.getPlayer().isWorking) {
+                if (ns.singularity.travelToCity('Volhaven')) { ns.singularity.universityCourse("ZB Institute of Technology", "Algorithms") }
             }
         }
-        await ns.sleep(60*1000)
+        await ns.sleep(60 * 1000)
     }
-    if(ns.getPlayer().workType === "Studying or Taking a class at university"){
+    if (ns.getPlayer().workType === "Studying or Taking a class at university") {
         ns.singularity.stopAction()
     }
 }
 
-const repForNextRole = function(ns:NS,corpName:string): number {
-    const jobs = ns.getPlayer().jobs as Map<string,string>
+const repForNextRole = function (ns: NS, corpName: string): number {
+    const jobs = ns.getPlayer().jobs as [key: string]
     // typedef is incorrect for deprecated charInfo.
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore 
-  switch(jobs.get(corpName))
-  {
-    case  "IT Intern":
-    return 7e3
-    case "Software Engineering Intern":
-    case "Business Intern":
-    return 8e3
-    case "IT Analyst":
-    return 35e3
-    case "Junior Software Engineer":
-    case "Business Analyst":
-    return 40e3
-    case "IT Manager":
-    return 175e3
-    case "Senior Software Engineer":
-    return 200e3
-    case "Lead Software Developer":
-    return 400e3
-    case "Systems Administrator":
-    case "Head of Software":
-    return 800e3
-    case "Head of Engineering":
-    return 1.6e6
-    case "Vice President of Technology":
-    return 3.2e6
+    switch (jobs[corpName]) {
+        case "IT Intern":
+            return 7e3
+        case "Software Engineering Intern":
+        case "Business Intern":
+            return 8e3
+        case "IT Analyst":
+            return 35e3
+        case "Junior Software Engineer":
+        case "Business Analyst":
+            return 40e3
+        case "IT Manager":
+            return 175e3
+        case "Senior Software Engineer":
+            return 200e3
+        case "Lead Software Developer":
+            return 400e3
+        case "Systems Administrator":
+        case "Head of Software":
+            return 800e3
+        case "Head of Engineering":
+            return 1.6e6
+        case "Vice President of Technology":
+            return 3.2e6
 
-  }
-  return Infinity
+    }
+    return Infinity
 }
 
-const improveCorporateReputation = async function(ns:NS,corpName: string, reputation:number){
-    ns.printf(`Waiting to impove reputation with ${corpName}`)
-    while(ns.singularity.getCompanyRep(corpName)< reputation){
-        ns.singularity.applyToCompany(corpName,"software")
-            ns.singularity.workForCompany(corpName)
-            const currentRep = ns.singularity.getCompanyRep(corpName)
-            while(currentRep + (ns.getPlayer().workRepGained*2) < reputation ||
-            currentRep + (ns.getPlayer().workRepGained*2) < repForNextRole(ns,corpName) ){
-                await ns.sleep(60*1000)
-                if(!ns.singularity.isBusy()){
-                    ns.singularity.workForCompany(corpName)
-                    
-                }
-                const repNeeded = ((reputation - currentRep)*2 )-ns.getPlayer().workRepGained
-
-                ns.printf(`INFO:RepNeeded: ${repNeeded}, repGain: ${ns.getPlayer().workRepGainRate*5}`)
-                ns.printf(`INFO:estimated time remaining: ${ns.tFormat(repNeeded*1000 / (ns.getPlayer().workRepGainRate*5))}`)
+const improveCorporateReputation = async function (ns: NS, corpName: string, reputation: number) {
+    ns.printf(`Waiting to improve reputation with ${corpName}`)
+    while (ns.singularity.getCompanyRep(corpName) < reputation) {
+        ns.singularity.applyToCompany(corpName, "software")
+        ns.singularity.workForCompany(corpName)
+        const currentRep = ns.singularity.getCompanyRep(corpName)
+        while (currentRep + (ns.getPlayer().workRepGained * 2) < reputation) {
+            if (currentRep + (ns.getPlayer().workRepGained * 2) > repForNextRole(ns, corpName)) {
+                ns.singularity.stopAction()
+                break
+            }
+            await ns.sleep(60 * 1000)
+            if (!ns.singularity.isBusy()) {
+                ns.singularity.workForCompany(corpName)
 
             }
-            ns.singularity.stopAction()
+            const repNeeded = ((reputation - currentRep) * 2) - ns.getPlayer().workRepGained
+
+            ns.printf(`INFO:RepNeeded: ${repNeeded}, repGain: ${ns.getPlayer().workRepGainRate * 5}`)
+            ns.printf(`INFO:estimated time remaining: ${ns.tFormat(repNeeded * 1000 / (ns.getPlayer().workRepGainRate * 5))}`)
+
+        }
+        ns.singularity.stopAction()
     }
 }
 
 export const unlockFaction = async function (ns: NS, faction: string): Promise<boolean> {
     if (ns.getPlayer().factions.indexOf(faction) !== -1) return true
     if (getAvailableFactions(ns).indexOf(faction) !== -1) {
+        ns.singularity.joinFaction(faction)
         return true
     }
 
@@ -341,44 +343,44 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
     const requirements = factionUnlockRequirements.get(faction)
     if (!requirements) return false;
 
-    while(ns.getPlayer().factions.indexOf(faction) === -1){
-        
-        if(requirements.augments){
-            if (requirements.augments > ns.singularity.getOwnedAugmentations(false).length){
+    while (ns.getPlayer().factions.indexOf(faction) === -1) {
+        await ns.sleep(100)
+        if (requirements.augments) {
+            if (requirements.augments > ns.singularity.getOwnedAugmentations(false).length) {
                 ns.printf(`Not enough augments installed ${ns.singularity.getOwnedAugmentations(false)}/${requirements.augments}`)
                 return false;
             }
         }
-        if(requirements.location && ns.getPlayer().location !== requirements.location){
+        if (requirements.location && ns.getPlayer().location !== requirements.location) {
             ns.singularity.travelToCity(requirements.location)
         }
-        if(requirements.cash && ns.getPlayer().money < requirements.cash){
-            await ns.sleep(1000*60)
+        if (requirements.cash && ns.getPlayer().money < requirements.cash) {
+            await ns.sleep(1000 * 60)
         }
-        if(requirements.combatSkill){
-            await improveStat(ns,0,requirements.hacking)
+        if (requirements.combatSkill) {
+            await improveStat(ns, 0, requirements.combatSkill)
 
         }
-        if(requirements.hacking){
-            await improveStat(ns,requirements.hacking)
+        if (requirements.hacking) {
+            await improveStat(ns, requirements.hacking)
 
         }
-        if(typeof requirements.corp == 'string' && typeof requirements.corpRep == 'number'){
-            await improveCorporateReputation(ns,requirements.corp,requirements.corpRep)
+        if (typeof requirements.corp == 'string' && typeof requirements.corpRep == 'number') {
+            await improveCorporateReputation(ns, requirements.corp, requirements.corpRep)
 
         }
-        if(requirements.hackingLevels || requirements.hackingRAM || requirements.hackingCPU){
+        if (requirements.hackingLevels || requirements.hackingRAM || requirements.hackingCPU) {
             // await hacknetBuyAtLeast(ns,requirements.hackingLevels, requirements.hackingRAM, requirements.hackingCPU)
             return false
 
         }
-        if(requirements.karma){
+        if (requirements.karma) {
             // await workOnKarma(ns,requirements.karma)
             return false
 
         }
-        if(requirements.backdoor){
-            await waitToBackdoor(ns,requirements.backdoor)
+        if (requirements.backdoor) {
+            await waitToBackdoor(ns, requirements.backdoor)
         }
         ns.singularity.joinFaction(faction)
     }
@@ -403,42 +405,42 @@ export const improveFactionReputation = async function (ns: NS, faction: string,
     ns.singularity.stopAction()
 }
 
-export const improveStat = async function(ns:NS, hacking = 0,combat = 0, charisma = 0): Promise<void>{
+export const improveStat = async function (ns: NS, hacking = 0, combat = 0, charisma = 0): Promise<void> {
     let previousSkill = ""
-    while(true){
+    while (true) {
         await ns.sleep(1000)
         const player = ns.getPlayer()
         let skill = ""
 
-        if(player.agility < combat) skill = 'agility'
-        else if(player.strength < combat) skill = 'strength'
-        else if(player.defense < combat) skill = 'defense'
-        else if(player.dexterity < combat) skill = 'dexterity'
-        else if(player.charisma < charisma) skill = 'charisma'
-        else if(player.hacking < hacking) skill = 'hacking'
+        if (player.agility < combat) skill = 'agility'
+        else if (player.strength < combat) skill = 'strength'
+        else if (player.defense < combat) skill = 'defense'
+        else if (player.dexterity < combat) skill = 'dexterity'
+        else if (player.charisma < charisma) skill = 'charisma'
+        else if (player.hacking < hacking) skill = 'hacking'
 
-        if(skill === ""){
+        if (skill === "") {
             ns.singularity.stopAction()
             break;
         }
 
-        if (previousSkill !== skill || !ns.singularity.isBusy()){
+        if (previousSkill !== skill || !ns.singularity.isBusy()) {
             previousSkill = skill
-            if(player.location.toLowerCase() !== "sector-12"){
+            if (player.location.toLowerCase() !== "sector-12") {
                 ns.singularity.goToLocation("sector-12")
             }
             ns.clearLog()
-            if(['agility','strength','defense','dexterity'].indexOf(skill) !== -1){
-                ns.singularity.gymWorkout("powerhouse gym",skill)
+            if (['agility', 'strength', 'defense', 'dexterity'].indexOf(skill) !== -1) {
+                ns.singularity.gymWorkout("powerhouse gym", skill)
                 logging.info(`Working on ${skill} at powerhouse gym`)
             }
-            else if(skill === 'charisma'){
-                ns.singularity.universityCourse('rothman university',"leadership")
+            else if (skill === 'charisma') {
+                ns.singularity.universityCourse('rothman university', "leadership")
                 logging.info(`Working on ${skill} at rothman university`)
 
             }
-            else if(skill === 'hacking'){
-                ns.singularity.universityCourse('rothman university',"algorithms")
+            else if (skill === 'hacking') {
+                ns.singularity.universityCourse('rothman university', "algorithms")
                 logging.info(`Working on ${skill} at rothman university`)
 
 
