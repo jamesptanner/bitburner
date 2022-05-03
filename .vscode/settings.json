@@ -23,5 +23,11 @@
         "tprintf"
     ],
     "jshint.enable": false,
-    "jslint.enable": false
+    "jslint.enable": false,
+    "terminal.integrated.env.windows": {
+        "NODE_OPTIONS":"--max-old-space-size=8192"
+    },
+    "terminal.integrated.env.osx": {
+        "NODE_OPTIONS":"--max-old-space-size=8192"
+    }
 }
