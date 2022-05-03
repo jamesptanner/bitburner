@@ -78,6 +78,6 @@ export async function main(ns : NS) : Promise<void> {
             sendMetric(`server.${server.replaceAll(".","-")}.money`, ns.getServerMoneyAvailable(server))
             sendMetric(`server.${server.replaceAll(".","-")}.maxmoney`, ns.getServerMaxMoney(server))
         })
-        await ns.sleep(60000)
+        await ns.sleep(90000)
     }
 }
