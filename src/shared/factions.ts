@@ -312,8 +312,8 @@ const improveCorporateReputation = async function (ns: NS, corpName: string, rep
         ns.singularity.applyToCompany(corpName, "software")
         ns.singularity.workForCompany(corpName)
         const currentRep = ns.singularity.getCompanyRep(corpName)
-        while (currentRep + (ns.getPlayer().workRepGained * 2) < reputation) {
-            if (currentRep + (ns.getPlayer().workRepGained * 2) > repForNextRole(ns, corpName)) {
+        while (currentRep + (ns.getPlayer().workRepGained / 2) < reputation) {
+            if (currentRep + (ns.getPlayer().workRepGained / 2) > repForNextRole(ns, corpName)) {
                 ns.singularity.stopAction()
                 break
             }
