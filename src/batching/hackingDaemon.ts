@@ -39,9 +39,6 @@ export async function main(ns: NS): Promise<void> {
     })
     await waitForPids(prepPid, ns);
 
-
-
-
     const hack_time = ns.getHackTime(target)
     const weak_time = ns.getWeakenTime(target)
     const grow_time = ns.getGrowTime(target)
@@ -82,7 +79,7 @@ export async function main(ns: NS): Promise<void> {
             await ns.sleep(60 * 1000)
             // //check we are hacking the right target 
             const newTarget = findBestTarget(ns)
-            if (newTarget !== target) {
+            if (newTarget !== target || (ns.getServerMoneyAvailable(target)/ns.getServerMaxMoney(target))<0.9) {
                 await waitForBatchedHackToFinish(ns);
                 //restart
                 ns.spawn(hackingDaemonPath)
