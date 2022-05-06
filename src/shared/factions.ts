@@ -198,7 +198,7 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
 
     }],
     ["Fulcrum Secret Technologies", {
-        corp: "Fulcrum Secret Technologies",
+        corp: "Fulcrum Technologies",
         corpRep: 200000,
         backdoor: "fulcrumassets"
     }],
@@ -324,7 +324,7 @@ const improveCorporateReputation = async function (ns: NS, corpName: string, rep
             }
             const repNeeded = ((reputation - currentRep) * 2) - ns.getPlayer().workRepGained
 
-            ns.printf(`INFO:RepNeeded: ${repNeeded}, repGain: ${ns.getPlayer().workRepGainRate * 5}`)
+            ns.printf(`INFO:RepNeeded: ${ns.nFormat(repNeeded,"(0.000)")}, repGain: ${ns.nFormat(ns.getPlayer().workRepGainRate * 5,"(0.000)")}`)
             ns.printf(`INFO:estimated time remaining: ${ns.tFormat(repNeeded * 1000 / (ns.getPlayer().workRepGainRate * 5))}`)
 
         }
@@ -390,7 +390,7 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
 export const improveFactionReputation = async function (ns: NS, faction: string, reputation: number): Promise<void> {
     while (reputation > ns.singularity.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0)) {
         ns.tail()
-        ns.printf(`INFO: current faction relationship ${faction} is ${ns.nFormat(ns.singularity.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0), "0,0.000")}, want ${reputation}.`)
+        ns.printf(`INFO: current faction relationship ${faction} is ${ns.nFormat(ns.singularity.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0), "0,0.000a")}, want ${ns.nFormat(reputation,"0,0.000a")}.`)
         ns.printf(`INFO: Time Remaining: ${(ns.getPlayer().currentWorkFactionName === faction ? ns.tFormat(((reputation - (ns.singularity.getFactionRep(faction) + ns.getPlayer().workRepGained)) / (ns.getPlayer().workRepGainRate * 5)) * 1000, false) : "unknown")}`)
         if (!ns.singularity.isBusy()) {
             ns.printf(`INFO: improving relationship with ${faction}`)
