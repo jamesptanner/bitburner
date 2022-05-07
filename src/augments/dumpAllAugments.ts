@@ -1,6 +1,6 @@
 import { NS } from '@ns';
 import { factions, getAllAugmentsFromFaction } from '/shared/factions';
-import { initLogging } from '/shared/logging';
+import { initLogging,logging } from '/shared/logging';
 import { makeTable } from '/shared/ui';
 import { unique } from '/shared/utils';
 
@@ -80,5 +80,5 @@ export async function main(ns : NS) : Promise<void> {
     const filteredData = (flags.all || flags.player || flags.hacking || flags.faction || flags.hacknet || flags.bladeburner) ? tableData.filter(val =>{
         return !val.every((v,i)=>{return i===0 || i===1 ||v==='-'})
     }) : tableData
-    makeTable(ns,tableHeaders,filteredData,1)
+    logging.info(makeTable(ns,tableHeaders,filteredData,1))
 }
