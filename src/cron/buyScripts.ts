@@ -1,14 +1,16 @@
 import { NS } from '@ns';
 import { scripts } from '/shared/HGW';
 import { getHostsPath } from '/startup/getHosts';
+import { initLogging,logging } from '/shared/logging';
 
 export const buyScriptsPath ="/cron/buyScripts.js";
 
 export async function main(ns : NS) : Promise<void> {
+    await initLogging(ns)
     const player = ns.getPlayer()
     if(!player.tor){
         if(!ns.singularity.purchaseTor()){
-            ns.printf(`not enough money to buy tor router`)
+            logging.warning(`not enough money to buy tor router`)
             ns.exit()
         }
         ns.run(getHostsPath)
@@ -17,7 +19,10 @@ export async function main(ns : NS) : Promise<void> {
         const script = scriptInfo[0];
         if (!ns.fileExists(script)) {
            if(!ns.singularity.purchaseProgram(script)){
-               ns.printf(`not enough money to buy ${script}`)
+               logging.warning(`not enough money to buy ${script}`)
+           }
+           else{
+               logging.success(`bought ${script}`)
            }
         }
     }

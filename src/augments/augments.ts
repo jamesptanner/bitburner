@@ -1,6 +1,8 @@
 import { NS } from '@ns';
 import { factions, factionUnlockRequirements, getAvailableFactions, getUniqueAugmentsAvailableFromFaction, improveFactionReputation, unlockFaction } from 'shared/factions';
 import { getAugmentsAvailableFromFaction } from '../shared/factions';
+import { initLogging } from '/shared/logging';
+import { logging } from './../shared/logging';
 
 
 export const augmentsPath = "/cron/augments.js";
@@ -38,23 +40,23 @@ const chooseAFaction = function (ns: NS, skipFactions:string[]): string {
  * @param augment augment to buy
  */
 const purchaseAugment = async function (ns: NS, faction: string, augment: string) {
-    ns.printf(`INFO: buying ${augment} from ${faction}`)
+    logging.info(`buying ${augment} from ${faction}`)
     let purchaseAttempt = 0
     while (!ns.singularity.purchaseAugmentation(faction, augment) && purchaseAttempt < 3) {
         let lastMoneyCheck = ns.getPlayer().money
         while (ns.getPlayer().money < ns.singularity.getAugmentationPrice(augment)) {
             const currentMoneyCheck = ns.getPlayer().money
             const moneyDiff = currentMoneyCheck - lastMoneyCheck
-            ns.printf(`INFO:estimated time remaining: ${ns.tFormat((ns.singularity.getAugmentationPrice(augment) - currentMoneyCheck) / (60*1000 /moneyDiff))}`)
+            logging.info(`estimated time remaining: ${ns.tFormat((ns.singularity.getAugmentationPrice(augment) - currentMoneyCheck) / (60*1000 /moneyDiff))}`)
             lastMoneyCheck = currentMoneyCheck
             await ns.sleep(1000 * 60)
         }
         purchaseAttempt++
     }
     if (purchaseAttempt === 3 && ns.singularity.getOwnedAugmentations(true).indexOf(augment) === -1) {
-        ns.printf(`ERROR: failed to buy ${augment} from ${faction}`)
+        logging.error(`failed to buy ${augment} from ${faction}`)
     }
-    ns.printf(`INFO: bought ${augment} from ${faction}`)
+    logging.info(`bought ${augment} from ${faction}`)
 }
 
 const purchaseAugments = async function (ns: NS, faction: string, augments: string[]) {
@@ -68,7 +70,7 @@ const purchaseAugments = async function (ns: NS, faction: string, augments: stri
         }
 
         if (ns.singularity.getAugmentationPrereq(augment).length > 0) {//handle the augment pre requirements first.
-            ns.printf(`WARN: getting prerequisite for ${augment} first`)
+            logging.warning(`getting prerequisite for ${augment} first`)
             const unownedPrerequisites = ns.singularity.getAugmentationPrereq(augment)
                 .filter(preReq => {
                     return ns.singularity.getOwnedAugmentations(true).indexOf(preReq) === -1
@@ -83,6 +85,7 @@ const purchaseAugments = async function (ns: NS, faction: string, augments: stri
 }
 
 export async function main(ns: NS): Promise<void> {
+    await initLogging(ns)
     ns.disableLog("ALL")
     const skippedFactions:string[] = []
     //do we already have some factions we could buy from unlocked?
@@ -90,7 +93,7 @@ export async function main(ns: NS): Promise<void> {
         .map(faction => {
             const augs = getUniqueAugmentsAvailableFromFaction(ns,faction)
             if(augs.length > 0){
-                ns.print(`faction:${faction}, augments:[${augs}]`)
+                logging.info(`faction:${faction}, augments:[${augs}]`)
             }
             return augs
         })
@@ -112,13 +115,13 @@ async function unlockNewFactionAndBuyAugments(ns: NS, skippedFactions: string[])
     let unlocked = false;
     do {
         if (ns.getPlayer().factions.indexOf(faction) === -1) {
-            ns.printf(`INFO: Unlocking faction ${faction}`);
+            logging.info(`Unlocking faction ${faction}`);
             unlocked = await unlockFaction(ns, faction);
             if (unlocked) {
                 ns.singularity.joinFaction(faction);
             }
             else {
-                ns.printf(`ERROR: Cant faction ${faction}`);
+                logging.error(`Cant faction ${faction}`);
                 skippedFactions.push(faction);
                 faction = chooseAFaction(ns, skippedFactions);
             }
@@ -131,15 +134,15 @@ async function unlockNewFactionAndBuyAugments(ns: NS, skippedFactions: string[])
             ns.exit();
         }
     } while (!unlocked);
-    ns.printf(`INFO: buying up all augments from ${faction}`);
+    logging.info(`buying up all augments from ${faction}`);
     const augments = getUniqueAugmentsAvailableFromFaction(ns, faction);
-    ns.printf(`INFO: augments available [${augments}]`);
+    logging.info(`augments available [${augments}]`);
     const maxRepNeeded = augments.reduce((repNeeded, augment) => {
         return Math.max(repNeeded, ns.singularity.getAugmentationRepReq(augment));
     }, 0);
 
     if (ns.singularity.getFactionRep(faction) < maxRepNeeded) {
-        ns.printf(`INFO: improving reputation with ${faction}`);
+        logging.info(`improving reputation with ${faction}`);
         await improveFactionReputation(ns, faction, maxRepNeeded);
     }
     await purchaseAugments(ns, faction, augments);

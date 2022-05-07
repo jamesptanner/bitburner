@@ -1,19 +1,21 @@
 import { NS } from '@ns';
 import { asNumber, asString } from '/shared/utils';
+import { initLogging,logging } from '/shared/logging';
 
 export const triggerJobPath ="/cron/triggerJob.js";
 
 export async function main(ns : NS) : Promise<void> {
+    await initLogging(ns)
     const args = ns.args
     let tmp = args.shift()
     if(!tmp){
-         ns.tprintf(`ERROR no interval provided`)
+         logging.error(`no interval provided`)
          return
     }
     const interval = asNumber(tmp)
     tmp =args.shift()
     if(!tmp){
-         ns.tprintf(`ERROR no script provided`)
+         logging.error(`no script provided`)
          return
     }
     const script = asString(tmp)
@@ -22,9 +24,9 @@ export async function main(ns : NS) : Promise<void> {
     while(interval && script){
         const pid = ns.run(script,1,...args)
         if(pid ===0){
-            ns.print(`failed to start script.`)
+            logging.info(`failed to start script.`)
         }
         await ns.asleep(interval)
-        ns.print(`INFO cronjob triggered.`)
+        logging.info(`cronjob triggered.`)
     }
 }
