@@ -105,7 +105,6 @@ export function TotalSums2(ns: NS, data: unknown): number | string[] | undefined
             }
         }
 
-        logging.info(`${partitions}`)
         logging.success(`total Sums: ${sums[value]}`)
         logging.success(`total Sums: ${sums}`)
 
