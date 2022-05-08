@@ -5,7 +5,7 @@ import { largestPrimeFactor, MaxSubArray, TotalSums, TotalSums2 } from '/contrac
 import { colorGraph, MinTrianglePath, UniquePath1, UniquePath2 } from '/contracts/solvers/PathContracts';
 import { StockTrader1, StockTrader2, StockTrader3, StockTrader4 } from '/contracts/solvers/StockContracts';
 import { FindValidMathExpressions, GenerateIPAddresses, HammingBtoI, runLengthEncoding, SanitizeParentheses, HammingItoB, lzCompression } from '/contracts/solvers/StringContracts';
-import { error, initLogging } from '/shared/logging';
+import { initLogging,logging } from '/shared/logging';
 import { asString } from '/shared/utils';
 import { lzDecompression } from './solvers/StringContracts';
 
@@ -53,8 +53,8 @@ export async function main(ns: NS): Promise<void> {
     await initLogging(ns)
     const usage = `solveContract.ts USAGE: ${solveContractPath} <contract filename> <host>`;
     if (ns.args.length != 2) {
-        ns.tprintf(`Invalid number of arguments`)
-        ns.tprintf(usage)
+        logging.error(`Invalid number of arguments`)
+        logging.info(usage)
         ns.exit()
     }
 
@@ -62,8 +62,8 @@ export async function main(ns: NS): Promise<void> {
     const host: string = asString(ns.args[1])
 
     if (!ns.codingcontract.getContractType(filename, host)) {
-        ns.tprintf(`Invalid file ${host}:${filename}`)
-        ns.tprintf(usage)
+        logging.error(`Invalid file ${host}:${filename}`)
+        logging.info(usage)
         ns.exit()
     }
 
@@ -74,28 +74,26 @@ export async function main(ns: NS): Promise<void> {
         if (answer !== undefined) {
             const result = ns.codingcontract.attempt(answer, filename, host,{returnReward:true})
             if (result === "") {
-                ns.toast(`Failed Contract: ${host}.${filename} - '${type}'`,"error")
+                logging.error(`Failed Contract: ${host}.${filename} - '${type}'`,true)
                 ns.spawn(unsolveableContractPath,1,"--file",filename,"--host",host)
 
             }
             else {
-                ns.toast(`${result}`,"success")
-                ns.tprintf(`${result}`)
+                logging.success(`${result}`,true)
                 await ns.write("solvedContracts.txt",[type,data,answer,"\n"],'a')
             }
         }
         else {
-            ns.toast(`unable to process contract: ${host}.${filename} - '${type}'`,"warning")
+            logging.warning(`unable to process contract: ${host}.${filename} - '${type}'`,true)
             ns.spawn(unsolveableContractPath,1,"--file",filename,"--host",host)
-            // ns.tprintf(`${ns.codingcontract.getDescription(filename,host)}\n\n`)
         }
     }
     catch(e:unknown){
         if(typeof e === "string"){
-            error(e,true)
+            logging.error(e,true)
         }
         else if (e instanceof Error){
-            error(e.message,true)
+            logging.error(e.message,true)
         }
     }
 }

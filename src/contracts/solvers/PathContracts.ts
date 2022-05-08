@@ -1,5 +1,6 @@
 import { NS } from '@ns';
 import { is2DArray } from '/shared/utils';
+import { logging } from '/shared/logging';
 // "Minimum Path Sum in a Triangle"
 
 // You are given a 2D array of numbers (array of array of numbers) that represents a
@@ -26,8 +27,8 @@ export function MinTrianglePath(ns: NS, data: unknown): number | string[] | unde
                 }
             }
         }
-        ns.print(`${JSON.stringify(numberArray)}`)
-        ns.print(`MinPath: ${Math.min(...numberArray[numberArray.length - 1])}`)
+        logging.info(`${JSON.stringify(numberArray)}`)
+        logging.success(`MinPath: ${Math.min(...numberArray[numberArray.length - 1])}`)
 
         return Math.min(...numberArray[numberArray.length - 1]);
     }
@@ -61,7 +62,7 @@ export function UniquePath1(ns: NS, data: unknown): number | string[] | undefine
                 }
             }
         }
-        ns.print(`paths: ${map[maxX - 1][maxY - 1]}`)
+        logging.success(`paths: ${map[maxX - 1][maxY - 1]}`)
         return map[maxX - 1][maxY - 1]
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -111,8 +112,8 @@ export function UniquePath2(ns: NS, data: unknown): number | string[] | undefine
                 }
             }
         }
-        ns.print(`${JSON.stringify(map)} type:${typeof data}`)
-        ns.print(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`)
+        logging.info(`${JSON.stringify(map)} type:${typeof data}`)
+        logging.success(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`)
         return map[maxX - 1][maxY - 1]
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -218,8 +219,8 @@ export function ShortestPath(ns: NS, data: unknown): number | string[] | undefin
         }
 
 
-        //ns.print(`${JSON.stringify(map)} type:${typeof data}`)
-       // ns.tprintf(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`)
+        logging.info(`${JSON.stringify(originalMap)} type:${typeof data}`)
+        logging.info(`paths with obstacles : ${originalMap[maxX - 1][maxY - 1]}`)
         // return map[maxX - 1][maxY - 1]
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -234,7 +235,7 @@ export function colorGraph(ns: NS, data: unknown): number | string[] | undefined
         out.fill(-1,0)
         //start with vertex 0 
         out[0] = 0
-        ns.print(edges)
+        logging.info(`${edges}`)
         let count = 0
         while(out.some(v =>{return v === -1})&&count < 10){
             for (let index = 0; index < out.length; index++) {
@@ -257,10 +258,11 @@ export function colorGraph(ns: NS, data: unknown): number | string[] | undefined
                     throw new Error("Going to clash."); 
                 }
                 matchingEdges.forEach(edge =>{ out[edge[1]] = (out[index] === 1) ? 0:1 })
-                ns.print(`i:${index} out: ${out}`)
+                logging.info(`i:${index} out: ${out}`)
             }
             count++
         }
+        logging.success(`out: ${out}`)
         return out
     }
 throw new Error("Unexpected data types Unable to solve contract.");

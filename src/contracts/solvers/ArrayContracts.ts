@@ -1,5 +1,6 @@
 import { NS } from '@ns';
 import { is2DArray } from '../../shared/utils';
+import { logging } from '/shared/logging';
 // "Spiralize Matrix"
 
 // Given an array of array of numbers representing a 2D matrix, return the
@@ -14,7 +15,7 @@ import { is2DArray } from '../../shared/utils';
 // is [1, 2, 3, 4, 8, 12, 11, 10, 9, 5, 6, 7]
 export function SpiralMatrix(ns: NS, data: unknown): number | string[] | undefined {
     if (is2DArray<number>(data, (val): val is number => { return typeof val === 'number' })) {
-        ns.print(`${JSON.stringify(data)} type:${typeof data}`)
+        logging.info(`${JSON.stringify(data)} type:${typeof data}`)
         const numberArray: number[][] = data
         const output: number[] = []
         let state = 0
@@ -60,7 +61,7 @@ export function SpiralMatrix(ns: NS, data: unknown): number | string[] | undefin
             state++
         }
         //may have undefined entries which we can remove.
-        ns.print(`SpiralMatrix Result: ${JSON.stringify(output.filter(x => x))}`)
+        logging.success(`SpiralMatrix Result: ${JSON.stringify(output.filter(x => x))}`)
         return output.filter(x => x).map<string>(x => x.toString())
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -77,11 +78,11 @@ export function SpiralMatrix(ns: NS, data: unknown): number | string[] | undefin
 // whether you are able to reach the last index of the array.
 export function ArrayJump(ns: NS, data: unknown): number | string[] | undefined {
     if(Array.isArray(data) && data.every(val => typeof val === 'number')){
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`)
+        logging.info(`${JSON.stringify(data)} type:${typeof data}`)
     const numberArray: number[] = data
 
     const result = checkPosition(ns, numberArray, 0,0)
-    ns.print(`${result}`)
+    logging.success(`${result}`)
     if (result) {
         return 1
     }
@@ -106,11 +107,11 @@ throw new Error("Unexpected data types Unable to solve contract.");
 // If it's impossible to reach the end, then the answer should be 0.
 export function ArrayJump2(ns: NS, data: unknown): number | string[] | undefined {
     if(Array.isArray(data) && data.every(val => typeof val === 'number')){
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`)
+    logging.info(`${JSON.stringify(data)} type:${typeof data}`)
     const numberArray: number[] = data
 
     const [result, minHops]= checkPosition(ns, numberArray, 0,0)
-    ns.print(`${result}`)
+    logging.success(`${result}`)
     if (result) {
         return minHops
     }
@@ -120,18 +121,19 @@ throw new Error("Unexpected data types Unable to solve contract.");
 }
 
 function checkPosition(ns: NS, array: number[], pos: number,depth:number): [boolean,number] {
-    ns.print(`${array}: checking position ${pos}`)
+    logging.info(`${array}: checking position ${pos}`)
     if (pos == array.length - 1) return [true,depth]
     let minHops = array.length
     let ret = false;
     for (let jumpDist = 1; jumpDist <= array[pos]; jumpDist++) {
-        ns.print(`Jumping ${jumpDist}`)
+        logging.info(`Jumping ${jumpDist}`)
         const [reachedEnd, hops] = checkPosition(ns, array, pos + jumpDist,depth+1)
         if (reachedEnd) {
             minHops = Math.min(minHops,hops)
             ret = true
         }
     }
+    logging.success(`${[ret,minHops]}`)
     return [ret,minHops];
 }
 
@@ -151,18 +153,18 @@ export function MergeOverlapping(ns: NS, data: unknown): number | string[] | und
         const numberArray: number[][] = data
 
         numberArray.sort((a, b) => a[0] - b[0])
-        ns.print(`${JSON.stringify(numberArray)}`)
+        logging.info(`${JSON.stringify(numberArray)}`)
 
         for (let i = 0; i < numberArray.length - 1; i++) {
             if (numberArray[i][1] >= numberArray[i + 1][0]) {
                 const newElement = [numberArray[i][0], Math.max(numberArray[i + 1][1], numberArray[i][1])]
                 numberArray.splice(i, 2, newElement)
-                ns.print(`${JSON.stringify(numberArray)}`)
+                logging.info(`${JSON.stringify(numberArray)}`)
                 i--
             }
         }
 
-        ns.print(`${JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])}`)
+        logging.success(`${JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])}`)
         return [JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])]
     }
     throw new Error("Unexpected data types Unable to solve contract.");

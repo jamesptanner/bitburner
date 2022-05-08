@@ -4,6 +4,7 @@
 // i-th element represents the stock price on day i.
 
 import { NS } from '@ns';
+import { logging } from '/shared/logging';
 // Determine the maximum possible profit you can earn using at most one
 // transaction (i.e. you can buy an sell the stock once). If no profit
 // can be made, then the answer should be 0. Note that you must buy the stock
@@ -28,7 +29,7 @@ export function StockTrader1(ns: NS, data: unknown): number | string[] | undefin
       bestProfit = Math.max(bestProfit, maxCur);
     }
 
-    ns.print(`Stock1 Best profit: ${bestProfit}`);
+    logging.success(`Stock1 Best profit: ${bestProfit}`);
 
     return bestProfit > 0 ? bestProfit : 0;
   }
@@ -53,7 +54,7 @@ export function StockTrader2(ns: NS, data: unknown): number | string[] | undefin
     for (let i = 1; i < stocks.length; ++i) {
       profit += Math.max(0, stocks[i] - stocks[i - 1]);
     }
-    ns.print(`Stock2 Best profit: ${profit}`);
+    logging.success(`Stock2 Best profit: ${profit}`);
 
     return profit > 0 ? profit : 0;
   }

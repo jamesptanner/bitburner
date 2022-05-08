@@ -1,6 +1,7 @@
 import { NS } from '@ns';
 import { stringify } from 'querystring';
 import { asNumber, asString } from "/shared/utils";
+import { logging } from '/shared/logging';
 // "Generate IP Addresses"
 
 // Given a string containing only digits, return an array with all possible
@@ -13,7 +14,7 @@ import { asNumber, asString } from "/shared/utils";
 // 25525511135 -> [255.255.11.135, 255.255.111.35]
 // 1938718066 -> [193.87.180.66]
 export function GenerateIPAddresses(ns: NS, data: unknown): number | string[] | undefined {
-  ns.print(`${JSON.stringify(data)} type:${typeof data}`);
+  logging.info(`${JSON.stringify(data)} type:${typeof data}`);
   const baseAddress: string = asString(data);
   const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)$/;
   const validAddresses: string[] = [];
@@ -34,26 +35,26 @@ export function GenerateIPAddresses(ns: NS, data: unknown): number | string[] | 
           addressCopy = addressCopy.slice(octalSize4);
 
           if (addressCopy.length > 0) {
-            //ns.tprintf("ERROR invalid addr, leftover numbers")
+            logging.error("invalid addr, leftover numbers")
             continue;
           }
-          ns.print(`addr: ${addrString}, leftover string: ${addressCopy}`);
+          logging.info(`addr: ${addrString}, leftover string: ${addressCopy}`);
           if (addrString.length != expectedLength) {
-            ns.print("ERROR invalid addr, probably leading zeros.");
+            logging.error("invalid addr, probably leading zeros.");
             continue;
           }
           if (ipv4Regex.test(addrString)) {
-            ns.print(`INFO valid address ${addrString}`);
+            logging.info(`valid address ${addrString}`);
             validAddresses.push(addrString);
           } else {
-            ns.print(`ERROR invalid address ${addrString}`);
+            logging.error(`invalid address ${addrString}`);
           }
         }
       }
     }
   }
-  ns.print(
-    `INFO Valid Addresses ${validAddresses.filter((v, i, self) => {
+  logging.success(
+    `Valid Addresses ${validAddresses.filter((v, i, self) => {
       return self.indexOf(v) === i;
     })}`
   );
@@ -76,11 +77,11 @@ export function GenerateIPAddresses(ns: NS, data: unknown): number | string[] | 
 // (a)())() -> [(a)()(), (a())()]
 // )( -> [“”]
 export function SanitizeParentheses(ns: NS, data: unknown): number | string[] | undefined {
-  ns.print(`${JSON.stringify(data)} type:${typeof data}`);
+  logging.info(`${JSON.stringify(data)} type:${typeof data}`);
   const parentheses: string = asString(data);
 
   function isValid(parens: string): boolean {
-    ns.print(`Testing ${parens}`);
+    logging.info(`Testing ${parens}`);
     let opens = 0;
     for (let index = 0; index < parens.length; index++) {
       if (parens.charAt(index) === "(") {
@@ -93,7 +94,7 @@ export function SanitizeParentheses(ns: NS, data: unknown): number | string[] | 
       }
     }
     if (opens === 0) {
-      ns.print("👍");
+      logging.info("👍");
     }
     return opens === 0;
   }
@@ -118,7 +119,7 @@ export function SanitizeParentheses(ns: NS, data: unknown): number | string[] | 
   }
   let n = 0;
   while (answers.length == 0) {
-    ns.print(`at depth ${n}`);
+    logging.info(`at depth ${n}`);
     if (n === parentheses.length) {
       answers.push("");
     } else {
@@ -127,7 +128,7 @@ export function SanitizeParentheses(ns: NS, data: unknown): number | string[] | 
     n++;
   }
 
-  ns.print(
+  logging.success(
     `${JSON.stringify(
       answers.filter((v, i, self) => {
         return self.indexOf(v) === i;
@@ -187,7 +188,7 @@ export function FindValidMathExpressions(ns: NS, data: unknown): number | string
     const result: string[] = [];
     helper(result, "", num, target, 0, 0, 0);
 
-    ns.print(`${Array.from<string>(result)}`);
+    logging.success(`${Array.from<string>(result)}`);
     return result;
   }
   throw new Error("Unexpected data types Unable to solve contract.");
@@ -215,21 +216,21 @@ export function HammingBtoI(ns: NS, data: unknown): number | string[] | undefine
     }
     const err = bits.map((v, i) => { return v > 0 ? i : 0 }).reduce((p, c) => { return p ^ c })
     if (err > 0) {
-      ns.print(`error at ${err}`)
+      logging.info(`error at ${err}`)
       bits[err]  = (bits[err] === 1)? 0 :1
     }
     else {
-      ns.print('no error detected.')
+      logging.info('no error detected.')
     }
     for (let bit = bits.length - 1; bit >= 0; bit--){
       if ((bit & (bit - 1)) === 0) {
         bits.splice(bit,1)
       }
     }
-    ns.print(`remaining bits: ${bits.join('')}`)
+    logging.info(`remaining bits: ${bits.join('')}`)
 
     const integer = bin2Dec(bits.join(''))
-    ns.print(`integer value: ${integer}`)
+    logging.success(`integer value: ${integer}`)
     return [`${integer}`]
   }
   throw new Error("Unexpected data types Unable to solve contract.");
@@ -259,11 +260,11 @@ export function HammingItoB(ns: NS, data: unknown): number | string[] | undefine
   }
   if(typeof data === 'number'){
     const decimal = data
-    ns.tprint(`converting: ${decimal}`)
+    logging.info(`converting: ${decimal}`)
 
     //convert decimal to binary
     const bin = decToBin(decimal)
-    ns.tprint(`convert to binary: ${bin.join('')}`)
+    logging.info(`convert to binary: ${bin.join('')}`)
     //calculate number of parity bits 
     const controlBitsIndex: number[] = []
     let i = 1
@@ -276,22 +277,22 @@ export function HammingItoB(ns: NS, data: unknown): number | string[] | undefine
     controlBitsIndex.forEach(i => {
       bin.splice(i,0,0)
     })
-    ns.tprint(`inserted parity: ${bin.join('')}`)
+    logging.info(`inserted parity: ${bin.join('')}`)
 
     controlBitsIndex.forEach(i => {
-      // ns.tprint(`calculating parity ${i}`)
+      logging.info(`calculating parity ${i}`)
       bin[i] = bin.filter((v,index)=>{
-        // ns.tprintf(`${index} & ${i} == ${index&i}`)
+        logging.info(`${index} & ${i} == ${index&i}`)
         return (i & index) !== 0
       }).reduce((prev, curr, index) => {return prev ^ (index & i) ? curr : 0},0)
-      // ns.tprint(`${i} parity: ${bin[i]}`)
-      // ns.tprint(`bin update: ${bin.join('')}`)
+      logging.info(`${i} parity: ${bin[i]}`)
+      logging.info(`bin update: ${bin.join('')}`)
     })
 
-    // ns.tprint(`calulating parity 0`)
+    logging.info(`calulating parity 0`)
     bin[0] = bin.reduce((prev, curr) => { return prev ^ curr })
-    // ns.tprint(`0 parity: ${bin[0]}`)
-    ns.tprint(`with parity: ${bin.join('')}`)
+    logging.info(`0 parity: ${bin[0]}`)
+    logging.success(`with parity: ${bin.join('')}`)
    return [bin.join('')]
   }
   throw new Error("Unexpected data types Unable to solve contract.");
@@ -300,7 +301,7 @@ export function HammingItoB(ns: NS, data: unknown): number | string[] | undefine
 export function runLengthEncoding(ns: NS, data: unknown): number | string[] | undefined {
   if (typeof data === 'string') {
     const dataArray = [...data]
-    ns.print(data)
+    logging.info(data)
 
     type pairs = {
       char:string
@@ -316,7 +317,7 @@ export function runLengthEncoding(ns: NS, data: unknown): number | string[] | un
         return prev
       }
     },[])
-    ns.print(rlPairs)
+    logging.info(`${rlPairs}`)
     let retData = ""
     while (rlPairs.length > 0){
       if(rlPairs[0].count > 9){
@@ -328,7 +329,7 @@ export function runLengthEncoding(ns: NS, data: unknown): number | string[] | un
         rlPairs.splice(0,1)
       } 
     }
-    ns.print(retData)
+    logging.success(retData)
     return [retData]
   }
   throw new Error("Unexpected data types Unable to solve contract.");
@@ -336,7 +337,7 @@ export function runLengthEncoding(ns: NS, data: unknown): number | string[] | un
 
 export function lzDecompression(ns: NS, data: unknown): number | string[] | undefined {
   if (typeof data === 'string') {
-    ns.print(data)
+    logging.info(data)
     const datArr = [...data]
     let ret = ""
     while (datArr.length > 0){
@@ -358,7 +359,7 @@ export function lzDecompression(ns: NS, data: unknown): number | string[] | unde
         }
       }
     }
-    ns.print(ret)
+    logging.success(ret)
     // return [ret]
   }
   throw new Error("Unexpected data types Unable to solve contract.");
@@ -367,7 +368,7 @@ export function lzDecompression(ns: NS, data: unknown): number | string[] | unde
 export function lzCompression(ns: NS, data: unknown): number | string[] | undefined {
   if (typeof data === 'string') {
     const ret = ""
-    ns.tprint(`${data} -> ${ret}`)
+    logging.info(`${data} -> ${ret}`)
     // return [ret]
   }
   throw new Error("Unexpected data types Unable to solve contract."); 
