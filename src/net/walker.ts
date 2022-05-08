@@ -1,9 +1,10 @@
 import { NS } from '@ns';
 import { infiltratePath } from "/hosts/infiltrate";
 import { getAllServers, routeToHost } from "/shared/utils";
-
+import { initLogging,logging } from '/shared/logging';
 
 export async function main(ns: NS): Promise<void> {
+    await initLogging(ns)
     const toBackdoor: string[] = []
     const toInfiltrate: string[] = []
     const servers = getAllServers(ns)
@@ -16,11 +17,11 @@ export async function main(ns: NS): Promise<void> {
             if (!serverInfo.hasAdminRights) {
                 const targetHackLevel = ns.getServerRequiredHackingLevel(server);
                 if (targetHackLevel <= ns.getHackingLevel()) {
-                    ns.tprintf(`INFO 💣 ${server}`);
+                    logging.info(`INFO 💣 ${server}`);
 
                     if (!serverInfo.purchasedByPlayer) {
                         if(ns.exec(infiltratePath, "home", 1, server) ===0){
-                            if(toInfiltrate.length == 0)ns.tprintf(`WARN: not enough memory to auto infiltrate. Waiting till end.`)
+                            if(toInfiltrate.length == 0) logging.warning(`not enough memory to auto infiltrate. Waiting till end.`)
                             toInfiltrate.push(server);
 
                         }
@@ -28,8 +29,8 @@ export async function main(ns: NS): Promise<void> {
                 }
             }
             else if(serverInfo.requiredHackingSkill <= ns.getPlayer().hacking){
-                ns.tprintf(`WARN 💻 Backdoor ${server}`);
-                ns.tprintf(`INFO nav via ${routeToHost(ns, 'home', server)}`)
+                logging.warning(`💻 Backdoor ${server}`);
+                logging.info(`nav via ${routeToHost(ns, 'home', server)}`)
                 toBackdoor.push(server);
             }
         }

@@ -113,6 +113,8 @@ export const initLogging = async function (ns: NS): Promise<void> {
             }
         }
     })
+    ns.disableLog('ALL')
+    ns.clearLog()
 };
 
 const levelToString = function (level: Level): string {

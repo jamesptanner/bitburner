@@ -6,14 +6,12 @@ export const ScriptServerPath ="/servers/ScriptServer.js";
 export async function main(ns : NS) : Promise<void> {
     await initLogging(ns)
     ns.disableLog('ALL')
-
+    ns.tail()
     const opts = ns.flags([["host","home"]])
 
     if(opts.host === ""){
-        ns.tprintf(`no servername provided`)
+        logging.warning(`no servername provided`)
     }
-    ns.tail()
-    ns.clearLog()
     const maxMem = ns.ls("home",".js").reduce<number>((maxMem,script)=>{
         return Math.max(maxMem,ns.getScriptRam(script,"home"))
     },0)

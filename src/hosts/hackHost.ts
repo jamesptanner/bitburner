@@ -15,7 +15,7 @@ export async function main(ns: NS): Promise<void> {
             const current = ns.getServerMoneyAvailable(target)
             const max = ns.getServerMaxMoney(target)
             const percent = current / max;
-            // ns.tprintf(`${target} money, curr:${current} max:${max} ${percent}%%`)
+            logging.info(`${target} money, curr:${current} max:${max} ${percent}%%`)
             if (!(ns.getServerSecurityLevel(target) < ns.getServerMinSecurityLevel(target) + 1)) {
                 logging.info(`😷: ${target}. ${(ns.getWeakenTime(target) / 1000).toFixed(2)}s`)
                 await weakenServer(ns, target);

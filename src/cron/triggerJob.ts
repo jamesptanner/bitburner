@@ -20,7 +20,7 @@ export async function main(ns : NS) : Promise<void> {
     }
     const script = asString(tmp)
     await ns.asleep(Math.random()*interval)
-    ns.tprintf(`INFO: setting up cronjob: ${script}`)
+    logging.info(`setting up cronjob: ${script}`)
     while(interval && script){
         const pid = ns.run(script,1,...args)
         if(pid ===0){
