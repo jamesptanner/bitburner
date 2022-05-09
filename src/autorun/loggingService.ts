@@ -186,13 +186,17 @@ export async function main(ns: NS): Promise<void> {
 
     await trimRecords(ns, loggingDB)
     while (true) {
-        let start = Date.now()
-        await sendLogs(loggingDB, ns, loggingSettings, LoggingTable, sendLog);
-        ns.print(`time taken: ${ns.tFormat(Date.now() - start)}`)
-        start = Date.now()
-        await sendLogs(loggingDB, ns, loggingSettings, MetricTable, sendTrace)
-        ns.print(`time taken: ${ns.tFormat(Date.now() - start)}`)
-
+        try{
+            let start = Date.now()
+            await sendLogs(loggingDB, ns, loggingSettings, LoggingTable, sendLog);
+            ns.print(`time taken: ${ns.tFormat(Date.now() - start)}`)
+            start = Date.now()
+            await sendLogs(loggingDB, ns, loggingSettings, MetricTable, sendTrace)
+            ns.print(`time taken: ${ns.tFormat(Date.now() - start)}`)
+        }
+        catch(e){
+            ns.print(`failed to send log: ${e}`)
+        }
         await ns.sleep(500)
     }
 }
@@ -201,8 +205,11 @@ async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSetti
     table: "logging" | "metrics",
     sender: (ns: NS, settings: LoggingSettings, payload: LoggingPayload[]) => Promise<boolean>): Promise<void> {
     const lineCount = await loggingDB.transaction(table, 'readonly').store.count()
-
     ns.print(`${lineCount} ${table} transactions queued.`)
+    await sendTrace(ns,loggingSettings,[new LoggingPayload(ns.getHostname(), ns.getScriptName(), "641f4573-9d96-4c77-a703-cd6324cce93c", {
+            key: `logging.${table}.count`,
+            value: lineCount,
+        })])
     if (lineCount == 0) {
         return new Promise<void>((res) => { res() })
     }
