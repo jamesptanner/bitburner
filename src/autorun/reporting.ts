@@ -8,7 +8,8 @@ export const reportingPath ="/autorun/reporting.js";
 const getBitnode = function(ns:NS) :string{
     const player = ns.getPlayer()
     const bitnode = ns.getOwnedSourceFiles().filter(src =>{return src.n === player.bitNodeN})[0] 
-    return `${bitnode.n}.${bitnode.lvl}`
+    if (bitnode) return `${bitnode.n}.${bitnode.lvl}`
+    return `${player.bitNodeN}.0`
 }
 export async function main(ns : NS) : Promise<void> {
     await initLogging(ns)
