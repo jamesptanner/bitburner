@@ -384,7 +384,9 @@ const reportingPath = "/autorun/reporting.js";
 const getBitnode = function (ns) {
     const player = ns.getPlayer();
     const bitnode = ns.getOwnedSourceFiles().filter(src => { return src.n === player.bitNodeN; })[0];
-    return `${bitnode.n}.${bitnode.lvl}`;
+    if (bitnode)
+        return `${bitnode.n}.${bitnode.lvl}`;
+    return `${player.bitNodeN}.0`;
 };
 async function main(ns) {
     await initLogging(ns);
