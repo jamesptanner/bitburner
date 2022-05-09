@@ -1,6 +1,6 @@
 import { NS } from "/../NetscriptDefinitions"
 
-export const makeTable = function(ns:NS, headers: string[], data: string[][],padding = 1): void {
+export const makeTable = function(ns:NS, headers: string[], data: string[][],padding = 1): string {
     const getLineLength = function(minColWidths: number[],padding:number):number{
         //text length + padding each side of text + len(entries)+ seperators
         return minColWidths.reduce((p,n) =>{return p + n + 2*padding}) + minColWidths.length+3
@@ -35,5 +35,5 @@ export const makeTable = function(ns:NS, headers: string[], data: string[][],pad
     const seperator = makeRowSplit(lineLength)
     const dataRows = data.map(d =>{return makeRow(d,widths,padding)})
     const joinedRows = dataRows.join(`${seperator}`)
-    ns.printf(`${seperator}${headerRow}${seperator}${joinedRows}${seperator}`)
+    return (`${seperator}${headerRow}${seperator}${joinedRows}${seperator}`)
 }

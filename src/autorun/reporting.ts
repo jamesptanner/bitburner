@@ -4,6 +4,12 @@ import { getAllServers } from '/shared/utils';
 
 export const reportingPath ="/autorun/reporting.js";
 
+
+const getBitnode = function(ns:NS) :string{
+    const player = ns.getPlayer()
+    const bitnode = ns.getOwnedSourceFiles().filter(src =>{return src.n === player.bitNodeN})[0] 
+    return `${bitnode.n}.${bitnode.lvl}`
+}
 export async function main(ns : NS) : Promise<void> {
     await initLogging(ns)
     const constPlayer = ns.getPlayer()
@@ -55,7 +61,7 @@ export async function main(ns : NS) : Promise<void> {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore property is intentionally undocumented.
         sendMetric("player.stats.level.karma",ns.heart.break())
-        sendMetric("player.bitnode",player.bitNodeN)
+        sendMetric("player.bitnode",getBitnode(ns))
 
         getAllServers(ns).concat('home').filter(server =>{
             const serverInfo = ns.getServer(server)
@@ -78,6 +84,6 @@ export async function main(ns : NS) : Promise<void> {
             sendMetric(`server.${server.replaceAll(".","-")}.money`, ns.getServerMoneyAvailable(server))
             sendMetric(`server.${server.replaceAll(".","-")}.maxmoney`, ns.getServerMaxMoney(server))
         })
-        await ns.sleep(60000)
+        await ns.sleep(90000)
     }
 }

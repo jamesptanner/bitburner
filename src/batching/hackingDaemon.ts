@@ -3,7 +3,7 @@ import { growPath } from './grow';
 import { weakenPath } from './weaken';
 import { hackPath } from '/batching/hack';
 import { prepareHostPath } from '/batching/prepareHost';
-import { initLogging, Level, log } from '/shared/logging';
+import { initLogging, logging } from '/shared/logging';
 import { findBestTarget, getAllServers } from '/shared/utils';
 
 export const hackingDaemonPath = "/batching/hackingDaemon.js";
@@ -38,9 +38,6 @@ export async function main(ns: NS): Promise<void> {
         return 0
     })
     await waitForPids(prepPid, ns);
-
-
-
 
     const hack_time = ns.getHackTime(target)
     const weak_time = ns.getWeakenTime(target)
@@ -82,7 +79,7 @@ export async function main(ns: NS): Promise<void> {
             await ns.sleep(60 * 1000)
             // //check we are hacking the right target 
             const newTarget = findBestTarget(ns)
-            if (newTarget !== target) {
+            if (newTarget !== target || (ns.getServerMoneyAvailable(target)/ns.getServerMaxMoney(target))<0.9) {
                 await waitForBatchedHackToFinish(ns);
                 //restart
                 ns.spawn(hackingDaemonPath)
@@ -90,7 +87,7 @@ export async function main(ns: NS): Promise<void> {
         }
         const scheduleWorked = await ScheduleHackEvent(event, weak_time, hack_time, grow_time, startTime, depth, period, t0, ns, target);
         if (!scheduleWorked) {
-            ns.toast(`Unable to schedule batch task`, "error", 10000)
+            logging.error(`Unable to schedule batch task`, true)
             await ns.sleep((event % 120) * 1000)
         }
         else {
@@ -99,13 +96,13 @@ export async function main(ns: NS): Promise<void> {
 
     }
 
-    ns.printf(`length of cycle: ${period}`)
-    ns.printf(`Number of cycles needed: ${depth}`)
+    logging.info(`length of cycle: ${period}`)
+    logging.info(`Number of cycles needed: ${depth}`)
 
 }
 
 async function waitForBatchedHackToFinish(ns: NS) {
-    ns.printf(`waiting for current hacking threads to finish.`);
+    logging.info(`waiting for current hacking threads to finish.`);
     const pids = getAllServers(ns).map(server => {
         return ns.ps(server);
     })
@@ -120,7 +117,7 @@ async function waitForBatchedHackToFinish(ns: NS) {
 }
 
 function killPrepScripts(ns: NS) {
-    ns.printf(`Killing any preparation scripts.`);
+    logging.info(`Killing any preparation scripts.`);
     getAllServers(ns).map(server => {
         return ns.ps(server);
     })
@@ -139,7 +136,7 @@ async function waitForPids(pids: number[], ns: NS) {
     do { 
         const finished = pids.filter(pid => pid === 0 || !ns.isRunning(pid, ""));
         finished.forEach(pid => pids.splice(pids.indexOf(pid), 1));
-        ns.printf(`${pids.length} processes left`);
+        logging.info(`${pids.length} processes left`);
         if (pids.length > 0) await ns.sleep(30 * 1000);
     } while (pids.length > 0);
 }
@@ -165,12 +162,12 @@ async function ScheduleHackEvent(event: number, weak_time: number, hack_time: nu
 
     const script_start = startTime + (depth * period) - (event * t0 * -1) - event_time;
     if (script_start < 0) {
-        ns.toast(`Wait time negative. restarting script.`, "error", 10000)
+        logging.error(`Wait time negative. restarting script.`, true)
         await ns.sleep(weak_time)
         ns.spawn(hackingDaemonPath, 1)
     }
-    log(Level.Info, `{"name":"${event_script}-${event}", "startTime":"${new Date(script_start).toISOString()}", "duration":${Math.floor(event_time / 1000)}}`)
-    ns.printf(`${event_script}: To Complete ${new Date(script_start + event_time).toISOString()}`);
+    logging.info(`{"name":"${event_script}-${event}", "startTime":"${new Date(script_start).toISOString()}", "duration":${Math.floor(event_time / 1000)}}`)
+    logging.info(`${event_script}: To Complete ${new Date(script_start + event_time).toISOString()}`);
     return runTask(ns, event_script, target, script_start)
 }
 
@@ -187,10 +184,10 @@ async function runTask(ns: NS, script: string, ...args: (string | number | boole
     await ns.scp(script, candidateServers[0])
     const pid = ns.exec(script, candidateServers[0], 1, ...args)
     if (pid === 0) {
-        ns.printf(`Failed to run ${script} on ${candidateServers[0]}`)
+        logging.error(`Failed to run ${script} on ${candidateServers[0]}`)
         return false
     }
-    ns.printf(`Scheduled ${script} to run on ${candidateServers[0]}`)
+    logging.info(`Scheduled ${script} to run on ${candidateServers[0]}`)
     return true
 
 }

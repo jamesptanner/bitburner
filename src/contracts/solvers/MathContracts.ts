@@ -1,11 +1,12 @@
 import { NS } from '@ns'
+import { logging } from '/shared/logging'
 // "Find Largest Prime Factor"
 
 // Given a number, find its largest prime factor. A prime factor
 // is a factor that is a prime number.
 export function largestPrimeFactor(ns: NS, data: unknown): number | string[] | undefined {
     if (typeof data === 'number') {
-        ns.print(`${JSON.stringify(data)} type:${typeof data}`)
+        logging.info(`${JSON.stringify(data)} type:${typeof data}`)
         let num: number = data
         let factor = 2
         do {
@@ -14,7 +15,7 @@ export function largestPrimeFactor(ns: NS, data: unknown): number | string[] | u
             }
             factor++
         } while (factor != num)
-        ns.print(`largest factor = ${factor}`)
+        logging.success(`largest factor = ${factor}`)
 
         return factor
     }
@@ -28,7 +29,7 @@ export function largestPrimeFactor(ns: NS, data: unknown): number | string[] | u
 export function MaxSubArray(ns: NS, data: unknown): number | string[] | undefined {
     if (Array.isArray(data) && data.every(val => { return typeof val === 'number' })) {
         const numberArray: number[] = data
-        ns.print(`${numberArray}`)
+        logging.info(`${numberArray}`)
 
         let subArray: number[] = []
         let subArrayTotal = -Infinity
@@ -37,7 +38,7 @@ export function MaxSubArray(ns: NS, data: unknown): number | string[] | undefine
                 const testSubArray = numberArray.slice(start, start + length)
 
                 const testSubArrayTotal = testSubArray.reduce((prev, curr) => { return prev + curr })
-                ns.print(`${testSubArray}: ${testSubArrayTotal}`)
+                logging.info(`${testSubArray}: ${testSubArrayTotal}`)
 
                 if (testSubArrayTotal > subArrayTotal) {
                     subArray = testSubArray;
@@ -46,7 +47,7 @@ export function MaxSubArray(ns: NS, data: unknown): number | string[] | undefine
             }
 
         }
-        ns.tprintf(`Best: ${subArray}: ${subArrayTotal}`)
+        logging.success(`Best: ${subArray}: ${subArrayTotal}`)
         return subArrayTotal
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -69,7 +70,7 @@ export function TotalSums(ns: NS, data: unknown): number | string[] | undefined 
                 sums[j] += sums[j - i]
             }
         }
-        ns.print(`total Sums: ${sums[value]}`)
+        logging.success(`total Sums: ${sums[value]}`)
 
         return sums[value]
     }
@@ -90,7 +91,7 @@ export function TotalSums2(ns: NS, data: unknown): number | string[] | undefined
       data[1].every(val => { return typeof val === 'number' })) {
         const set: number[] = data[1];
         const value = data[0]
-        ns.print(`total Sums2: target ${value}, set:${set.join()}`)
+        logging.info(`total Sums2: target ${value}, set:${set.join()}`)
         
 
         // An array to store a partition
@@ -104,9 +105,8 @@ export function TotalSums2(ns: NS, data: unknown): number | string[] | undefined
             }
         }
 
-        //ns.tprintf(`${partitions}`)
-        ns.print(`total Sums: ${sums[value]}`)
-        ns.print(`total Sums: ${sums}`)
+        logging.success(`total Sums: ${sums[value]}`)
+        logging.success(`total Sums: ${sums}`)
 
         return sums[value]
     }

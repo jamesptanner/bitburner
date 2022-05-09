@@ -113,6 +113,8 @@ export const initLogging = async function (ns: NS): Promise<void> {
             }
         }
     })
+    ns.disableLog('ALL')
+    ns.clearLog()
 };
 
 const levelToString = function (level: Level): string {
@@ -144,18 +146,23 @@ const levelToToast = function (level: Level): "success" | "warning" | "error" | 
 };
 
 export const log = function (level: Level, msg: string, toast?: boolean): void {
-    if (toast) {
-        n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
+    if(n){
+        if (toast) {
+            n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
+        }
+        n.print(`${levelToString(level)}: ${msg}`);
+        const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
+            level: level,
+            message: msg,
+        })
+        const tx = loggingDB.transaction(LoggingTable,'readwrite')
+        void tx.store.add(logPayload)
+        void tx.done
     }
-    n.print(`${levelToString(level)}: ${msg}`);
+    else{
+        throw new Error("Logging not initalised");
+    }
 
-    const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
-        level: level,
-        message: msg,
-    })
-    const tx = loggingDB.transaction(LoggingTable,'readwrite')
-    void tx.store.add(logPayload)
-    void tx.done
 };
 
 export const success = function (msg: string, toast?: boolean): void {
