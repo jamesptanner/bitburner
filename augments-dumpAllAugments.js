@@ -262,6 +262,27 @@ var Level;
     Level[Level["Info"] = 2] = "Info";
     Level[Level["success"] = 3] = "success";
 })(Level || (Level = {}));
+class LoggingPayload {
+    host;
+    script;
+    trace;
+    timestamp;
+    payload;
+    constructor(host, script, trace, payload) {
+        if (host)
+            this.host = host;
+        if (script)
+            this.script = script;
+        if (trace)
+            this.trace = trace;
+        if (payload)
+            this.payload = payload;
+        this.timestamp = (performance.now() + performance.timeOrigin) * 1000000;
+    }
+    static fromJSON(d) {
+        return Object.assign(new LoggingPayload(), JSON.parse(d));
+    }
+}
 //from https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid.
 //cant import crypto so this should do.
 //TODO keep an eye out for something better.
@@ -281,13 +302,16 @@ function generateUUID() {
         return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
     });
 }
-generateUUID();
+const loggingTrace = generateUUID();
+let n;
 const DBVERSION = 1;
 const LoggingTable = "logging";
 const MetricTable = "metrics";
+let loggingDB;
 const initLogging = async function (ns) {
+    n = ns;
     // loggingDB = await DB.open("BBLogging",DBVERSION,createDB)
-    await openDB("BBLogging", DBVERSION, {
+    loggingDB = await openDB("BBLogging", DBVERSION, {
         upgrade(db, prevVersion) {
             if (prevVersion < 1) {
                 const loggingStore = db.createObjectStore(LoggingTable, { autoIncrement: true });
@@ -297,6 +321,70 @@ const initLogging = async function (ns) {
             }
         }
     });
+    ns.disableLog('ALL');
+    ns.clearLog();
+};
+const levelToString = function (level) {
+    switch (level) {
+        case Level.Error:
+            return "ERROR";
+        case Level.Info:
+            return "INFO";
+        case Level.Warning:
+            return "WARNING";
+        case Level.success:
+            return "SUCCESS";
+    }
+    return "";
+};
+const levelToToast = function (level) {
+    switch (level) {
+        case Level.Error:
+            return "error";
+        case Level.Info:
+            return "info";
+        case Level.Warning:
+            return "warning";
+        case Level.success:
+            return "success";
+    }
+    return undefined;
+};
+const log = function (level, msg, toast) {
+    if (n) {
+        if (toast) {
+            n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
+        }
+        n.print(`${levelToString(level)}: ${msg}`);
+        const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
+            level: level,
+            message: msg,
+        });
+        const tx = loggingDB.transaction(LoggingTable, 'readwrite');
+        void tx.store.add(logPayload);
+    }
+    else {
+        throw new Error("Logging not initalised");
+    }
+};
+const success = function (msg, toast) {
+    log(Level.success, msg, toast);
+};
+const info = function (msg, toast) {
+    log(Level.Info, msg, toast);
+};
+const warning = function (msg, toast) {
+    log(Level.Warning, msg, toast);
+};
+const error = function (msg, toast) {
+    log(Level.Error, msg, toast);
+};
+const logging = {
+    log: log,
+    error: error,
+    warning: warning,
+    success: success,
+    info: info
 };
 
 const unique = (v, i, self) => { return self.indexOf(v) === i; };
@@ -370,7 +458,7 @@ const makeTable = function (ns, headers, data, padding = 1) {
     const seperator = makeRowSplit(lineLength);
     const dataRows = data.map(d => { return makeRow(d, widths, padding); });
     const joinedRows = dataRows.join(`${seperator}`);
-    ns.printf(`${seperator}${headerRow}${seperator}${joinedRows}${seperator}`);
+    return (`${seperator}${headerRow}${seperator}${joinedRows}${seperator}`);
 };
 
 const dumpAllAugmentsPath = "/augments/dumpAllAugments.js";
@@ -435,7 +523,7 @@ async function main(ns) {
     const filteredData = (flags.all || flags.player || flags.hacking || flags.faction || flags.hacknet || flags.bladeburner) ? tableData.filter(val => {
         return !val.every((v, i) => { return i === 0 || i === 1 || v === '-'; });
     }) : tableData;
-    makeTable(ns, tableHeaders, filteredData, 1);
+    logging.info(makeTable(ns, tableHeaders, filteredData, 1));
 }
 
 export { dumpAllAugmentsPath, main };

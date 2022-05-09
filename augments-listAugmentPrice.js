@@ -321,6 +321,8 @@ const initLogging = async function (ns) {
             }
         }
     });
+    ns.disableLog('ALL');
+    ns.clearLog();
 };
 const levelToString = function (level) {
     switch (level) {
@@ -349,16 +351,40 @@ const levelToToast = function (level) {
     return undefined;
 };
 const log = function (level, msg, toast) {
-    if (toast) {
-        n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
+    if (n) {
+        if (toast) {
+            n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
+        }
+        n.print(`${levelToString(level)}: ${msg}`);
+        const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
+            level: level,
+            message: msg,
+        });
+        const tx = loggingDB.transaction(LoggingTable, 'readwrite');
+        void tx.store.add(logPayload);
     }
-    n.print(`${levelToString(level)}: ${msg}`);
-    const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
-        level: level,
-        message: msg,
-    });
-    const tx = loggingDB.transaction(LoggingTable, 'readwrite');
-    void tx.store.add(logPayload);
+    else {
+        throw new Error("Logging not initalised");
+    }
+};
+const success = function (msg, toast) {
+    log(Level.success, msg, toast);
+};
+const info = function (msg, toast) {
+    log(Level.Info, msg, toast);
+};
+const warning = function (msg, toast) {
+    log(Level.Warning, msg, toast);
+};
+const error = function (msg, toast) {
+    log(Level.Error, msg, toast);
+};
+const logging = {
+    log: log,
+    error: error,
+    warning: warning,
+    success: success,
+    info: info
 };
 
 const factions = [
@@ -432,7 +458,7 @@ const makeTable = function (ns, headers, data, padding = 1) {
     const seperator = makeRowSplit(lineLength);
     const dataRows = data.map(d => { return makeRow(d, widths, padding); });
     const joinedRows = dataRows.join(`${seperator}`);
-    ns.printf(`${seperator}${headerRow}${seperator}${joinedRows}${seperator}`);
+    return (`${seperator}${headerRow}${seperator}${joinedRows}${seperator}`);
 };
 
 const listAugmentsPath = "/utils/listAugments.js";
@@ -440,7 +466,7 @@ async function main(ns) {
     await initLogging(ns);
     ns.clearLog();
     ns.tail();
-    log(Level.Info, `Getting list of augments`);
+    logging.info(`Getting list of augments`);
     const playerInFaction = (faction) => {
         return ns.getPlayer().factions.indexOf(faction) !== -1;
     };
@@ -449,8 +475,8 @@ async function main(ns) {
         if (augments.length > 0) {
             const headers = ['augment', 'reputation', 'price'];
             const data = augments.map(aug => { return [aug, ns.nFormat(ns.singularity.getAugmentationRepReq(aug), '(0.000a)'), ns.nFormat(ns.singularity.getAugmentationPrice(aug), '($0.00a)')]; });
-            ns.print(`${faction}: ${playerInFaction(faction) ? ns.nFormat(ns.singularity.getFactionRep(faction), '(0.000a)') : "Locked"}`);
-            makeTable(ns, headers, data, 1);
+            logging.info(`${faction}: ${playerInFaction(faction) ? ns.nFormat(ns.singularity.getFactionRep(faction), '(0.000a)') : "Locked"}`);
+            logging.info(makeTable(ns, headers, data, 1));
         }
     });
 }

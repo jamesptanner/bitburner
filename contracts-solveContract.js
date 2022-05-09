@@ -321,6 +321,8 @@ const initLogging = async function (ns) {
             }
         }
     });
+    ns.disableLog('ALL');
+    ns.clearLog();
 };
 const levelToString = function (level) {
     switch (level) {
@@ -349,19 +351,40 @@ const levelToToast = function (level) {
     return undefined;
 };
 const log = function (level, msg, toast) {
-    if (toast) {
-        n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
+    if (n) {
+        if (toast) {
+            n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
+        }
+        n.print(`${levelToString(level)}: ${msg}`);
+        const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
+            level: level,
+            message: msg,
+        });
+        const tx = loggingDB.transaction(LoggingTable, 'readwrite');
+        void tx.store.add(logPayload);
     }
-    n.print(`${levelToString(level)}: ${msg}`);
-    const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
-        level: level,
-        message: msg,
-    });
-    const tx = loggingDB.transaction(LoggingTable, 'readwrite');
-    void tx.store.add(logPayload);
+    else {
+        throw new Error("Logging not initalised");
+    }
+};
+const success = function (msg, toast) {
+    log(Level.success, msg, toast);
+};
+const info = function (msg, toast) {
+    log(Level.Info, msg, toast);
+};
+const warning = function (msg, toast) {
+    log(Level.Warning, msg, toast);
 };
 const error = function (msg, toast) {
     log(Level.Error, msg, toast);
+};
+const logging = {
+    log: log,
+    error: error,
+    warning: warning,
+    success: success,
+    info: info
 };
 
 const unsolveableContractPath = "/contracts/unsolveableContract.js";
@@ -390,7 +413,7 @@ function is2DArray(val, elementGuard) {
 // is [1, 2, 3, 4, 8, 12, 11, 10, 9, 5, 6, 7]
 function SpiralMatrix(ns, data) {
     if (is2DArray(data, (val) => { return typeof val === 'number'; })) {
-        ns.print(`${JSON.stringify(data)} type:${typeof data}`);
+        logging.info(`${JSON.stringify(data)} type:${typeof data}`);
         const numberArray = data;
         const output = [];
         let state = 0;
@@ -436,7 +459,7 @@ function SpiralMatrix(ns, data) {
             state++;
         }
         //may have undefined entries which we can remove.
-        ns.print(`SpiralMatrix Result: ${JSON.stringify(output.filter(x => x))}`);
+        logging.success(`SpiralMatrix Result: ${JSON.stringify(output.filter(x => x))}`);
         return output.filter(x => x).map(x => x.toString());
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -450,10 +473,10 @@ function SpiralMatrix(ns, data) {
 // whether you are able to reach the last index of the array.
 function ArrayJump(ns, data) {
     if (Array.isArray(data) && data.every(val => typeof val === 'number')) {
-        ns.print(`${JSON.stringify(data)} type:${typeof data}`);
+        logging.info(`${JSON.stringify(data)} type:${typeof data}`);
         const numberArray = data;
         const result = checkPosition(ns, numberArray, 0, 0);
-        ns.print(`${result}`);
+        logging.success(`${result}`);
         if (result) {
             return 1;
         }
@@ -472,10 +495,10 @@ function ArrayJump(ns, data) {
 // If it's impossible to reach the end, then the answer should be 0.
 function ArrayJump2(ns, data) {
     if (Array.isArray(data) && data.every(val => typeof val === 'number')) {
-        ns.print(`${JSON.stringify(data)} type:${typeof data}`);
+        logging.info(`${JSON.stringify(data)} type:${typeof data}`);
         const numberArray = data;
         const [result, minHops] = checkPosition(ns, numberArray, 0, 0);
-        ns.print(`${result}`);
+        logging.success(`${result}`);
         if (result) {
             return minHops;
         }
@@ -484,19 +507,20 @@ function ArrayJump2(ns, data) {
     throw new Error("Unexpected data types Unable to solve contract.");
 }
 function checkPosition(ns, array, pos, depth) {
-    ns.print(`${array}: checking position ${pos}`);
+    logging.info(`${array}: checking position ${pos}`);
     if (pos == array.length - 1)
         return [true, depth];
     let minHops = array.length;
     let ret = false;
     for (let jumpDist = 1; jumpDist <= array[pos]; jumpDist++) {
-        ns.print(`Jumping ${jumpDist}`);
+        logging.info(`Jumping ${jumpDist}`);
         const [reachedEnd, hops] = checkPosition(ns, array, pos + jumpDist, depth + 1);
         if (reachedEnd) {
             minHops = Math.min(minHops, hops);
             ret = true;
         }
     }
+    logging.success(`${[ret, minHops]}`);
     return [ret, minHops];
 }
 // "Merge Overlapping Intervals"
@@ -511,16 +535,16 @@ function MergeOverlapping(ns, data) {
     if (is2DArray(data, (val) => { return typeof val === 'number'; })) {
         const numberArray = data;
         numberArray.sort((a, b) => a[0] - b[0]);
-        ns.print(`${JSON.stringify(numberArray)}`);
+        logging.info(`${JSON.stringify(numberArray)}`);
         for (let i = 0; i < numberArray.length - 1; i++) {
             if (numberArray[i][1] >= numberArray[i + 1][0]) {
                 const newElement = [numberArray[i][0], Math.max(numberArray[i + 1][1], numberArray[i][1])];
                 numberArray.splice(i, 2, newElement);
-                ns.print(`${JSON.stringify(numberArray)}`);
+                logging.info(`${JSON.stringify(numberArray)}`);
                 i--;
             }
         }
-        ns.print(`${JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])}`);
+        logging.success(`${JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])}`);
         return [JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])];
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -531,7 +555,7 @@ function MergeOverlapping(ns, data) {
 // is a factor that is a prime number.
 function largestPrimeFactor(ns, data) {
     if (typeof data === 'number') {
-        ns.print(`${JSON.stringify(data)} type:${typeof data}`);
+        logging.info(`${JSON.stringify(data)} type:${typeof data}`);
         let num = data;
         let factor = 2;
         do {
@@ -540,7 +564,7 @@ function largestPrimeFactor(ns, data) {
             }
             factor++;
         } while (factor != num);
-        ns.print(`largest factor = ${factor}`);
+        logging.success(`largest factor = ${factor}`);
         return factor;
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -551,21 +575,21 @@ function largestPrimeFactor(ns, data) {
 function MaxSubArray(ns, data) {
     if (Array.isArray(data) && data.every(val => { return typeof val === 'number'; })) {
         const numberArray = data;
-        ns.print(`${numberArray}`);
+        logging.info(`${numberArray}`);
         let subArray = [];
         let subArrayTotal = -Infinity;
         for (let start = 0; start < numberArray.length; start++) {
             for (let length = 1; length <= numberArray.length - start; length++) {
                 const testSubArray = numberArray.slice(start, start + length);
                 const testSubArrayTotal = testSubArray.reduce((prev, curr) => { return prev + curr; });
-                ns.print(`${testSubArray}: ${testSubArrayTotal}`);
+                logging.info(`${testSubArray}: ${testSubArrayTotal}`);
                 if (testSubArrayTotal > subArrayTotal) {
                     subArray = testSubArray;
                     subArrayTotal = testSubArrayTotal;
                 }
             }
         }
-        ns.tprintf(`Best: ${subArray}: ${subArrayTotal}`);
+        logging.success(`Best: ${subArray}: ${subArrayTotal}`);
         return subArrayTotal;
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -585,7 +609,7 @@ function TotalSums(ns, data) {
                 sums[j] += sums[j - i];
             }
         }
-        ns.print(`total Sums: ${sums[value]}`);
+        logging.success(`total Sums: ${sums[value]}`);
         return sums[value];
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -601,7 +625,7 @@ function TotalSums2(ns, data) {
         data[1].every(val => { return typeof val === 'number'; })) {
         const set = data[1];
         const value = data[0];
-        ns.print(`total Sums2: target ${value}, set:${set.join()}`);
+        logging.info(`total Sums2: target ${value}, set:${set.join()}`);
         // An array to store a partition
         const sums = new Array(value + 1);
         sums.fill(0, 0);
@@ -611,9 +635,8 @@ function TotalSums2(ns, data) {
                 sums[j] += sums[j - set[i]];
             }
         }
-        //ns.tprintf(`${partitions}`)
-        ns.print(`total Sums: ${sums[value]}`);
-        ns.print(`total Sums: ${sums}`);
+        logging.success(`total Sums: ${sums[value]}`);
+        logging.success(`total Sums: ${sums}`);
         return sums[value];
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -641,8 +664,8 @@ function MinTrianglePath(ns, data) {
                 }
             }
         }
-        ns.print(`${JSON.stringify(numberArray)}`);
-        ns.print(`MinPath: ${Math.min(...numberArray[numberArray.length - 1])}`);
+        logging.info(`${JSON.stringify(numberArray)}`);
+        logging.success(`MinPath: ${Math.min(...numberArray[numberArray.length - 1])}`);
         return Math.min(...numberArray[numberArray.length - 1]);
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -669,7 +692,7 @@ function UniquePath1(ns, data) {
                 }
             }
         }
-        ns.print(`paths: ${map[maxX - 1][maxY - 1]}`);
+        logging.success(`paths: ${map[maxX - 1][maxY - 1]}`);
         return map[maxX - 1][maxY - 1];
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -710,8 +733,8 @@ function UniquePath2(ns, data) {
                 }
             }
         }
-        ns.print(`${JSON.stringify(map)} type:${typeof data}`);
-        ns.print(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`);
+        logging.info(`${JSON.stringify(map)} type:${typeof data}`);
+        logging.success(`paths with obstacles : ${map[maxX - 1][maxY - 1]}`);
         return map[maxX - 1][maxY - 1];
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -724,7 +747,7 @@ function colorGraph(ns, data) {
         out.fill(-1, 0);
         //start with vertex 0 
         out[0] = 0;
-        ns.print(edges);
+        logging.info(`${edges}`);
         let count = 0;
         while (out.some(v => { return v === -1; }) && count < 10) {
             for (let index = 0; index < out.length; index++) {
@@ -743,10 +766,11 @@ function colorGraph(ns, data) {
                     return [];
                 }
                 matchingEdges.forEach(edge => { out[edge[1]] = (out[index] === 1) ? 0 : 1; });
-                ns.print(`i:${index} out: ${out}`);
+                logging.info(`i:${index} out: ${out}`);
             }
             count++;
         }
+        logging.success(`out: ${out}`);
         return out;
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -772,7 +796,7 @@ function StockTrader1(ns, data) {
             maxCur = Math.max(0, (maxCur += stocks[i] - stocks[i - 1]));
             bestProfit = Math.max(bestProfit, maxCur);
         }
-        ns.print(`Stock1 Best profit: ${bestProfit}`);
+        logging.success(`Stock1 Best profit: ${bestProfit}`);
         return bestProfit > 0 ? bestProfit : 0;
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -792,7 +816,7 @@ function StockTrader2(ns, data) {
         for (let i = 1; i < stocks.length; ++i) {
             profit += Math.max(0, stocks[i] - stocks[i - 1]);
         }
-        ns.print(`Stock2 Best profit: ${profit}`);
+        logging.success(`Stock2 Best profit: ${profit}`);
         return profit > 0 ? profit : 0;
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -876,7 +900,7 @@ function StockTrader4(ns, data) {
 // 25525511135 -> [255.255.11.135, 255.255.111.35]
 // 1938718066 -> [193.87.180.66]
 function GenerateIPAddresses(ns, data) {
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`);
+    logging.info(`${JSON.stringify(data)} type:${typeof data}`);
     const baseAddress = asString(data);
     const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)$/;
     const validAddresses = [];
@@ -896,26 +920,26 @@ function GenerateIPAddresses(ns, data) {
                     addrString = addrString + parseInt(addressCopy.substring(0, octalSize4));
                     addressCopy = addressCopy.slice(octalSize4);
                     if (addressCopy.length > 0) {
-                        //ns.tprintf("ERROR invalid addr, leftover numbers")
+                        logging.error("invalid addr, leftover numbers");
                         continue;
                     }
-                    ns.print(`addr: ${addrString}, leftover string: ${addressCopy}`);
+                    logging.info(`addr: ${addrString}, leftover string: ${addressCopy}`);
                     if (addrString.length != expectedLength) {
-                        ns.print("ERROR invalid addr, probably leading zeros.");
+                        logging.error("invalid addr, probably leading zeros.");
                         continue;
                     }
                     if (ipv4Regex.test(addrString)) {
-                        ns.print(`INFO valid address ${addrString}`);
+                        logging.info(`valid address ${addrString}`);
                         validAddresses.push(addrString);
                     }
                     else {
-                        ns.print(`ERROR invalid address ${addrString}`);
+                        logging.error(`invalid address ${addrString}`);
                     }
                 }
             }
         }
     }
-    ns.print(`INFO Valid Addresses ${validAddresses.filter((v, i, self) => {
+    logging.success(`Valid Addresses ${validAddresses.filter((v, i, self) => {
         return self.indexOf(v) === i;
     })}`);
     return validAddresses.filter((v, i, self) => {
@@ -933,10 +957,10 @@ function GenerateIPAddresses(ns, data) {
 // (a)())() -> [(a)()(), (a())()]
 // )( -> [“”]
 function SanitizeParentheses(ns, data) {
-    ns.print(`${JSON.stringify(data)} type:${typeof data}`);
+    logging.info(`${JSON.stringify(data)} type:${typeof data}`);
     const parentheses = asString(data);
     function isValid(parens) {
-        ns.print(`Testing ${parens}`);
+        logging.info(`Testing ${parens}`);
         let opens = 0;
         for (let index = 0; index < parens.length; index++) {
             if (parens.charAt(index) === "(") {
@@ -950,7 +974,7 @@ function SanitizeParentheses(ns, data) {
             }
         }
         if (opens === 0) {
-            ns.print("👍");
+            logging.info("👍");
         }
         return opens === 0;
     }
@@ -973,7 +997,7 @@ function SanitizeParentheses(ns, data) {
     }
     let n = 0;
     while (answers.length == 0) {
-        ns.print(`at depth ${n}`);
+        logging.info(`at depth ${n}`);
         if (n === parentheses.length) {
             answers.push("");
         }
@@ -982,7 +1006,7 @@ function SanitizeParentheses(ns, data) {
         }
         n++;
     }
-    ns.print(`${JSON.stringify(answers.filter((v, i, self) => {
+    logging.success(`${JSON.stringify(answers.filter((v, i, self) => {
         return self.indexOf(v) === i;
     }))}`);
     return answers.filter((v, i, self) => {
@@ -1031,7 +1055,7 @@ function FindValidMathExpressions(ns, data) {
         }
         const result = [];
         helper(result, "", num, target, 0, 0, 0);
-        ns.print(`${Array.from(result)}`);
+        logging.success(`${Array.from(result)}`);
         return result;
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -1056,82 +1080,28 @@ function HammingBtoI(ns, data) {
         }
         const err = bits.map((v, i) => { return v > 0 ? i : 0; }).reduce((p, c) => { return p ^ c; });
         if (err > 0) {
-            ns.print(`error at ${err}`);
+            logging.info(`error at ${err}`);
             bits[err] = (bits[err] === 1) ? 0 : 1;
         }
         else {
-            ns.print('no error detected.');
+            logging.info('no error detected.');
         }
         for (let bit = bits.length - 1; bit >= 0; bit--) {
             if ((bit & (bit - 1)) === 0) {
                 bits.splice(bit, 1);
             }
         }
-        ns.print(`remaining bits: ${bits.join('')}`);
+        logging.info(`remaining bits: ${bits.join('')}`);
         const integer = bin2Dec(bits.join(''));
-        ns.print(`integer value: ${integer}`);
+        logging.success(`integer value: ${integer}`);
         return [`${integer}`];
-    }
-    throw new Error("Unexpected data types Unable to solve contract.");
-}
-// You are given the following decimal Value:
-// 1084208828266
-// Convert it into a binary string and encode it as a 'Hamming-Code'. eg:
-// Value 8 will result into binary '1000', which will be encoded with the pattern 'pppdpddd', where p is a paritybit and d a databit,
-// or '10101' (Value 21) will result into (pppdpdddpd) '1001101011'.
-// NOTE: You need an parity Bit on Index 0 as an 'overall'-paritybit.
-// NOTE 2: You should watch the HammingCode-video from 3Blue1Brown, which explains the 'rule' of encoding, including the first Index parity-bit mentioned on the first note.
-// Now the only one rule for this encoding:
-// It's not allowed to add additional leading '0's to the binary value
-// That means, the binary value has to be encoded as it is
-function HammingItoB(ns, data) {
-    const decToBin = function (dec) {
-        const bin = [];
-        while (dec > 0) {
-            bin.push(dec % 2);
-            dec = Math.floor(dec / 2);
-        }
-        return bin;
-    };
-    if (typeof data === 'number') {
-        const decimal = data;
-        ns.tprint(`converting: ${decimal}`);
-        //convert decimal to binary
-        const bin = decToBin(decimal);
-        ns.tprint(`convert to binary: ${bin.join('')}`);
-        //calculate number of parity bits 
-        const controlBitsIndex = [];
-        let i = 1;
-        while ((bin.length + controlBitsIndex.length) / i >= 1) {
-            controlBitsIndex.push(i);
-            i *= 2;
-        }
-        bin.splice(0, 0, 0);
-        controlBitsIndex.forEach(i => {
-            bin.splice(i, 0, 0);
-        });
-        ns.tprint(`inserted parity: ${bin.join('')}`);
-        controlBitsIndex.forEach(i => {
-            // ns.tprint(`calculating parity ${i}`)
-            bin[i] = bin.filter((v, index) => {
-                // ns.tprintf(`${index} & ${i} == ${index&i}`)
-                return v & i;
-            }).reduce((prev, curr, index) => { return prev ^ (index & i) ? curr : 0; }, 0);
-            // ns.tprint(`${i} parity: ${bin[i]}`)
-            // ns.tprint(`bin update: ${bin.join('')}`)
-        });
-        // ns.tprint(`calulating parity 0`)
-        bin[0] = bin.reduce((prev, curr) => { return prev ^ curr; });
-        // ns.tprint(`0 parity: ${bin[0]}`)
-        ns.tprint(`with parity: ${bin.join('')}`);
-        return [bin.join('')];
     }
     throw new Error("Unexpected data types Unable to solve contract.");
 }
 function runLengthEncoding(ns, data) {
     if (typeof data === 'string') {
         const dataArray = [...data];
-        ns.print(data);
+        logging.info(data);
         const rlPairs = dataArray.reduce((prev, curr) => {
             if (prev.length === 0 || curr !== prev[prev.length - 1].char) {
                 prev.push({ char: curr, count: 1 });
@@ -1142,7 +1112,7 @@ function runLengthEncoding(ns, data) {
                 return prev;
             }
         }, []);
-        ns.print(rlPairs);
+        logging.info(`${rlPairs}`);
         let retData = "";
         while (rlPairs.length > 0) {
             if (rlPairs[0].count > 9) {
@@ -1154,14 +1124,14 @@ function runLengthEncoding(ns, data) {
                 rlPairs.splice(0, 1);
             }
         }
-        ns.print(retData);
+        logging.success(retData);
         return [retData];
     }
     throw new Error("Unexpected data types Unable to solve contract.");
 }
 function lzDecompression(ns, data) {
     if (typeof data === 'string') {
-        ns.print(data);
+        logging.info(data);
         const datArr = [...data];
         let ret = "";
         while (datArr.length > 0) {
@@ -1182,15 +1152,7 @@ function lzDecompression(ns, data) {
                 }
             }
         }
-        ns.print(ret);
-        // return [ret]
-    }
-    throw new Error("Unexpected data types Unable to solve contract.");
-}
-function lzCompression(ns, data) {
-    if (typeof data === 'string') {
-        const ret = "";
-        ns.tprint(`${data} -> ${ret}`);
+        logging.success(ret);
         // return [ret]
     }
     throw new Error("Unexpected data types Unable to solve contract.");
@@ -1217,25 +1179,25 @@ const processors = new Map([
     ["Sanitize Parentheses in Expression", SanitizeParentheses],
     ["Find All Valid Math Expressions", FindValidMathExpressions],
     ["HammingCodes: Encoded Binary to Integer", HammingBtoI],
-    ["HammingCodes: Integer to encoded Binary", HammingItoB],
+    // ["HammingCodes: Integer to encoded Binary",HammingItoB],        //Strings
     ["Compression I: RLE Compression", runLengthEncoding],
     ["Compression II: LZ Decompression", lzDecompression],
-    ["Compression III: LZ Compression", lzCompression],
-    ["Proper 2-Coloring of a Graph", colorGraph], //Paths
+    // ["Compression III: LZ Compression",lzCompression],              //Strings   
+    ["Proper 2-Coloring of a Graph", colorGraph], //Paths    DONE
 ]);
 async function main(ns) {
     await initLogging(ns);
     const usage = `solveContract.ts USAGE: ${solveContractPath} <contract filename> <host>`;
     if (ns.args.length != 2) {
-        ns.tprintf(`Invalid number of arguments`);
-        ns.tprintf(usage);
+        logging.error(`Invalid number of arguments`);
+        logging.info(usage);
         ns.exit();
     }
     const filename = asString(ns.args[0]);
     const host = asString(ns.args[1]);
     if (!ns.codingcontract.getContractType(filename, host)) {
-        ns.tprintf(`Invalid file ${host}:${filename}`);
-        ns.tprintf(usage);
+        logging.error(`Invalid file ${host}:${filename}`);
+        logging.info(usage);
         ns.exit();
     }
     const type = ns.codingcontract.getContractType(filename, host);
@@ -1245,27 +1207,25 @@ async function main(ns) {
         if (answer !== undefined) {
             const result = ns.codingcontract.attempt(answer, filename, host, { returnReward: true });
             if (result === "") {
-                ns.toast(`Failed Contract: ${host}.${filename} - '${type}'`, "error");
+                logging.error(`Failed Contract: ${host}.${filename} - '${type}'`, true);
                 ns.spawn(unsolveableContractPath, 1, "--file", filename, "--host", host);
             }
             else {
-                ns.toast(`${result}`, "success");
-                ns.tprintf(`${result}`);
+                logging.success(`${result}`, true);
                 await ns.write("solvedContracts.txt", [type, data, answer, "\n"], 'a');
             }
         }
         else {
-            ns.toast(`unable to process contract: ${host}.${filename} - '${type}'`, "warning");
+            logging.warning(`unable to process contract: ${host}.${filename} - '${type}'`, true);
             ns.spawn(unsolveableContractPath, 1, "--file", filename, "--host", host);
-            // ns.tprintf(`${ns.codingcontract.getDescription(filename,host)}\n\n`)
         }
     }
     catch (e) {
         if (typeof e === "string") {
-            error(e, true);
+            logging.error(e, true);
         }
         else if (e instanceof Error) {
-            error(e.message, true);
+            logging.error(e.message, true);
         }
     }
 }

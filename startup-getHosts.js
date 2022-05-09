@@ -16,7 +16,7 @@ async function cacheAllServers(ns) {
         alreadyScanned.push(currentHost);
     }
     allHosts = allHosts.filter((v, i, self) => {
-        return self.indexOf(v) === i && v !== "home";
+        return self.indexOf(v) === i && v !== "home" && !ns.fileExists("ignore.txt", v);
     });
     await ns.write("hosts.txt", JSON.stringify(Array.from(allHosts)), "w");
     return allHosts;

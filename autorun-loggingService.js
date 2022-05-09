@@ -262,6 +262,27 @@ var Level;
     Level[Level["Info"] = 2] = "Info";
     Level[Level["success"] = 3] = "success";
 })(Level || (Level = {}));
+class LoggingPayload {
+    host;
+    script;
+    trace;
+    timestamp;
+    payload;
+    constructor(host, script, trace, payload) {
+        if (host)
+            this.host = host;
+        if (script)
+            this.script = script;
+        if (trace)
+            this.trace = trace;
+        if (payload)
+            this.payload = payload;
+        this.timestamp = (performance.now() + performance.timeOrigin) * 1000000;
+    }
+    static fromJSON(d) {
+        return Object.assign(new LoggingPayload(), JSON.parse(d));
+    }
+}
 //from https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid.
 //cant import crypto so this should do.
 //TODO keep an eye out for something better.
@@ -301,6 +322,8 @@ const initLogging = async function (ns) {
             }
         }
     });
+    ns.disableLog('ALL');
+    ns.clearLog();
 };
 
 const unique = (v, i, self) => { return self.indexOf(v) === i; };
@@ -462,18 +485,27 @@ async function main(ns) {
     const loggingDB = getLoggingDB();
     await trimRecords(ns, loggingDB);
     while (true) {
-        let start = Date.now();
-        await sendLogs(loggingDB, ns, loggingSettings, LoggingTable, sendLog);
-        ns.print(`time taken: ${ns.tFormat(Date.now() - start)}`);
-        start = Date.now();
-        await sendLogs(loggingDB, ns, loggingSettings, MetricTable, sendTrace);
-        ns.print(`time taken: ${ns.tFormat(Date.now() - start)}`);
+        try {
+            let start = Date.now();
+            await sendLogs(loggingDB, ns, loggingSettings, LoggingTable, sendLog);
+            ns.print(`time taken: ${ns.tFormat(Date.now() - start)}`);
+            start = Date.now();
+            await sendLogs(loggingDB, ns, loggingSettings, MetricTable, sendTrace);
+            ns.print(`time taken: ${ns.tFormat(Date.now() - start)}`);
+        }
+        catch (e) {
+            ns.print(`failed to send log: ${e}`);
+        }
         await ns.sleep(500);
     }
 }
 async function sendLogs(loggingDB, ns, loggingSettings, table, sender) {
     const lineCount = await loggingDB.transaction(table, 'readonly').store.count();
     ns.print(`${lineCount} ${table} transactions queued.`);
+    await sendTrace(ns, loggingSettings, [new LoggingPayload(ns.getHostname(), ns.getScriptName(), "641f4573-9d96-4c77-a703-cd6324cce93c", {
+            key: `logging.${table}.count`,
+            value: lineCount,
+        })]);
     if (lineCount == 0) {
         return new Promise((res) => { res(); });
     }

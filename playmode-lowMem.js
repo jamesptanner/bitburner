@@ -60,6 +60,8 @@ const lowMemPath = "/playmode/lowMem.js";
 async function main(ns) {
     //not using usual logging until we have more memory.
     // await initLogging(ns) 
+    ns.disableLog('ALL');
+    ns.tail();
     while (ns.getServerMaxRam('home') <= 32) {
         await runHacknet(ns, () => {
             return ns.getPlayer().money < ns.getServerMaxRam('home') * 3.2e4 * Math.pow(1.58, Math.log2(ns.getServerMaxRam('home')));

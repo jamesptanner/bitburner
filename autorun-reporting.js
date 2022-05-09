@@ -321,6 +321,8 @@ const initLogging = async function (ns) {
             }
         }
     });
+    ns.disableLog('ALL');
+    ns.clearLog();
 };
 const levelToString = function (level) {
     switch (level) {
@@ -349,16 +351,21 @@ const levelToToast = function (level) {
     return undefined;
 };
 const log = function (level, msg, toast) {
-    if (toast) {
-        n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
+    if (n) {
+        if (toast) {
+            n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
+        }
+        n.print(`${levelToString(level)}: ${msg}`);
+        const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
+            level: level,
+            message: msg,
+        });
+        const tx = loggingDB.transaction(LoggingTable, 'readwrite');
+        void tx.store.add(logPayload);
     }
-    n.print(`${levelToString(level)}: ${msg}`);
-    const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
-        level: level,
-        message: msg,
-    });
-    const tx = loggingDB.transaction(LoggingTable, 'readwrite');
-    void tx.store.add(logPayload);
+    else {
+        throw new Error("Logging not initalised");
+    }
 };
 const sendMetric = function (key, value) {
     const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
@@ -374,6 +381,11 @@ function getAllServers(ns) {
 }
 
 const reportingPath = "/autorun/reporting.js";
+const getBitnode = function (ns) {
+    const player = ns.getPlayer();
+    const bitnode = ns.getOwnedSourceFiles().filter(src => { return src.n === player.bitNodeN; })[0];
+    return `${bitnode.n}.${bitnode.lvl}`;
+};
 async function main(ns) {
     await initLogging(ns);
     const constPlayer = ns.getPlayer();
@@ -419,7 +431,7 @@ async function main(ns) {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore property is intentionally undocumented.
         sendMetric("player.stats.level.karma", ns.heart.break());
-        sendMetric("player.bitnode", player.bitNodeN);
+        sendMetric("player.bitnode", getBitnode(ns));
         getAllServers(ns).concat('home').filter(server => {
             const serverInfo = ns.getServer(server);
             return serverInfo.backdoorInstalled || serverInfo.purchasedByPlayer;
@@ -441,7 +453,7 @@ async function main(ns) {
             sendMetric(`server.${server.replaceAll(".", "-")}.money`, ns.getServerMoneyAvailable(server));
             sendMetric(`server.${server.replaceAll(".", "-")}.maxmoney`, ns.getServerMaxMoney(server));
         });
-        await ns.sleep(60000);
+        await ns.sleep(90000);
     }
 }
 

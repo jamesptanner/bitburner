@@ -1,7 +1,3 @@
-function getAllServers(ns) {
-    return JSON.parse(ns.read("hosts.txt"));
-}
-
 const instanceOfAny = (object, constructors) => constructors.some((c) => object instanceof c);
 
 let idbProxyableTypes;
@@ -391,20 +387,45 @@ const logging = {
     info: info
 };
 
-const killscriptPath = "/utils/killscript.js";
+const needToFocus = function (ns) {
+    if (ns.singularity.getOwnedAugmentations(false).indexOf("Neuroreceptor Management Implant") !== -1)
+        return false;
+    return true;
+};
+
+const getAugmentsAvailableFromFaction = function (ns, faction) {
+    return ns.singularity.getAugmentationsFromFaction(faction).filter(augment => {
+        return ns.singularity.getOwnedAugmentations(true).indexOf(augment) == -1;
+    });
+};
+const improveFactionReputation = async function (ns, faction, reputation) {
+    while (reputation > ns.singularity.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0)) {
+        ns.tail();
+        logging.info(`current faction relationship ${faction} is ${ns.nFormat(ns.singularity.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0), "0,0.000a")}, want ${ns.nFormat(reputation, "0,0.000a")}.`);
+        logging.info(`Time Remaining: ${(ns.getPlayer().currentWorkFactionName === faction ? ns.tFormat(((reputation - (ns.singularity.getFactionRep(faction) + ns.getPlayer().workRepGained)) / (ns.getPlayer().workRepGainRate * 5)) * 1000, false) : "unknown")}`);
+        if (!ns.singularity.isBusy()) {
+            logging.info(`improving relationship with ${faction}`);
+            ns.singularity.workForFaction(faction, "hacking", true);
+        }
+        if (!ns.singularity.isFocused() && needToFocus(ns)) {
+            logging.info(`focusing on work. ${ns.getPlayer().currentWorkFactionName}`);
+            ns.singularity.setFocus(true);
+        }
+        await ns.sleep(1000 * 60);
+    }
+    ns.singularity.stopAction();
+};
+
+const improveFactionReleationsPath = "/utils/improveFactionReleations.js";
 async function main(ns) {
     await initLogging(ns);
-    ns.disableLog('ALL');
-    const target = ns.args[0] || "";
-    logging.info(`killing script: ${target}`);
-    if (typeof target === 'string') {
-        getAllServers(ns).forEach(host => {
-            ns.ps(host).filter(x => target === "" || x.filename.indexOf(target) > -1).forEach(x => {
-                ns.kill(x.pid);
-            });
-        });
-        logging.info(`Done killing all instances of ${target}`);
+    ns.disableLog("ALL");
+    for (const faction of ns.getPlayer().factions) {
+        const reputation = getAugmentsAvailableFromFaction(ns, faction).reduce((prev, curr) => {
+            return Math.max(prev, ns.singularity.getAugmentationRepReq(curr));
+        }, 0);
+        await improveFactionReputation(ns, faction, reputation);
     }
 }
 
-export { killscriptPath, main };
+export { improveFactionReleationsPath, main };

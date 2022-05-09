@@ -1,27 +1,3 @@
-function getAllServers(ns) {
-    return JSON.parse(ns.read("hosts.txt"));
-}
-const findBestTarget = function (ns) {
-    let maxFunds = 0;
-    let bestServer = "";
-    getAllServers(ns).forEach(server => {
-        const serverDetails = ns.getServer(server);
-        if (serverDetails.backdoorInstalled && serverDetails.moneyMax > maxFunds) {
-            bestServer = server;
-            maxFunds = serverDetails.moneyMax;
-        }
-    });
-    return bestServer;
-};
-
-const growPath = "/batching/grow.js";
-
-const weakenPath = "/batching/weaken.js";
-
-const hackPath = "/batching/hack.js";
-
-const prepareHostPath = "/batching/prepareHost.js";
-
 const instanceOfAny = (object, constructors) => constructors.some((c) => object instanceof c);
 
 let idbProxyableTypes;
@@ -345,6 +321,8 @@ const initLogging = async function (ns) {
             }
         }
     });
+    ns.disableLog('ALL');
+    ns.clearLog();
 };
 const levelToString = function (level) {
     switch (level) {
@@ -373,17 +351,65 @@ const levelToToast = function (level) {
     return undefined;
 };
 const log = function (level, msg, toast) {
-    if (toast) {
-        n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
+    if (n) {
+        if (toast) {
+            n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
+        }
+        n.print(`${levelToString(level)}: ${msg}`);
+        const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
+            level: level,
+            message: msg,
+        });
+        const tx = loggingDB.transaction(LoggingTable, 'readwrite');
+        void tx.store.add(logPayload);
     }
-    n.print(`${levelToString(level)}: ${msg}`);
-    const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
-        level: level,
-        message: msg,
-    });
-    const tx = loggingDB.transaction(LoggingTable, 'readwrite');
-    void tx.store.add(logPayload);
+    else {
+        throw new Error("Logging not initalised");
+    }
 };
+const success = function (msg, toast) {
+    log(Level.success, msg, toast);
+};
+const info = function (msg, toast) {
+    log(Level.Info, msg, toast);
+};
+const warning = function (msg, toast) {
+    log(Level.Warning, msg, toast);
+};
+const error = function (msg, toast) {
+    log(Level.Error, msg, toast);
+};
+const logging = {
+    log: log,
+    error: error,
+    warning: warning,
+    success: success,
+    info: info
+};
+
+function getAllServers(ns) {
+    return JSON.parse(ns.read("hosts.txt"));
+}
+const findBestTarget = function (ns) {
+    let maxFunds = 0;
+    let bestServer = "";
+    getAllServers(ns).forEach(server => {
+        const serverDetails = ns.getServer(server);
+        if (serverDetails.backdoorInstalled && serverDetails.moneyMax > maxFunds) {
+            bestServer = server;
+            maxFunds = serverDetails.moneyMax;
+        }
+    });
+    return bestServer;
+};
+
+const growPath = "/batching/grow.js";
+
+const weakenPath = "/batching/weaken.js";
+
+const hackPath = "/batching/hack.js";
+
+const prepareHostPath = "/batching/prepareHost.js";
 
 const hackingDaemonPath = "/batching/hackingDaemon.js";
 async function main(ns) {
@@ -448,7 +474,7 @@ async function main(ns) {
             await ns.sleep(60 * 1000);
             // //check we are hacking the right target 
             const newTarget = findBestTarget(ns);
-            if (newTarget !== target) {
+            if (newTarget !== target || (ns.getServerMoneyAvailable(target) / ns.getServerMaxMoney(target)) < 0.9) {
                 await waitForBatchedHackToFinish(ns);
                 //restart
                 ns.spawn(hackingDaemonPath);
@@ -456,18 +482,18 @@ async function main(ns) {
         }
         const scheduleWorked = await ScheduleHackEvent(event, weak_time, hack_time, grow_time, startTime, depth, period, t0, ns, target);
         if (!scheduleWorked) {
-            ns.toast(`Unable to schedule batch task`, "error", 10000);
+            logging.error(`Unable to schedule batch task`, true);
             await ns.sleep((event % 120) * 1000);
         }
         else {
             event++;
         }
     }
-    ns.printf(`length of cycle: ${period}`);
-    ns.printf(`Number of cycles needed: ${depth}`);
+    logging.info(`length of cycle: ${period}`);
+    logging.info(`Number of cycles needed: ${depth}`);
 }
 async function waitForBatchedHackToFinish(ns) {
-    ns.printf(`waiting for current hacking threads to finish.`);
+    logging.info(`waiting for current hacking threads to finish.`);
     const pids = getAllServers(ns).map(server => {
         return ns.ps(server);
     })
@@ -481,7 +507,7 @@ async function waitForBatchedHackToFinish(ns) {
     await waitForPids(pids, ns);
 }
 function killPrepScripts(ns) {
-    ns.printf(`Killing any preparation scripts.`);
+    logging.info(`Killing any preparation scripts.`);
     getAllServers(ns).map(server => {
         return ns.ps(server);
     })
@@ -499,7 +525,7 @@ async function waitForPids(pids, ns) {
     do {
         const finished = pids.filter(pid => pid === 0 || !ns.isRunning(pid, ""));
         finished.forEach(pid => pids.splice(pids.indexOf(pid), 1));
-        ns.printf(`${pids.length} processes left`);
+        logging.info(`${pids.length} processes left`);
         if (pids.length > 0)
             await ns.sleep(30 * 1000);
     } while (pids.length > 0);
@@ -524,12 +550,12 @@ async function ScheduleHackEvent(event, weak_time, hack_time, grow_time, startTi
     }
     const script_start = startTime + (depth * period) - (event * t0 * -1) - event_time;
     if (script_start < 0) {
-        ns.toast(`Wait time negative. restarting script.`, "error", 10000);
+        logging.error(`Wait time negative. restarting script.`, true);
         await ns.sleep(weak_time);
         ns.spawn(hackingDaemonPath, 1);
     }
-    log(Level.Info, `{"name":"${event_script}-${event}", "startTime":"${new Date(script_start).toISOString()}", "duration":${Math.floor(event_time / 1000)}}`);
-    ns.printf(`${event_script}: To Complete ${new Date(script_start + event_time).toISOString()}`);
+    logging.info(`{"name":"${event_script}-${event}", "startTime":"${new Date(script_start).toISOString()}", "duration":${Math.floor(event_time / 1000)}}`);
+    logging.info(`${event_script}: To Complete ${new Date(script_start + event_time).toISOString()}`);
     return runTask(ns, event_script, target, script_start);
 }
 async function runTask(ns, script, ...args) {
@@ -546,10 +572,10 @@ async function runTask(ns, script, ...args) {
     await ns.scp(script, candidateServers[0]);
     const pid = ns.exec(script, candidateServers[0], 1, ...args);
     if (pid === 0) {
-        ns.printf(`Failed to run ${script} on ${candidateServers[0]}`);
+        logging.error(`Failed to run ${script} on ${candidateServers[0]}`);
         return false;
     }
-    ns.printf(`Scheduled ${script} to run on ${candidateServers[0]}`);
+    logging.info(`Scheduled ${script} to run on ${candidateServers[0]}`);
     return true;
 }
 
