@@ -7,7 +7,6 @@ export const killscriptPath ="/utils/killscript.js";
 export async function main(ns : NS) : Promise<void> {
     await initLogging(ns)
     ns.disableLog('ALL')
-    ns.tail()
     const target = ns.args[0] || "";
     logging.info(`killing script: ${target}`)
     if (typeof target === 'string') {
