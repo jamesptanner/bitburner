@@ -611,19 +611,33 @@ async function main(ns) {
     if (hosts.length > 0) {
         logging.info(`need to backdoor : ${hosts.join()}`);
         for (const host of hosts) {
-            ns.singularity.connect("home");
-            logging.info(`backdooring ${host} starting at home}`);
+            logging.info(`backdooring ${host} starting at home`);
             const hops = routeToHost(ns, 'home', host);
             if (hops && hops.length > 0) {
-                logging.info(`routing via ${hops}`);
-                hops.forEach(hop => ns.singularity.connect(hop));
-                logging.info(`installing backdoor ${host}`);
-                await ns.singularity.installBackdoor();
+                try {
+                    logging.info(`routing via ${hops}`);
+                    ns.singularity.connect("home");
+                    hops.forEach(hop => ns.singularity.connect(hop));
+                    logging.info(`installing backdoor ${host}`);
+                    await ns.singularity.installBackdoor();
+                }
+                catch (e) {
+                    if (e instanceof Error) {
+                        logging.error(e.message);
+                    }
+                }
             }
         }
-        logging.info(`returning home`);
-        ns.singularity.connect("home");
-        ns.rm("toBackdoor.txt", "home");
+        try {
+            logging.info(`returning home`);
+            ns.singularity.connect("home");
+            ns.rm("toBackdoor.txt", "home");
+        }
+        catch (e) {
+            if (e instanceof Error) {
+                logging.error(e.message);
+            }
+        }
     }
 }
 
