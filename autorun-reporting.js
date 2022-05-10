@@ -460,9 +460,10 @@ async function main(ns) {
     }
 }
 const getHackState = function (ns, server) {
-    if (ns.getServer(server).backdoorInstalled || ns.getServer(server).purchasedByPlayer)
+    const ServerInfo = ns.getServer(server);
+    if (ServerInfo.backdoorInstalled || ServerInfo.purchasedByPlayer)
         return 2;
-    if (ServerInfo.openPortCount >= ServerInfo.numOpenPortsRequired && ns.getServer(server).requiredHackingSkill <= ns.getPlayer().hacking)
+    if (ServerInfo.openPortCount >= ServerInfo.numOpenPortsRequired && ServerInfo.requiredHackingSkill <= ns.getPlayer().hacking)
         return 1;
     return 0;
 };
