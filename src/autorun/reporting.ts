@@ -74,6 +74,7 @@ export async function main(ns : NS) : Promise<void> {
         getAllServers(ns).concat('home')
         .forEach(server => {
             const ServerInfo = ns.getServer(server)
+            sendMetric(`server.${server.replaceAll(".","-")}.hackstate`, getHackState(ns,server))
             sendMetric(`server.${server.replaceAll(".","-")}.backdoorInstalled`, ServerInfo.backdoorInstalled ? 1:0)
             sendMetric(`server.${server.replaceAll(".","-")}.playerOwned`, ServerInfo.purchasedByPlayer? 1:0)
             sendMetric(`server.${server.replaceAll(".","-")}.requiredHacking`, ServerInfo.requiredHackingSkill? 1:0)
@@ -87,4 +88,9 @@ export async function main(ns : NS) : Promise<void> {
         })
         await ns.sleep(90000)
     }
+}
+const getHackState = function(ns:NS, server:string): number {
+    if (ns.getServer(server).backdoorInstalled || ns.getServer(server).purchasedByPlayer) return 2
+    if (ServerInfo.openPortCount >= ServerInfo.numOpenPortsRequired && ns.getServer(server).requiredHackingSkill <= ns.getPlayer().hacking) return 1
+    return 0
 }
