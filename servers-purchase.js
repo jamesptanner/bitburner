@@ -279,7 +279,7 @@ class LoggingPayload {
             this.trace = trace;
         if (payload)
             this.payload = payload;
-        this.timestamp = (performance.now() + performance.timeOrigin) * 1000000;
+        this.timestamp = (Date.now()) * 1000000;
     }
     static fromJSON(d) {
         return Object.assign(new LoggingPayload(), JSON.parse(d));
