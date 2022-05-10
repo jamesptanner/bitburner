@@ -29,7 +29,7 @@ export class LoggingPayload {
         if (script) this.script = script
         if (trace) this.trace = trace
         if (payload) this.payload = payload
-        this.timestamp = (performance.now() + performance.timeOrigin)*1000000
+        this.timestamp = (Date.now())*1000000
     }
 
     static fromJSON(d: string): LoggingPayload {
