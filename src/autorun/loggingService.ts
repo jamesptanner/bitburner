@@ -213,7 +213,7 @@ async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSetti
     if (lineCount == 0) {
         return new Promise<void>((res) => { res() })
     }
-    const logLinesGetAll = await loggingDB.transaction(table, 'readonly').store.getAll(null, 2500);
+    const logLinesGetAll = await loggingDB.transaction(table, 'readonly').store.getAll(null, 3000);
 
     const linesByTrace = new Map<string, [LoggingPayload[], number[]]>()
 
