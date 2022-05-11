@@ -16,5 +16,5 @@ export async function main(ns : NS) : Promise<void> {
     const contractData = ns.codingcontract.getData(filename,host)
     const contractType = ns.codingcontract.getContractType(filename,host)
 
-    await ns.write(filename.replace('cct','txt').replace('\'','_').replace('&','_'),[contractType,contractData,contractDesc].join('\n\n'),'w')
+    await ns.write(`/failedContracts/${filename.replace('cct','txt').replace('\'','_').replace('&','_')}`,[contractType,contractData,contractDesc].join('\n\n'),'w')
 }

@@ -355,17 +355,22 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
             ns.singularity.travelToCity(requirements.location)
         }
         if (requirements.cash && ns.getPlayer().money < requirements.cash) {
+            logging.info(`waiting for ${ns.nFormat(requirements.cash,"$(0.000a)")}`)
             await ns.sleep(1000 * 60)
         }
         if (requirements.combatSkill) {
+            logging.info(`improving combat skill to ${requirements.combatSkill}`)
             await improveStat(ns, 0, requirements.combatSkill)
 
         }
         if (requirements.hacking) {
+            logging.info(`improving hacking to ${requirements.hacking}`)
+
             await improveStat(ns, requirements.hacking)
 
         }
         if (typeof requirements.corp == 'string' && typeof requirements.corpRep == 'number') {
+            logging.info(`improving reputation with  ${requirements.corp}`)
             await improveCorporateReputation(ns, requirements.corp, requirements.corpRep)
 
         }
@@ -380,6 +385,7 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
 
         }
         if (requirements.backdoor) {
+            logging.info(`waiting until we have a backdoor into ${requirements.backdoor}`)
             await waitToBackdoor(ns, requirements.backdoor)
         }
         ns.singularity.joinFaction(faction)
@@ -427,9 +433,8 @@ export const improveStat = async function (ns: NS, hacking = 0, combat = 0, char
         if (previousSkill !== skill || !ns.singularity.isBusy()) {
             previousSkill = skill
             if (player.location.toLowerCase() !== "sector-12") {
-                ns.singularity.goToLocation("sector-12")
+                ns.singularity.goToLocation("Sector-12")
             }
-            ns.clearLog()
             if (['agility', 'strength', 'defense', 'dexterity'].indexOf(skill) !== -1) {
                 ns.singularity.gymWorkout("powerhouse gym", skill)
                 logging.info(`Working on ${skill} at powerhouse gym`)

@@ -213,7 +213,7 @@ async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSetti
     if (lineCount == 0) {
         return new Promise<void>((res) => { res() })
     }
-    const logLinesGetAll = await loggingDB.transaction(table, 'readonly').store.getAll(null, 2500);
+    const logLinesGetAll = await loggingDB.transaction(table, 'readonly').store.getAll(null, 3000);
 
     const linesByTrace = new Map<string, [LoggingPayload[], number[]]>()
 
@@ -232,9 +232,10 @@ async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSetti
     for (const trace of linesByTrace) {
         if (traceSuccessful.get(trace[0]) && trace[1][1].length > 0) {
             for (const index of trace[1][1]) {
-                const cursor = await loggingDB.transaction(table, 'readonly').store.index("timestamp").openCursor(index)
-                if (cursor) {
+                let cursor = await loggingDB.transaction(table, 'readonly').store.index("timestamp").openCursor(index)
+                while (cursor) {
                     toDelete.push(cursor.primaryKey)
+                    cursor = await cursor.continue()
                 }
             }
         }
@@ -242,7 +243,7 @@ async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSetti
 
     const deletes: Promise<unknown>[] = []
     const tx = loggingDB.transaction(table, 'readwrite')
-    toDelete.forEach(primaryKey => {
+    toDelete.filter(unique).forEach(primaryKey => {
         deletes.push(tx.store.delete(primaryKey))
     })
     deletes.push(tx.done)
