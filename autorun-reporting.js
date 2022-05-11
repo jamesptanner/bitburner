@@ -445,10 +445,7 @@ async function main(ns) {
             .forEach(server => {
             const ServerInfo = ns.getServer(server);
             sendMetric(`server.${server.replaceAll(".", "-")}.hackstate`, getHackState(ns, server));
-            sendMetric(`server.${server.replaceAll(".", "-")}.backdoorInstalled`, ServerInfo.backdoorInstalled ? 1 : 0);
             sendMetric(`server.${server.replaceAll(".", "-")}.playerOwned`, ServerInfo.purchasedByPlayer ? 1 : 0);
-            sendMetric(`server.${server.replaceAll(".", "-")}.requiredHacking`, ServerInfo.requiredHackingSkill ? 1 : 0);
-            sendMetric(`server.${server.replaceAll(".", "-")}.backdoorable`, ServerInfo.openPortCount >= ServerInfo.numOpenPortsRequired ? 1 : 0);
             sendMetric(`server.${server.replaceAll(".", "-")}.maxRam`, ns.getServerMaxRam(server));
             sendMetric(`server.${server.replaceAll(".", "-")}.usedRam`, ns.getServerUsedRam(server));
             sendMetric(`server.${server.replaceAll(".", "-")}.securitylevel`, ns.getServerSecurityLevel(server));

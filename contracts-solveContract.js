@@ -960,7 +960,6 @@ function SanitizeParentheses(ns, data) {
     logging.info(`${JSON.stringify(data)} type:${typeof data}`);
     const parentheses = asString(data);
     function isValid(parens) {
-        logging.info(`Testing ${parens}`);
         let opens = 0;
         for (let index = 0; index < parens.length; index++) {
             if (parens.charAt(index) === "(") {
@@ -974,7 +973,7 @@ function SanitizeParentheses(ns, data) {
             }
         }
         if (opens === 0) {
-            logging.info("👍");
+            logging.info(`👍 ${parens}`);
         }
         return opens === 0;
     }
@@ -997,7 +996,7 @@ function SanitizeParentheses(ns, data) {
     }
     let n = 0;
     while (answers.length == 0) {
-        logging.info(`at depth ${n}`);
+        // logging.info(`at depth ${n}`);
         if (n === parentheses.length) {
             answers.push("");
         }
@@ -1148,7 +1147,7 @@ function lzDecompression(ns, data) {
             if (count !== 0) {
                 const pos = parseInt(datArr.splice(0, 1)[0]);
                 for (let i = 0; i < count2; i++) {
-                    ret = ret + ret[ret.length - pos - 1];
+                    ret = ret + ret[Math.max(0, ret.length - pos - 1)];
                 }
             }
         }

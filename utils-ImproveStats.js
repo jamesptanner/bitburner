@@ -412,9 +412,8 @@ const improveStat = async function (ns, hacking = 0, combat = 0, charisma = 0) {
         if (previousSkill !== skill || !ns.singularity.isBusy()) {
             previousSkill = skill;
             if (player.location.toLowerCase() !== "sector-12") {
-                ns.singularity.goToLocation("sector-12");
+                ns.singularity.goToLocation("Sector-12");
             }
-            ns.clearLog();
             if (['agility', 'strength', 'defense', 'dexterity'].indexOf(skill) !== -1) {
                 ns.singularity.gymWorkout("powerhouse gym", skill);
                 logging.info(`Working on ${skill} at powerhouse gym`);

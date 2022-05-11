@@ -509,7 +509,7 @@ async function sendLogs(loggingDB, ns, loggingSettings, table, sender) {
     if (lineCount == 0) {
         return new Promise((res) => { res(); });
     }
-    const logLinesGetAll = await loggingDB.transaction(table, 'readonly').store.getAll(null, 2500);
+    const logLinesGetAll = await loggingDB.transaction(table, 'readonly').store.getAll(null, 3000);
     const linesByTrace = new Map();
     logLinesGetAll.map(x => x.trace).filter(unique).forEach(trace => {
         const lines = logLinesGetAll.filter(v => { return v.trace === trace; });
@@ -526,16 +526,17 @@ async function sendLogs(loggingDB, ns, loggingSettings, table, sender) {
     for (const trace of linesByTrace) {
         if (traceSuccessful.get(trace[0]) && trace[1][1].length > 0) {
             for (const index of trace[1][1]) {
-                const cursor = await loggingDB.transaction(table, 'readonly').store.index("timestamp").openCursor(index);
-                if (cursor) {
+                let cursor = await loggingDB.transaction(table, 'readonly').store.index("timestamp").openCursor(index);
+                while (cursor) {
                     toDelete.push(cursor.primaryKey);
+                    cursor = await cursor.continue();
                 }
             }
         }
     }
     const deletes = [];
     const tx = loggingDB.transaction(table, 'readwrite');
-    toDelete.forEach(primaryKey => {
+    toDelete.filter(unique).forEach(primaryKey => {
         deletes.push(tx.store.delete(primaryKey));
     });
     deletes.push(tx.done);
