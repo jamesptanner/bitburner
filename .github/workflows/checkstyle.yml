@@ -19,4 +19,5 @@ jobs:
           node-version: 16.x
       - name: Lint
         run: | 
+          npm i
           eslint src --max-warnings 0
