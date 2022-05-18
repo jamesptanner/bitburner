@@ -1,4 +1,5 @@
 # bitburner
+[![Check commit](https://github.com/jamesptanner/bitburner/actions/workflows/checkstyle.yml/badge.svg)](https://github.com/jamesptanner/bitburner/actions/workflows/checkstyle.yml)
 
 Collection of scripts used to automate bitburner
 
