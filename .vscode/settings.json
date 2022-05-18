@@ -29,5 +29,7 @@
     },
     "terminal.integrated.env.osx": {
         "NODE_OPTIONS":"--max-old-space-size=8192"
-    }
+    },
+    "eslint.format.enable": true,
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
 }

@@ -1,7 +1,7 @@
 import { NS } from '@ns';
 import { stringify } from 'querystring';
-import { asNumber, asString } from "/shared/utils";
-import { logging } from '/shared/logging';
+import { asNumber, asString } from "shared/utils";
+import { logging } from 'shared/logging';
 // "Generate IP Addresses"
 
 // Given a string containing only digits, return an array with all possible
@@ -367,8 +367,9 @@ export function lzDecompression(ns: NS, data: unknown): number | string[] | unde
 export function lzCompression(ns: NS, data: unknown): number | string[] | undefined {
   if (typeof data === 'string') {
     const ret = ""
+
     logging.info(`${data} -> ${ret}`)
-    // return [ret]
+    return [ret]
   }
   throw new Error("Unexpected data types Unable to solve contract."); 
 }

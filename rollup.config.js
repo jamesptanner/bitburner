@@ -22,7 +22,7 @@ function genConfig(file) {
 }
 
 
-glob.sync(`src/**/*.*ts`,).forEach(path => genConfig(path))
+glob.sync(`src/**/*.*ts`,).filter(path=>{return path.indexOf(".test.")===-1}).forEach(path => genConfig(path))
 
 
 function addApp(path,includes) {
