@@ -2,6 +2,7 @@ import { lzCompression } from './StringContracts'
 import { NS } from '@ns';
 import { Mock } from 'moq.ts';
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
 jest.mock("shared/logging", () => { return { logging: { info: () => { } } } })
 
 

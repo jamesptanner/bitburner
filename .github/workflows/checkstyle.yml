@@ -1,0 +1,22 @@
+name: Check commit
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+    
+
+jobs:
+  RunLint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        user: actions/checkout@v1
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+      - name: Lint
+        run: | 
+          eslint src --max-warnings 0
