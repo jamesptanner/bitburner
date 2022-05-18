@@ -3,6 +3,7 @@ import { hackServer, weakenServer } from "/shared/HGW";
 import { initLogging, logging} from '/shared/logging';
 
 export async function main(ns: NS): Promise<void> {
+    await initLogging(ns)
     const target = ns.args[0];
    logging.info(`Draining target: ${target}`);
     if (typeof target === 'string') {

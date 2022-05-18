@@ -3,7 +3,6 @@ import { initLogging, logging } from '/shared/logging';
 import { getAugmentsAvailableFromFaction } from '/shared/factions';
 import { unique } from '/shared/utils';
 import { makeTable } from '/shared/ui';
-import { indexOf } from 'lodash';
 
 export const buyAugmentsPath = "/augments/buyAugments.js";
 

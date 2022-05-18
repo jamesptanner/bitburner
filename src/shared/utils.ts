@@ -23,7 +23,7 @@ export function is2DArray<T>(val: unknown, elementGuard: (x: unknown) => x is T)
   return Array.isArray(val) && val.every((va) => Array.isArray(va) && va.every(elementGuard));
 }
 
-export const unique = <T>(v:T,i:number,self:T[]) => {return self.indexOf(v)===i}
+export const unique = <T>(v:T,i:number,self:T[]):boolean => {return self.indexOf(v)===i}
 
 export async function walk(ns: NS, start: string, func: (host: string | undefined) => Promise<boolean>): Promise<void> {
     const alreadyScanned = [];

@@ -4,7 +4,7 @@ import { ArrayJump, ArrayJump2, MergeOverlapping, SpiralMatrix } from '/contract
 import { largestPrimeFactor, MaxSubArray, TotalSums, TotalSums2 } from '/contracts/solvers/MathContracts';
 import { colorGraph, MinTrianglePath, UniquePath1, UniquePath2 } from '/contracts/solvers/PathContracts';
 import { StockTrader1, StockTrader2, StockTrader3, StockTrader4 } from '/contracts/solvers/StockContracts';
-import { FindValidMathExpressions, GenerateIPAddresses, HammingBtoI, runLengthEncoding, SanitizeParentheses, HammingItoB, lzCompression } from '/contracts/solvers/StringContracts';
+import { FindValidMathExpressions, GenerateIPAddresses, HammingBtoI, runLengthEncoding, SanitizeParentheses } from '/contracts/solvers/StringContracts';
 import { initLogging,logging } from '/shared/logging';
 import { asString } from '/shared/utils';
 import { lzDecompression } from './solvers/StringContracts';
@@ -13,12 +13,6 @@ export const solveContractPath = "/contracts/solveContract.js";
 
 interface ContractFunction {
   (ns: NS, data: unknown): number | string[] | undefined;
-}
-
-interface FailedContract {
-  type: string;
-  data: unknown;
-  answer: number | string[];
 }
 
 const processors = new Map<string, ContractFunction>([

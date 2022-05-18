@@ -66,18 +66,6 @@ export const MetricTable = "metrics"
 
 let loggingDB: IDBPDatabase<LoggingDB>
 
-const createDB = function (event: IDBVersionChangeEvent) {
-    const target = event.target as IDBRequest<IDBDatabase>
-    const db: IDBDatabase = target.result
-    const prevVersion = event.oldVersion
-
-    if(prevVersion < 1){
-        const loggingStore = db.createObjectStore(LoggingTable, {autoIncrement:true})
-        loggingStore.createIndex("timestamp","timestamp",{unique:false})
-        const metricStore = db.createObjectStore(MetricTable,{autoIncrement:true})
-        metricStore.createIndex("timestamp","timestamp",{unique:false})
-    }
-}
 
 export interface LoggingDB extends DBSchema{
     'logging':{
