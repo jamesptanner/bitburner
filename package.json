@@ -8,7 +8,7 @@
     "watch": "rollup --config -w",
     "build": "rollup --config",
     "clean": "rm -rf dist",
-    "lint": "eslint . --ext .ts",
+    "lint": "./node_modules/.bin/eslint . --ext .ts --max-warnings 0 ",
     "defs": "node ./updateDefs.js",
     "createdist": "node ./createDistMap.js",
     "docs": "npx typedoc"

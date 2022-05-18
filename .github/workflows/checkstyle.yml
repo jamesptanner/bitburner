@@ -20,4 +20,4 @@ jobs:
       - name: Lint
         run: | 
           npm i
-          eslint src --max-warnings 0
+          npm run lint
