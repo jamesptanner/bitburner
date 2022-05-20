@@ -122,7 +122,7 @@ throw new Error("Unexpected data types Unable to solve contract.");
 
 function checkPosition(ns: NS, array: number[], pos: number,depth:number): [boolean,number] {
     logging.info(`${array}: checking position ${pos}`)
-    if (pos == array.length - 1) return [true,depth]
+    if (pos === array.length - 1) return [true,depth]
     let minHops = array.length
     let ret = false;
     for (let jumpDist = 1; jumpDist <= array[pos]; jumpDist++) {
@@ -164,8 +164,8 @@ export function MergeOverlapping(ns: NS, data: unknown): number | string[] | und
             }
         }
 
-        logging.success(`${JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])}`)
-        return [JSON.stringify((numberArray.length != 1) ? numberArray : numberArray[0])]
+        logging.success(`${JSON.stringify((numberArray.length !== 1) ? numberArray : numberArray[0])}`)
+        return [JSON.stringify((numberArray.length !== 1) ? numberArray : numberArray[0])]
     }
     throw new Error("Unexpected data types Unable to solve contract.");
 }

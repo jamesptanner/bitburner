@@ -75,7 +75,7 @@ export async function main(ns: NS): Promise<void> {
     const startTime = Date.now()
     let event = 1
     while (true) {
-        if (event % 120 == 0) {
+        if (event % 120 === 0) {
             await ns.sleep(60 * 1000)
             // //check we are hacking the right target 
             const newTarget = findBestTarget(ns)
@@ -110,7 +110,7 @@ async function waitForBatchedHackToFinish(ns: NS) {
             return prev.concat(...curr);
         }, [] as ProcessInfo[])
         .filter(proc => {
-            return proc.filename == weakenPath || proc.filename == growPath || proc.filename === hackPath;
+            return proc.filename === weakenPath || proc.filename === growPath || proc.filename === hackPath;
         })
         .map(procInfo => procInfo.pid);
     await waitForPids(pids, ns);
@@ -125,7 +125,7 @@ function killPrepScripts(ns: NS) {
             return prev.concat(...curr);
         }, [] as ProcessInfo[])
         .filter(proc => {
-            return proc.filename == prepareHostPath;
+            return proc.filename === prepareHostPath;
         })
         .forEach(proc => {
             ns.kill(proc.pid)
@@ -180,7 +180,7 @@ async function runTask(ns: NS, script: string, ...args: (string | number | boole
         const memFree = serverInfo.maxRam - serverInfo.ramUsed
         return (serverInfo.backdoorInstalled || serverInfo.purchasedByPlayer) && memFree > scriptMem
     })
-    if (candidateServers.length == 0) return false
+    if (candidateServers.length === 0) return false
     await ns.scp(script, candidateServers[0])
     const pid = ns.exec(script, candidateServers[0], 1, ...args)
     if (pid === 0) {

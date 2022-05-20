@@ -16,18 +16,18 @@ export async function main(ns: NS): Promise<void> {
             const contents = ns.read(file)
             const hash = getHash(contents)
 
-            if (hash != hashes[file]) {
+            if (hash !== hashes[file]) {
 
                 const ramUsage = ns.getScriptRam(file);
                 ns.tprintf(`INFO: Detected change in ${file}`)
                 ns.tprintf(`INFO: ${file} will use ${ramUsage}GB of ram`);
                 const processes = ns.ps().filter((p: ProcessInfo) => {
-                    return p.filename == file
+                    return p.filename === file
                 })
 
                 for (const process of processes) {
                     ns.tprintf(`INFO: Restarting ${process.filename} ${process.args} -t ${process.threads}`)
-                    if (process.filename != ns.getScriptName()) {
+                    if (process.filename !== ns.getScriptName()) {
                         ns.kill(process.pid)
                         ns.run(process.filename, process.threads, ...process.args)
                     } else {
@@ -35,7 +35,7 @@ export async function main(ns: NS): Promise<void> {
                     }
                 }
 
-                if (processes.length == 0 && file.match("/autorun/.*")){
+                if (processes.length === 0 && (/\/autorun\/.*/.exec(file))){
                     ns.tprintf(`INFO: triggering autorun script ${file}`)
                     ns.run(file,1);
                 }

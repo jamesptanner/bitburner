@@ -3,7 +3,7 @@ import { NodeStats, NS } from '@ns';
 export const simpleNodesPath = "/hacknet/simpleNodes.js";
 
 const nodeMaxedOut = function (node: PurchaseOption): boolean {
-    return node.coreCost == null && node.ramCost === null && node.levelCost=== null;
+    return node.coreCost === null && node.ramCost === null && node.levelCost=== null;
 }
 
 type PurchaseOption = {
@@ -19,7 +19,7 @@ export async function main(ns: NS): Promise<void> {
 }
 
 export async function runHacknet(ns: NS,otherCheck?:()=>boolean):Promise<void> {
-  if (ns.hacknet.numNodes() == 0) {
+  if (ns.hacknet.numNodes() === 0) {
     while (ns.getPlayer().money < ns.hacknet.getPurchaseNodeCost()) {
       await ns.sleep(60 * 1000);
     }
@@ -40,9 +40,9 @@ export async function runHacknet(ns: NS,otherCheck?:()=>boolean):Promise<void> {
 
     const bestOption = purchaseOptions.reduce((prev, curr) => {
       ns.print(`${JSON.stringify(prev)} :  ${JSON.stringify(curr)}`);
-      if (prev == null || nodeMaxedOut(prev)) {
+      if (prev === null || nodeMaxedOut(prev)) {
         return curr;
-      } else if (curr == null || nodeMaxedOut(curr)) {
+      } else if (curr === null || nodeMaxedOut(curr)) {
         return prev;
       } else {
         if (Math.min(prev.coreCost, prev.levelCost, prev.ramCost) < Math.min(curr.coreCost, curr.levelCost, curr.ramCost))

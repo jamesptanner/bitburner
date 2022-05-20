@@ -22,7 +22,7 @@ export function createDotGraph(ns: NS): string {
     });
     servers.forEach(host => {
         const hosts = ns.scan(host);
-        if (hosts.length != 0) {
+        if (hosts.length !== 0) {
             dotText = dotText + `${serverMap.get(host)} -> {${hosts.map(host => serverMap.get(host)).join()}}`;
         }
     });

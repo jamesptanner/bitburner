@@ -42,7 +42,7 @@ const infiltrate = function (ns:NS, host:string) {
 export async function main(ns: NS): Promise<void> {
     await initLogging(ns)
 
-    if (ns.args.length == 1) {
+    if (ns.args.length === 1) {
         const target = ns.args[0];
         logging.info(`infiltrating target: ${target}`)
         if (typeof target === 'string') {

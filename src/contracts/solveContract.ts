@@ -46,7 +46,7 @@ const processors = new Map<string, ContractFunction>([
 export async function main(ns: NS): Promise<void> {
     await initLogging(ns)
     const usage = `solveContract.ts USAGE: ${solveContractPath} <contract filename> <host>`;
-    if (ns.args.length != 2) {
+    if (ns.args.length !== 2) {
         logging.error(`Invalid number of arguments`)
         logging.info(usage)
         ns.exit()

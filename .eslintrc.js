@@ -7,7 +7,8 @@ module.exports = {
     },
     extends: [
         "eslint:recommended",
-        "plugin:@typescript-eslint/recommended"
+        "plugin:@typescript-eslint/recommended",
+       // 'plugin:@typescript-eslint/recommended-requiring-type-checking'
     ],
     parser: "@typescript-eslint/parser",
     parserOptions: {
@@ -23,6 +24,15 @@ module.exports = {
     ignorePatterns: ['*.d.ts', 'build/*', 'dist/**', 'docs/**'],
     rules: {
         'no-constant-condition': ['off'],
-        "@typescript-eslint/no-floating-promises": "error"
+        "@typescript-eslint/no-floating-promises": "error",
+        "block-scoped-var": "error",
+        "consistent-return":"error",
+        "dot-notation":"error",
+        "eqeqeq":"error",
+        "no-alert":"error",
+        "no-console":"error",
+        "no-debugger":"error",
+        "no-var":"error",
+
     },
 };

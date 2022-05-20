@@ -10,11 +10,11 @@ export function largestPrimeFactor(ns: NS, data: unknown): number | string[] | u
         let num: number = data
         let factor = 2
         do {
-            while (num % factor == 0) {
+            while (num % factor === 0) {
                 num = num / factor
             }
             factor++
-        } while (factor != num)
+        } while (factor !== num)
         logging.success(`largest factor = ${factor}`)
 
         return factor

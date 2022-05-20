@@ -54,7 +54,7 @@ export function UniquePath1(ns: NS, data: unknown): number | string[] | undefine
         for (let x = 0; x < maxX; x++) {
             map[x] = []
             for (let y = 0; y < maxY; y++) {
-                if (x == 0 || y == 0) {
+                if (x === 0 || y === 0) {
                     map[x][y] = 1
                 }
                 else {
@@ -91,19 +91,19 @@ export function UniquePath2(ns: NS, data: unknown): number | string[] | undefine
 
         for (let x = 0; x < maxX; x++) {
             for (let y = 0; y < maxY; y++) {
-                if (map[x][y] == 1) {
+                if (map[x][y] === 1) {
                     map[x][y] = 0
                 }
                 else {
-                    if (x == 0 && y == 0) {
+                    if (x === 0 && y === 0) {
                         map[x][y] = 1
                     }
-                    else if (x == 0 || y == 0) {
+                    else if (x === 0 || y === 0) {
                         if (x > 0) {
-                            map[x][y] = map[x - 1][y] == 0 ? 0 : 1
+                            map[x][y] = map[x - 1][y] === 0 ? 0 : 1
                         }
                         else if (y > 0) {
-                            map[x][y] = map[x][y - 1] == 0 ? 0 : 1
+                            map[x][y] = map[x][y - 1] === 0 ? 0 : 1
                         }
                     }
                     else {
@@ -145,7 +145,7 @@ export function ShortestPath(ns: NS, data: unknown): number | string[] | undefin
                 y : 0
             },
             minDist: 0,
-            obstacle: originalMap[0][0] ==1,
+            obstacle: originalMap[0][0] ===1,
             minDistDir: 'U'
         
             
@@ -168,7 +168,7 @@ export function ShortestPath(ns: NS, data: unknown): number | string[] | undefin
                         y: node.position.y - 1
                     },
                     minDist: 0,
-                    obstacle: originalMap[node.position.x][node.position.y - 1] ==1,
+                    obstacle: originalMap[node.position.x][node.position.y - 1] ===1,
                     minDistDir: 'U'
                     
                     
@@ -182,7 +182,7 @@ export function ShortestPath(ns: NS, data: unknown): number | string[] | undefin
                         y: node.position.y + 1
                     },
                     minDist: 0,
-                    obstacle: originalMap[node.position.x][node.position.y + 1] ==1,
+                    obstacle: originalMap[node.position.x][node.position.y + 1] ===1,
                     minDistDir: 'U'
                 
                     
@@ -196,7 +196,7 @@ export function ShortestPath(ns: NS, data: unknown): number | string[] | undefin
                         y: node.position.y 
                     },
                     minDist: 0,
-                    obstacle: originalMap[node.position.x-1][node.position.y] ==1,
+                    obstacle: originalMap[node.position.x-1][node.position.y] ===1,
                     minDistDir: 'U'
                 
                     
@@ -210,7 +210,7 @@ export function ShortestPath(ns: NS, data: unknown): number | string[] | undefin
                         y: node.position.y 
                     },
                     minDist: 0,
-                    obstacle: originalMap[node.position.x+1][node.position.y] ==1,
+                    obstacle: originalMap[node.position.x+1][node.position.y] ===1,
                     minDistDir: 'U'
                 
                     
@@ -229,8 +229,8 @@ export function ShortestPath(ns: NS, data: unknown): number | string[] | undefin
 
 export function colorGraph(ns: NS, data: unknown): number | string[] | undefined {
     if (Array.isArray(data) && typeof data[0] === 'number' && is2DArray<number>(data[1], (val: unknown): val is number => { return typeof val === 'number' })) {
-        const nodeCount = data[0] as number
-        const edges = (data[1] as number[][]).sort((a,b)=>{ return a[0] - b[0] })
+        const nodeCount = data[0] 
+        const edges = (data[1] ).sort((a,b)=>{ return a[0] - b[0] })
         const out = new Array(nodeCount)
         out.fill(-1,0)
         //start with vertex 0 
@@ -242,7 +242,7 @@ export function colorGraph(ns: NS, data: unknown): number | string[] | undefined
                 const matchingEdges = edges.filter(v =>{return v[0]=== index})
                 if(out[index]===-1){
                     //do we have a value for any of the opposite?
-                    const usableEdges = matchingEdges.filter(v=>{return v[1]!=-1})
+                    const usableEdges = matchingEdges.filter(v=>{return v[1]!==-1})
                     if(usableEdges.length>=1) 
                     { 
                         out[index] = out[usableEdges[0][1]] === 1 ? 0 : 1

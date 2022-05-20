@@ -7,7 +7,7 @@ export const purchasePath = "/servers/purchase.js";
 export async function main(ns: NS): Promise<void> {
     await initLogging(ns)
     const [name, level] = ns.args
-    if (typeof name == 'string' && typeof level == 'number') {
+    if (typeof name === 'string' && typeof level === 'number') {
         const size = 2 << level;
         const newHost = ns.purchaseServer(name, size)
         if (newHost === "") {

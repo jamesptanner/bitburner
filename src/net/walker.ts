@@ -10,7 +10,7 @@ export async function main(ns: NS): Promise<void> {
     const servers = getAllServers(ns)
     const ignoreHosts: string[] = JSON.parse(ns.read("ignoreHosts.txt") || "[]");
 
-    for (const server of servers.filter(x => ignoreHosts.indexOf(x) == -1)) {
+    for (const server of servers.filter(x => ignoreHosts.indexOf(x) === -1)) {
 
         const serverInfo = ns.getServer(server);
         if (!serverInfo.backdoorInstalled && !serverInfo.purchasedByPlayer) {
@@ -21,7 +21,7 @@ export async function main(ns: NS): Promise<void> {
 
                     if (!serverInfo.purchasedByPlayer) {
                         if(ns.exec(infiltratePath, "home", 1, server) ===0){
-                            if(toInfiltrate.length == 0) logging.warning(`not enough memory to auto infiltrate. Waiting till end.`)
+                            if(toInfiltrate.length === 0) logging.warning(`not enough memory to auto infiltrate. Waiting till end.`)
                             toInfiltrate.push(server);
 
                         }

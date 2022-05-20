@@ -15,9 +15,9 @@ const intersection = function <T>(a: T[], b: T[]): T[] {
 
 const chooseAFaction = function (ns: NS, skipFactions:string[]): string {
     const factionsToComplete = factions.filter(faction => {
-        return getUniqueAugmentsAvailableFromFaction(ns, faction).length != 0
+        return getUniqueAugmentsAvailableFromFaction(ns, faction).length !== 0
     })
-    if (factionsToComplete.length == 1) return factionsToComplete[0]
+    if (factionsToComplete.length === 1) return factionsToComplete[0]
     const factionInvites = ns.singularity.checkFactionInvitations()
     if (factionInvites.length > 0) {
         const readyNow = intersection(factionInvites, factionsToComplete)
@@ -160,8 +160,8 @@ async function buyExistingAugments(ns:NS,availableAugments:string[]){
         })
         .filter(a => a.length === 2)
         .sort((a,b)=>{
-            if(b == null) return 1
-            if(a == null) return -1
+            if(b === null) return 1
+            if(a === null) return -1
             return ns.singularity.getAugmentationPrice(a[0]) - ns.singularity.getAugmentationPrice(b[0])
         })
         .reverse()

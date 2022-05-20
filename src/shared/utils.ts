@@ -30,7 +30,7 @@ export async function walk(ns: NS, start: string, func: (host: string | undefine
     const hosts = ns.scan(start);
     while (hosts.length > 0) {
         const currentHost = hosts.pop();
-        if (alreadyScanned.indexOf(currentHost) != -1) {
+        if (alreadyScanned.indexOf(currentHost) !== -1) {
             continue;
         }
         hosts.push(...ns.scan(currentHost));
@@ -51,7 +51,7 @@ export async function cacheAllServers(ns:NS): Promise<string[]>{
     const hosts = ns.scan("home");
     while (hosts.length > 0) {
         const currentHost = hosts.pop();
-        if (alreadyScanned.indexOf(currentHost) != -1) {
+        if (alreadyScanned.indexOf(currentHost) !== -1) {
             continue;
         }
         const scanned = ns.scan(currentHost)

@@ -234,14 +234,14 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
 export const getAvailableFactions = function (ns: NS): string[] {
     const player = ns.getPlayer()
     return factions.filter(faction => {
-        return player.factions.indexOf(faction) != -1 ||
-            ns.singularity.checkFactionInvitations().indexOf(faction) != -1
+        return player.factions.indexOf(faction) !== -1 ||
+            ns.singularity.checkFactionInvitations().indexOf(faction) !== -1
     })
 }
 
 export const getAugmentsAvailableFromFaction = function (ns: NS, faction: string): string[] {
     return ns.singularity.getAugmentationsFromFaction(faction).filter(augment => {
-        return ns.singularity.getOwnedAugmentations(true).indexOf(augment) == -1
+        return ns.singularity.getOwnedAugmentations(true).indexOf(augment) === -1
     })
 }
 
@@ -369,7 +369,7 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
             await improveStat(ns, requirements.hacking)
 
         }
-        if (typeof requirements.corp == 'string' && typeof requirements.corpRep == 'number') {
+        if (typeof requirements.corp === 'string' && typeof requirements.corpRep === 'number') {
             logging.info(`improving reputation with  ${requirements.corp}`)
             await improveCorporateReputation(ns, requirements.corp, requirements.corpRep)
 

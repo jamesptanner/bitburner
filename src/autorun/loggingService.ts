@@ -154,7 +154,7 @@ async function trimRecords(ns: NS, loggingDB: IDBPDatabase<LoggingDB>): Promise<
     ns.print(`Deleting ${loggingRecords} from logging table`)
     if (loggingRecords > 0) {
         let cursor = await loggingIndex.openCursor(IDBKeyRange.upperBound(deleteTime, false))
-        while (cursor != null){
+        while (cursor !== null){
             await cursor.delete()
             cursor = await cursor.continue()
         }
@@ -167,7 +167,7 @@ async function trimRecords(ns: NS, loggingDB: IDBPDatabase<LoggingDB>): Promise<
     ns.print(`Deleting ${metricRecords} from metrics table`)
     if (metricRecords > 0) {
         let cursor = await metricIndex.openCursor(IDBKeyRange.upperBound(deleteTime, false))
-        while (cursor != null){
+        while (cursor !== null){
             await cursor.delete()
             cursor = await cursor.continue()
         }
@@ -210,7 +210,7 @@ async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSetti
             key: `logging.${table}.count`,
             value: lineCount,
         })])
-    if (lineCount == 0) {
+    if (lineCount === 0) {
         return new Promise<void>((res) => { res() })
     }
     const logLinesGetAll = await loggingDB.transaction(table, 'readonly').store.getAll(null, 3000);

@@ -38,7 +38,7 @@ export function GenerateIPAddresses(ns: NS, data: unknown): number | string[] | 
             continue;
           }
           logging.info(`addr: ${addrString}, leftover string: ${addressCopy}`);
-          if (addrString.length != expectedLength) {
+          if (addrString.length !== expectedLength) {
             logging.error("invalid addr, probably leading zeros.");
             continue;
           }
@@ -116,7 +116,7 @@ export function SanitizeParentheses(ns: NS, data: unknown): number | string[] | 
     answers.push(parentheses);
   }
   let n = 0;
-  while (answers.length == 0) {
+  while (answers.length === 0) {
     // logging.info(`at depth ${n}`);
     if (n === parentheses.length) {
       answers.push("");
@@ -162,7 +162,7 @@ export function FindValidMathExpressions(ns: NS, data: unknown): number | string
       return;
     }
     for (let i = pos; i < num.length; ++i) {
-      if (i != pos && num[pos] == "0") {
+      if (i !== pos && num[pos] === "0") {
         break;
       }
       const cur = parseInt(num.substring(pos, i + 1));
@@ -180,7 +180,7 @@ export function FindValidMathExpressions(ns: NS, data: unknown): number | string
     const num = asString(data[0]);
     const target = asNumber(data[1]);
 
-    if (num == null || num.length === 0) {
+    if (num === null || num.length === 0) {
       return [];
     }
     const result: string[] = [];
