@@ -272,11 +272,434 @@ const waitToBackdoor = async function (ns: NS, server: string) {
     }
 }
 
+type JobRequirements = {
+    name: string,
+    next: string,
+    hac: number,
+    str: number,
+    def: number,
+    dex: number,
+    agi: number,
+    cha: number,
+    rep: number,
+}
+const jobRoles: JobRequirements[] = [
+    {
+        name: "Software Enginering Intern",
+        next: "Junior Software Engineer",
+
+        hac: 1,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+        cha: 0,
+        rep: 0,
+    },
+    {
+        name: "Junior Software Engineer",
+        next: "Senior Software Engineer",
+
+        hac: 50,
+        rep: 8e3,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+        cha: 0,
+
+    },
+    {
+        name: "Senior Software Engineer",
+        next: "Lead Software Developer",
+
+        cha: 50,
+        hac: 250,
+        rep: 40e3,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+
+    },
+    {
+        name: "Lead Software Developer",
+        next: "Head of Software",
+
+        cha: 150,
+        hac: 400,
+        rep: 200e3,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+    },
+    {
+        name: "Head of Software",
+        next: "Head of Engineering",
+
+        cha: 250,
+        hac: 500,
+        rep: 400e3,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+    },
+    {
+        name: "Head of Engineering",
+        next: "Vice President of Technology",
+
+        cha: 250,
+        hac: 500,
+        rep: 800e3,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+    },
+    {
+        name: "Vice President of Technology",
+        next: "Chief Technology Officer",
+
+        cha: 400,
+        hac: 600,
+        rep: 1.6e6,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+    },
+    {
+        name: "Chief Technology Officer",
+        next: "",
+
+        cha: 500,
+        hac: 750,
+        rep: 3.2e6,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+    },
+    {
+        name: "IT Intern",
+        next: "IT Analyst",
+ 
+        hac: 1,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+        rep: 0,
+        cha:0
+
+    },
+    {
+        name: "IT Analyst",
+        next: "IT Manager",
+
+        hac: 25,
+        rep: 7e3,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+        cha:0
+    },
+    {
+        name: "IT Manager",
+        next: "Systems Administrator",
+
+        cha: 50,
+        hac: 150,
+        rep: 35e3,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+    },
+    {
+        name: "Systems Administrator",
+        next: "Head of Engineering",
+
+        cha: 75,
+        hac: 250,
+        rep: 175e3,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+    },
+    {
+        name: "Security Engineer",
+        next: "Head of Engineering",
+
+        cha: 25,
+        hac: 150,
+        rep: 35e3,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+    },
+    {
+        name: "Network Engineer",
+        next: "Network Adminsitrator",
+
+        cha: 25,
+        hac: 150,
+        rep: 35e3,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+    },
+    {
+        name: "Network Administrator",
+        next: "Head of Engineering", 
+
+        cha: 75,
+        hac: 250,
+        rep: 175e3,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+    },
+    {
+        name: "Business Intern",
+        next: "Business Analyst",
+
+        cha: 1,
+        hac: 1,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+        rep:0
+    },
+    {
+        name: "Business Analyst",
+        next: "Business Manager",
+
+        cha: 50,
+        hac: 6,
+        rep: 8e3,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+    },
+    {
+        name: "Business Manager",
+        next: "Operations Manager",
+
+        cha: 100,
+        hac: 50,
+        rep: 40e3,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+    },
+    {
+        name: "Operations Manager",
+        next: "Chief Financial Officer",
+
+        cha: 225,
+        hac: 50,
+        rep: 200e3,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+    },
+    {
+        name: "Chief Financial Officer",
+        next: "Chief Executive Officer",
+
+        cha: 500,
+        hac: 75,
+        rep: 800e3,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+    },
+    {
+        name: "Chief Executive Officer",
+        next: "",
+
+        cha: 750,
+        hac: 100,
+        rep: 3.2e6,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+    },
+    {
+        name: "Police Officer",
+        next: "Police Chief",
+
+        hac: 10,
+        str: 100,
+        def: 100,
+        dex: 100,
+        agi: 100,
+        cha: 50,
+        rep: 8e3,
+    },
+    {
+        name: "Police Chief",
+        next: "",
+
+        hac: 100,
+        str: 300,
+        def: 300,
+        dex: 300,
+        agi: 300,
+        cha: 150,
+        rep: 36e3,
+    },
+    {
+        name: "Security Guard",
+        next: "Security Officer",
+
+        str: 50,
+        def: 50,
+        dex: 50,
+        agi: 50,
+        cha: 1,
+        hac: 0,
+        rep: 0
+    },
+    {
+        name: "Security Officer",
+        next: "Security Supervisor",
+
+        hac: 25,
+        str: 150,
+        def: 150,
+        dex: 150,
+        agi: 150,
+        cha: 50,
+        rep: 8e3,
+    },
+    {
+        name: "Security Supervisor",
+        next: "Head of Security",
+
+        hac: 25,
+        str: 250,
+        def: 250,
+        dex: 250,
+        agi: 250,
+        cha: 100,
+        rep: 36e3,
+    },
+    {
+        name: "Head of Security",
+        next: "",
+
+        hac: 50,
+        str: 500,
+        def: 500,
+        dex: 500,
+        agi: 500,
+        cha: 150,
+        rep: 144e3,
+    },
+    {
+        name: "Field Agent",
+        next: "Secret Agent",
+
+        hac: 100,
+        str: 100,
+        def: 100,
+        dex: 100,
+        agi: 100,
+        cha: 100,
+        rep: 8e3,
+    },
+    {
+        name: "Secret Agent",
+        next: "Special Operative",
+
+        hac: 200,
+        str: 250,
+        def: 250,
+        dex: 250,
+        agi: 250,
+        cha: 200,
+        rep: 32e3,
+    },
+    {
+        name: "Special Operative",
+        next: "",
+
+        hac: 250,
+        str: 500,
+        def: 500,
+        dex: 500,
+        agi: 500,
+        cha: 250,
+        rep: 162e3,
+    },
+
+    {
+        name: "Software Consultant",
+        next: "Senior Software Consultant",
+
+        hac: 50,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+        cha: 0,
+        rep: 0
+    },
+    {
+        name: "Senior Software Consultant",
+        next: "",
+
+        hac: 250,
+        cha: 50,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+        rep:0
+    },
+    {
+        name: "Business Consultant",
+        next: "Senior Business Consultant",
+
+        hac: 6,
+        cha: 50,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+        rep:0
+    },
+    {
+        name: "Senior Business Consultant",
+        next: "",
+
+        hac: 50,
+        cha: 225,
+        str: 0,
+        def: 0,
+        dex: 0,
+        agi: 0,
+        rep:0
+    },
+];
+
 const repForNextRole = function (ns: NS, corpName: string): number {
-    const jobs = ns.getPlayer().jobs as [key: string]
-    // typedef is incorrect for deprecated charInfo.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore 
+    const jobs = ns.getPlayer().jobs as { [key: string]: string }
     switch (jobs[corpName]) {
         case "IT Intern":
             return 7e3
@@ -324,7 +747,7 @@ const improveCorporateReputation = async function (ns: NS, corpName: string, rep
             }
             const repNeeded = ((reputation - currentRep) * 2) - ns.getPlayer().workRepGained
 
-            logging.info(`RepNeeded: ${ns.nFormat(repNeeded,"(0.000)")}, repGain: ${ns.nFormat(ns.getPlayer().workRepGainRate * 5,"(0.000)")}`)
+            logging.info(`RepNeeded: ${ns.nFormat(repNeeded, "(0.000)")}, repGain: ${ns.nFormat(ns.getPlayer().workRepGainRate * 5, "(0.000)")}`)
             logging.info(`estimated time remaining: ${ns.tFormat(repNeeded * 1000 / (ns.getPlayer().workRepGainRate * 5))}`)
 
         }
@@ -355,7 +778,7 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
             ns.singularity.travelToCity(requirements.location)
         }
         if (requirements.cash && ns.getPlayer().money < requirements.cash) {
-            logging.info(`waiting for ${ns.nFormat(requirements.cash,"$(0.000a)")}`)
+            logging.info(`waiting for ${ns.nFormat(requirements.cash, "$(0.000a)")}`)
             await ns.sleep(1000 * 60)
         }
         if (requirements.combatSkill) {
@@ -396,7 +819,7 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
 export const improveFactionReputation = async function (ns: NS, faction: string, reputation: number): Promise<void> {
     while (reputation > ns.singularity.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0)) {
         ns.tail()
-        logging.info(`current faction relationship ${faction} is ${ns.nFormat(ns.singularity.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0), "0,0.000a")}, want ${ns.nFormat(reputation,"0,0.000a")}.`)
+        logging.info(`current faction relationship ${faction} is ${ns.nFormat(ns.singularity.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0), "0,0.000a")}, want ${ns.nFormat(reputation, "0,0.000a")}.`)
         logging.info(`Time Remaining: ${(ns.getPlayer().currentWorkFactionName === faction ? ns.tFormat(((reputation - (ns.singularity.getFactionRep(faction) + ns.getPlayer().workRepGained)) / (ns.getPlayer().workRepGainRate * 5)) * 1000, false) : "unknown")}`)
         if (!ns.singularity.isBusy()) {
             logging.info(`improving relationship with ${faction}`)

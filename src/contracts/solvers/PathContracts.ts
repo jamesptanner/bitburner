@@ -127,7 +127,7 @@ export function ShortestPath(ns: NS, data: unknown): number | string[] | undefin
             y: number
         }
         minDist: number
-        minDistDir: 'N'|'S'|'E'|'W'|'1'|'U'
+        // minDistDir: 'N'|'S'|'E'|'W'|'1'|'U'
         obstacle:boolean
     }
 
@@ -146,9 +146,6 @@ export function ShortestPath(ns: NS, data: unknown): number | string[] | undefin
             },
             minDist: 0,
             obstacle: originalMap[0][0] ===1,
-            minDistDir: 'U'
-        
-            
         }
         nodes.push(firstNode)
 
@@ -167,12 +164,11 @@ export function ShortestPath(ns: NS, data: unknown): number | string[] | undefin
                         x: node.position.x,
                         y: node.position.y - 1
                     },
-                    minDist: 0,
+                    minDist: node.minDist+1,
                     obstacle: originalMap[node.position.x][node.position.y - 1] ===1,
-                    minDistDir: 'U'
-                    
                     
                 }
+                nodes.push(north)
             }
 
             if(south===undefined && node.position.y + 1 <= maxY){
@@ -181,12 +177,11 @@ export function ShortestPath(ns: NS, data: unknown): number | string[] | undefin
                         x: node.position.x,
                         y: node.position.y + 1
                     },
-                    minDist: 0,
+                    minDist: node.minDist+1,
                     obstacle: originalMap[node.position.x][node.position.y + 1] ===1,
-                    minDistDir: 'U'
-                
                     
                 }
+                nodes.push(south)
             }
 
             if(west === undefined && node.position.x - 1 >=0){
@@ -195,12 +190,11 @@ export function ShortestPath(ns: NS, data: unknown): number | string[] | undefin
                         x: node.position.x-1,
                         y: node.position.y 
                     },
-                    minDist: 0,
+                    minDist: node.minDist+1,
                     obstacle: originalMap[node.position.x-1][node.position.y] ===1,
-                    minDistDir: 'U'
-                
                     
                 }
+                nodes.push(west)
             }
             
             if(east === undefined && node.position.x + 1 >=maxX){
@@ -209,12 +203,11 @@ export function ShortestPath(ns: NS, data: unknown): number | string[] | undefin
                         x: node.position.x+1,
                         y: node.position.y 
                     },
-                    minDist: 0,
+                    minDist: node.minDist+1,
                     obstacle: originalMap[node.position.x+1][node.position.y] ===1,
-                    minDistDir: 'U'
-                
                     
                 }
+                nodes.push(east)
             }
         }
 

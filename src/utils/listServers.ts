@@ -12,8 +12,8 @@ export async function main(ns : NS) : Promise<void> {
     })
     .sort((a,b)=>{ return (a[1] as number) - (b[1] as number)})
     .reverse()
-    .map<string[]>(v =>{return [v[0], `${v[1]}`]})
+    .map<string[]>(v =>{return [v[0] as string, `${v[1]}`]})
     ns.tail()
     ns.clearLog()
-    logging.info(makeTable(ns,["server","level"],serverInfo))
+    logging.info(makeTable(ns,["server","level"],serverInfo)) 
 }
