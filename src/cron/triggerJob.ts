@@ -6,7 +6,7 @@ export const triggerJobPath ="/cron/triggerJob.js";
 
 export async function main(ns : NS) : Promise<void> {
     await initLogging(ns)
-    const args = ns.args
+    const args = Array.from(ns.args)
     let tmp = args.shift()
     if(!tmp){
          logging.error(`no interval provided`)

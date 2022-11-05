@@ -21,7 +21,7 @@ export async function main(ns : NS) : Promise<void> {
 
     while(ns.getPlayer().money < ns.getPurchasedServerCost(serverMem)){await ns.sleep(100)}
 
-    const newHost = ns.purchaseServer(opts.host, serverMem)
+    const newHost = ns.purchaseServer(opts.host as string, serverMem)
     if (newHost === "") {
         logging.error("Failed to purchase server", true)
         ns.exit()

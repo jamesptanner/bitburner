@@ -42,7 +42,7 @@ export async function walk(ns: NS, start: string, func: (host: string | undefine
 }
 
 export function getAllServers(ns:NS): string[]{
-     return JSON.parse(ns.read("hosts.txt"))
+     return JSON.parse(ns.read("hosts.txt") as string)
 }
 
 export async function cacheAllServers(ns:NS): Promise<string[]>{
@@ -82,7 +82,7 @@ export const findBestTarget = function(ns:NS): string{
 }
 
 export const canUseSingularity = function(ns:NS):boolean {
-    return (ns.getOwnedSourceFiles().filter(x => { return x.n === 4 }).length !== 0)
+    return (ns.singularity.getOwnedSourceFiles().filter(x => { return x.n === 4 }).length !== 0)
 }
 
 export interface ServerInfo {
@@ -92,9 +92,9 @@ export interface ServerInfo {
 }
 
 export const getConstServerInfo = function(ns:NS, host:string): ServerInfo | undefined{
-    const servers = new Map<string,ServerInfo>(JSON.parse(ns.read("servers.txt")))
+    const servers = new Map<string,ServerInfo>(JSON.parse(ns.read("servers.txt") as string))
     return servers.get(host)
-}
+} 
 
 export const routeToHost = function(ns: NS, start: string, end:string): string[] {
     const graph = new Graph()

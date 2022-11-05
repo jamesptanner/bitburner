@@ -6,7 +6,7 @@ export const processBackdoorsPath = "/cron/processBackdoors.js";
 
 export async function main(ns: NS): Promise<void> {
     await initLogging(ns)
-    const hosts: Array<string> = JSON.parse(ns.read("toBackdoor.txt"))
+    const hosts: Array<string> = JSON.parse(ns.read("toBackdoor.txt")  as string)
     if (hosts.length > 0) {
         logging.info(`need to backdoor : ${hosts.join()}`)
         for (const host of hosts) {

@@ -50,7 +50,7 @@ export async function main(ns: NS): Promise<void> {
         }
     }
     else {
-        const targets: Array<string> = JSON.parse(ns.read("toInfiltrate.txt"))
+        const targets: Array<string> = JSON.parse(ns.read("toInfiltrate.txt") as string)
         targets.forEach(target => {
             logging.info(`infiltrating target: ${target}`)
             infiltrate(ns,target)

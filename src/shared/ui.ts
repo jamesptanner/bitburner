@@ -1,4 +1,4 @@
-import { NS } from "/../NetscriptDefinitions"
+import { NS } from "@ns"
 
 export const makeTable = function(ns:NS, headers: string[], data: string[][],padding = 1): string {
     const getLineLength = function(minColWidths: number[],padding:number):number{

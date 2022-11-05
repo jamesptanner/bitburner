@@ -1,0 +1,272 @@
+New update!
+Please report any bugs/issues through the GitHub repository or the Bitburner subreddit (reddit.com/r/bitburner).
+
+
+v2.0.0 - 2022-07-19 Work rework
+-------------------------------
+
+API break rewards
+
+* Everyone is awarded 10 NFG.
+* All work in progress program is auto completed.
+* All work in progress crafting is auto completed without adding entropy.
+
+Work (Create program / Work for faction / Studying / etc ...)
+
+* Working has been rebuilt from the grounds up. The motivation for that change is that all
+different types of work all required different cached variables on the main Player object.
+This caused a lot of bugs and crashes. It's been reworked in such a way as to prevent bugs
+and make it nearly trivial to add new kinds of work. However, since this caused a few API break
+I've decided to mark this version following semver protocols and call it 2.0.0
+* Crime can be unfocused and auto loops, no more spam clicking.
+* All work type give their reward immediately. No need to stop work to bank rewards like reputation.
+* Faction and Company work no longer have a time limit.
+* Company work no longer reduces rep gain by half for quitting early.
+* Company faction require 400k rep to join (from 200k)
+* Backdooring company server reduces faction requirement to 300k.
+* All work generally no longer keep track of cumulative gains like exp and reputation since it's applied instantly.
+* getPlayer returns way less fields but does return the new 'currentWork' field, some fields are moved around.
+
+API breaks
+
+* workForCompany argument 'companyName' is now not-optional
+* commitCrime now has 'focus' optional parameter
+* using getScriptIncome to get total income has been separated to getTotalScriptIncome.
+* using getScriptExpGain to get total income has been separated to getTotalScriptExpGain.
+* scp has it's 2 last argument reversed, the signature is now (files, destination, optional_source)
+* ns.connect and other singularity function are no longer available at the top level.
+They were already hidden from documentation but now they're gone.
+* stock.buy and stock.sell were renamed to stock.buyStock and stock.sellStock because 'buy' and 'sell'
+are very common tokens.
+* corporation.bribe no longer allows to give shares as bribe.
+* hasWseAccount, hasTixApiAccess, has4SData, has4SDataTixApi have been removed and replaced with similar stock functions.
+
+Netscript
+
+* Add singularity.getCurrentWork
+* Add singularity.getAugmentationBasePrice
+* Add sleeve.getSleeveAugmentationPrice
+* Add sleeve.getSleeveAugmentationRepReq
+* Fix infiltration.getInfiltrationLocations
+* Singularity.goToLocation support for non-city-specific locations (@Ansopedian)
+* All corporation functions are synchronous. Job assignment only works on the following cycle. (@stalefishies)
+* Add batch functionality to NS spendHashes API (@undeemiss)
+* Fix #3661 Add missing memory property to Sleeve API (@borisflagell)
+* FIX#3732 Cannot assign two sleeve on "Take on contracts" regardless of contract type. (@borisflagell)
+
+Corporation
+
+* Dividend fixes and exposing dividends info via scripts (@stalefishies)
+* Add big number format support in some Corporation's modal (@borisflagell)
+* Fix #3261 Industry overview number formatting (@nickofolas)
+
+Multipliers
+
+* The main player object was also plagues with a million fields all called '*_mult'. Representing the different multipliers
+* These have been refactored in a field called 'mults'.
+
+Misc.
+
+* #3596 Enhanced terminal command parsing (@RevanProdigalKnight)
+* Fix #3366 Sleeve UI would sometimes displays the wrong stat while working out. (@borisflagell)
+* Two new encryption themed contracts - caesar and vigenere (@Markus-D-M)
+* Fixes #3132 several Sleeve can no longer works concurrently in the same company (@borisflagell)
+* FIX #3514 Clear recently killed tab on BN end event (@Daniel-Barbera)
+* HammingCodes description and implementation fixes (@s2ks)
+* FIX #3794 Sleeve were getting less shocked when hospitalized (was positive, should have detrimental) (@borisflagell)
+* Fix #3803 Servers can no longer have duplicate IPs (@crimsonhawk47)
+* Fix #3854 ctrl+c does not clear terminal input (@evil-tim)
+* Nerf noodle bar, obviously.
+
+
+-------------------------------------------------------------------------------------
+
+V2_0_0_API_BREAK.txt
+
+This file contains the list of potential API break. A pattern was used to look through all your files and note the spots where you might have a problem. Not everything here is broken.
+
+
+
+
+/workRepGainRate/g
+The work system is completely reworked and ns.getPlayer().workRepGainRate no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+/utils/UnlockCompanies.js
+Line 659 // logging.info(`RepNeeded: ${ns.nFormat(repNeeded, "(0.000)")}, repGain: ${ns.nFormat(ns.getPlayer().workRepGainRate * 5, "(0.000)")}`)
+Line 660 // logging.info(`estimated time remaining: ${ns.tFormat(repNeeded * 1000 / (ns.getPlayer().workRepGainRate * 5))}`)
+/augments/augments.js
+Line 675 // logging.info(`RepNeeded: ${ns.nFormat(repNeeded, "(0.000)")}, repGain: ${ns.nFormat(ns.getPlayer().workRepGainRate * 5, "(0.000)")}`)
+Line 676 // logging.info(`estimated time remaining: ${ns.tFormat(repNeeded * 1000 / (ns.getPlayer().workRepGainRate * 5))}`)
+Line 740 // logging.info(`Time Remaining: ${(ns.getPlayer().currentWorkFactionName === faction ? ns.tFormat(((reputation - (ns.singularity.getFactionRep(faction) + ns.getPlayer().workRepGained)) / (ns.getPlayer().workRepGainRate * 5)) * 1000, false) : "unknown")}`)
+/utils/improveFactionReleations.js
+Line 406 // logging.info(`Time Remaining: ${(ns.getPlayer().currentWorkFactionName === faction ? ns.tFormat(((reputation - (ns.singularity.getFactionRep(faction) + ns.getPlayer().workRepGained)) / (ns.getPlayer().workRepGainRate * 5)) * 1000, false) : "unknown")}`)
+
+
+/hacking/g
+The work system is completely reworked and ns.getPlayer().hacking no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+/autorun/reporting.js
+Line 399 sendMetric("player.multiplier.hacking.chance", constPlayer.hacking_chance);
+Line 400 sendMetric("player.multiplier.hacking.speed", constPlayer.hacking_speed);
+Line 401 sendMetric("player.multiplier.hacking.money", constPlayer.hacking_money);
+Line 402 sendMetric("player.multiplier.hacking.growth", constPlayer.hacking_grow);
+Line 403 sendMetric("player.multiplier.stat.hacking.level", constPlayer.hacking);
+Line 404 sendMetric("player.multiplier.stat.hacking.exp", constPlayer.hacking_exp);
+Line 429 sendMetric("player.stats.level.hack", player.skills.hacking);
+Line 465 if (ServerInfo.openPortCount >= ServerInfo.numOpenPortsRequired && ServerInfo.requiredHackingSkill <= ns.getPlayer().skills.hacking)
+/batching/estimateMem.js
+Line 427 const hackingDaemonPath = "/batching/hackingDaemon.js";
+Line 477 export { hackingDaemonPath, main };
+/batching/hackingDaemon.js
+Line 414 const hackingDaemonPath = "/batching/hackingDaemon.js";
+Line 475 // //check we are hacking the right target
+Line 480 ns.spawn(hackingDaemonPath);
+Line 496 logging.info(`waiting for current hacking threads to finish.`);
+Line 555 ns.spawn(hackingDaemonPath, 1);
+Line 582 export { hackingDaemonPath, main };
+/cron/createScripts.js
+Line 409 if (!ns.fileExists(script) && player.skills.hacking >= cost) {
+/extern/netgraph.js
+Line 18 dotText = dotText + `nd_${servers.indexOf(host)} [label = "${host}\\n${serverInfo.requiredHackingSkill}" color=${serverInfo.backdoorInstalled || serverInfo.purchasedByPlayer ? "green" : (serverInfo.openPortCount >= serverInfo.numOpenPortsRequired && serverInfo.requiredHackingSkill <= ns.getPlayer().skills.hacking ? "yellow" : "red")}]`;
+/hosts/hackHost.js
+Line 418 logging.info(`hacking target: ${target}`);
+/net/walker.js
+Line 631 else if (serverInfo.requiredHackingSkill <= ns.getPlayer().skills.hacking) {
+/ui/MapWindow.js
+Line 12 dotText = dotText + `nd_${servers.indexOf(host)} [label = "${host}\\n${serverInfo.requiredHackingSkill}" color=${serverInfo.backdoorInstalled || serverInfo.purchasedByPlayer ? "green" : (serverInfo.openPortCount >= serverInfo.numOpenPortsRequired && serverInfo.requiredHackingSkill <= ns.getPlayer().skills.hacking ? "yellow" : "red")}]`;
+/utils/ImproveStats.js
+Line 390 const improveStat = async function (ns, hacking = 0, combat = 0, charisma = 0) {
+Line 406 else if (player.skills.hacking < hacking)
+Line 407 skill = 'hacking';
+Line 425 else if (skill === 'hacking') {
+Line 437 const args = ns.flags([["combat", 0], ["charisma", 0], ["hacking", 0], ["all", 0]]);
+Line 438 const hacking = args.hacking;
+Line 442 await improveStat(ns, Math.max(all, hacking), Math.max(all, combat), Math.max(all, charisma));
+/utils/UnlockCompanies.js
+Line 431 hacking: 50,
+Line 435 hacking: 80,
+Line 436 hackinglevel: 100,
+Line 437 hackingRAM: 8,
+Line 438 hackingCPU: 4
+Line 573 hacking: 850,
+Line 579 hacking: 2500,
+Line 584 hacking: 1500,
+Line 599 logging.info(`improving hacking skills at uni`);
+Line 600 //improve hacking skill
+Line 695 if (requirements.hacking) {
+Line 696 logging.info(`improving hacking to ${requirements.hacking}`);
+Line 697 await improveStat(ns, requirements.hacking);
+Line 703 if (requirements.hackingLevels || requirements.hackingRAM || requirements.hackingCPU) {
+Line 704 // await hacknetBuyAtLeast(ns,requirements.hackingLevels, requirements.hackingRAM, requirements.hackingCPU)
+Line 719 const improveStat = async function (ns, hacking = 0, combat = 0, charisma = 0) {
+Line 735 else if (player.skills.hacking < hacking)
+Line 736 skill = 'hacking';
+Line 754 else if (skill === 'hacking') {
+/augments/augments.js
+Line 437 hacking: 50,
+Line 441 hacking: 80,
+Line 442 hackinglevel: 100,
+Line 443 hackingRAM: 8,
+Line 444 hackingCPU: 4
+Line 579 hacking: 850,
+Line 585 hacking: 2500,
+Line 590 hacking: 1500,
+Line 615 logging.info(`improving hacking skills at uni`);
+Line 616 //improve hacking skill
+Line 711 if (requirements.hacking) {
+Line 712 logging.info(`improving hacking to ${requirements.hacking}`);
+Line 713 await improveStat(ns, requirements.hacking);
+Line 719 if (requirements.hackingLevels || requirements.hackingRAM || requirements.hackingCPU) {
+Line 720 // await hacknetBuyAtLeast(ns,requirements.hackingLevels, requirements.hackingRAM, requirements.hackingCPU)
+Line 743 ns.singularity.workForFaction(faction, "hacking", true);
+Line 754 const improveStat = async function (ns, hacking = 0, combat = 0, charisma = 0) {
+Line 770 else if (player.skills.hacking < hacking)
+Line 771 skill = 'hacking';
+Line 789 else if (skill === 'hacking') {
+/augments/dumpAllAugments.js
+Line 473 const flags = ns.flags([['player', false], ['hacking', false], ['faction', false], ['hacknet', false], ['bladeburner', false], ['all', false]]);
+Line 481 const player = [NToS(augmentInfo.hacking), NToS(augmentInfo.strength), NToS(augmentInfo.defense), NToS(augmentInfo.dexterity), NToS(augmentInfo.agility), NToS(augmentInfo.charisma),
+Line 482 NToS(augmentInfo.hacking_exp), NToS(augmentInfo.strength_exp), NToS(augmentInfo.defense_exp), NToS(augmentInfo.dexterity_exp), NToS(augmentInfo.agility_exp), NToS(augmentInfo.charisma_exp)];
+Line 483 const hacking = [NToS(augmentInfo.hacking_chance), NToS(augmentInfo.hacking_speed), NToS(augmentInfo.hacking_money), NToS(augmentInfo.hacking_grow)];
+Line 487 return [player, hacking, faction, hacknet, bladeburner];
+Line 492 const hackingHeaders = ['hack chance', 'hack speed', 'hack money', 'hack growth'];
+Line 497 const hackingInfo = augmentData.map(ad => { return ad[1]; });
+Line 507 if (flags.hacking || flags.all) {
+Line 508 tableHeaders.push(...hackingHeaders);
+Line 509 tableData.forEach((v, i) => { v.push(...hackingInfo[i]); });
+Line 523 const filteredData = (flags.all || flags.player || flags.hacking || flags.faction || flags.hacknet || flags.bladeburner) ? tableData.filter(val => {
+/utils/improveFactionReleations.js
+Line 409 ns.singularity.workForFaction(faction, "hacking", true);
+
+
+/strength/g
+The work system is completely reworked and ns.getPlayer().strength no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+/autorun/reporting.js
+Line 405 sendMetric("player.multiplier.stat.strength.level", constPlayer.strength);
+Line 406 sendMetric("player.multiplier.stat.strength.exp", constPlayer.strength_exp);
+Line 430 sendMetric("player.stats.level.strength", player.skills.strength);
+/utils/ImproveStats.js
+Line 398 else if (player.skills.strength < combat)
+Line 399 skill = 'strength';
+Line 417 if (['agility', 'strength', 'defense', 'dexterity'].indexOf(skill) !== -1) {
+/utils/UnlockCompanies.js
+Line 727 else if (player.skills.strength < combat)
+Line 728 skill = 'strength';
+Line 746 if (['agility', 'strength', 'defense', 'dexterity'].indexOf(skill) !== -1) {
+/augments/augments.js
+Line 762 else if (player.skills.strength < combat)
+Line 763 skill = 'strength';
+Line 781 if (['agility', 'strength', 'defense', 'dexterity'].indexOf(skill) !== -1) {
+/augments/dumpAllAugments.js
+Line 481 const player = [NToS(augmentInfo.hacking), NToS(augmentInfo.strength), NToS(augmentInfo.defense), NToS(augmentInfo.dexterity), NToS(augmentInfo.agility), NToS(augmentInfo.charisma),
+Line 482 NToS(augmentInfo.hacking_exp), NToS(augmentInfo.strength_exp), NToS(augmentInfo.defense_exp), NToS(augmentInfo.dexterity_exp), NToS(augmentInfo.agility_exp), NToS(augmentInfo.charisma_exp)];
+
+
+/defense/g
+The work system is completely reworked and ns.getPlayer().defense no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+/autorun/reporting.js
+Line 407 sendMetric("player.multiplier.stat.defense.level", constPlayer.defense);
+Line 408 sendMetric("player.multiplier.stat.defense.exp", constPlayer.defense_exp);
+Line 431 sendMetric("player.stats.level.defense", player.skills.defense);
+/utils/ImproveStats.js
+Line 400 else if (player.skills.defense < combat)
+Line 401 skill = 'defense';
+Line 417 if (['agility', 'strength', 'defense', 'dexterity'].indexOf(skill) !== -1) {
+/utils/UnlockCompanies.js
+Line 729 else if (player.skills.defense < combat)
+Line 730 skill = 'defense';
+Line 746 if (['agility', 'strength', 'defense', 'dexterity'].indexOf(skill) !== -1) {
+/augments/augments.js
+Line 764 else if (player.skills.defense < combat)
+Line 765 skill = 'defense';
+Line 781 if (['agility', 'strength', 'defense', 'dexterity'].indexOf(skill) !== -1) {
+/augments/dumpAllAugments.js
+Line 481 const player = [NToS(augmentInfo.hacking), NToS(augmentInfo.strength), NToS(augmentInfo.defense), NToS(augmentInfo.dexterity), NToS(augmentInfo.agility), NToS(augmentInfo.charisma),
+Line 482 NToS(augmentInfo.hacking_exp), NToS(augmentInfo.strength_exp), NToS(augmentInfo.defense_exp), NToS(augmentInfo.dexterity_exp), NToS(augmentInfo.agility_exp), NToS(augmentInfo.charisma_exp)];
+
+
+/dexterity/g
+The work system is completely reworked and ns.getPlayer().dexterity no longer exists. This data is likely available inside ns.getPlayer().currentWork, skills, exp, or hp
+
+/autorun/reporting.js
+Line 409 sendMetric("player.multiplier.stat.dexterity.level", constPlayer.dexterity);
+Line 410 sendMetric("player.multiplier.stat.dexterity.exp", constPlayer.dexterity_exp);
+Line 432 sendMetric("player.stats.level.dexterity", player.skills.dexterity);
+/utils/ImproveStats.js
+Line 402 else if (player.skills.dexterity < combat)
+Line 403 skill = 'dexterity';
+Line 417 if (['agility', 'strength', 'defense', 'dexterity'].indexOf(skill) !== -1) {
+/utils/UnlockCompanies.js
+Line 731 else if (player.skills.dexterity < combat)
+Line 732 skill = 'dexterity';
+Line 746 if (['agility', 'strength', 'defense', 'dexterity'].indexOf(skill) !== -1) {
+/augments/augments.js
+Line 766 else if (player.skills.dexterity < combat)
+Line 767 skill = 'dexterity';
+Line 781 if (['agility', 'strength', 'defense', 'dexterity'].indexOf(skill) !== -1) {
+/augments/dumpAllAugments.js
+Line 481 const player = [NToS(augmentInfo.hacking), NToS(augmentInfo.strength), NToS(augmentInfo.defense), NToS(augmentInfo.dexterity), NToS(augmentInfo.agility), NToS(augmentInfo.charisma),
+Line 482 NToS(augmentInfo.hacking_exp), NToS(augmentInfo.strength_exp), NToS(augmentInfo.defense_exp), NToS(augmentInfo.dexterity_exp), NToS(augmentInfo.agility_exp), NToS(augmentInfo.charisma_exp)];
+

@@ -92,19 +92,21 @@ export function SanitizeParentheses(ns: NS, data: unknown): number | string[] | 
       }
     }
     if (opens === 0) {
-      logging.info(`👍 ${parens}`);
+      // logging.info(`👍 ${parens}`);
     }
     return opens === 0;
   }
 
   function removeChar(str: string, depth: number, ans: string[]) {
+    let bestSoFar = -Infinity;
     for (let index = 0, strcpy = str; index < str.length; index++, strcpy = str) {
       strcpy = strcpy.substring(0, index) + strcpy.substring(index + 1);
       if (depth === 0) {
         if (isValid(strcpy)) {
           ans.push(strcpy);
+          bestSoFar = depth;
         }
-      } else {
+      } else if(bestSoFar >= depth) {
         removeChar(strcpy, depth - 1, ans);
       }
     }

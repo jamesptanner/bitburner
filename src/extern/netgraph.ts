@@ -17,7 +17,7 @@ export function createDotGraph(ns: NS): string {
 
     servers.forEach(host => {
         const serverInfo = ns.getServer(host);
-        dotText = dotText + `nd_${servers.indexOf(host)} [label = "${host}\\n${serverInfo.requiredHackingSkill}" color=${serverInfo.backdoorInstalled || serverInfo.purchasedByPlayer ? "green" : (serverInfo.openPortCount >= serverInfo.numOpenPortsRequired &&serverInfo.requiredHackingSkill <= ns.getPlayer().hacking ? "yellow" : "red")}]`;
+        dotText = dotText + `nd_${servers.indexOf(host)} [label = "${host}\\n${serverInfo.requiredHackingSkill}" color=${serverInfo.backdoorInstalled || serverInfo.purchasedByPlayer ? "green" : (serverInfo.openPortCount >= serverInfo.numOpenPortsRequired &&serverInfo.requiredHackingSkill <= ns.getPlayer().skills.hacking ? "yellow" : "red")}]`;
         serverMap.set(host, `nd_${servers.indexOf(host)}`);
     });
     servers.forEach(host => {

@@ -24,12 +24,12 @@ export async function main(ns : NS) : Promise<void> {
     }
     const augmentData = augments.filter(unique).sort().map(augment =>{ 
         const augmentInfo = ns.singularity.getAugmentationStats(augment)
-        const player = [NToS(augmentInfo.hacking_mult),NToS(augmentInfo.strength_mult),NToS(augmentInfo.defense_mult),NToS(augmentInfo.dexterity_mult),NToS(augmentInfo.agility_mult),NToS(augmentInfo.charisma_mult),
-            NToS(augmentInfo.hacking_exp_mult),NToS(augmentInfo.strength_exp_mult),NToS(augmentInfo.defense_exp_mult),NToS(augmentInfo.dexterity_exp_mult),NToS(augmentInfo.agility_exp_mult),NToS(augmentInfo.charisma_exp_mult)]
-        const hacking = [NToS(augmentInfo.hacking_chance_mult),NToS(augmentInfo.hacking_speed_mult),NToS(augmentInfo.hacking_money_mult),NToS(augmentInfo.hacking_grow_mult)]
-        const faction = [NToS(augmentInfo.company_rep_mult),NToS(augmentInfo.faction_rep_mult),NToS(augmentInfo.crime_money_mult),NToS(augmentInfo.crime_success_mult),NToS(augmentInfo.work_money_mult)]
-        const hacknet = [NToS(augmentInfo.hacknet_node_money_mult),NToS(augmentInfo.hacknet_node_purchase_cost_mult),NToS(augmentInfo.hacknet_node_ram_cost_mult),NToS(augmentInfo.hacknet_node_core_cost_mult),NToS(augmentInfo.hacknet_node_level_cost_mult)]
-        const bladeburner = [NToS(augmentInfo.bladeburner_max_stamina_mult),NToS(augmentInfo.bladeburner_stamina_gain_mult),NToS(augmentInfo.bladeburner_analysis_mult),NToS(augmentInfo.bladeburner_success_chance_mult)]
+        const player = [NToS(augmentInfo.hacking),NToS(augmentInfo.strength),NToS(augmentInfo.defense),NToS(augmentInfo.dexterity),NToS(augmentInfo.agility),NToS(augmentInfo.charisma),
+            NToS(augmentInfo.hacking_exp),NToS(augmentInfo.strength_exp),NToS(augmentInfo.defense_exp),NToS(augmentInfo.dexterity_exp),NToS(augmentInfo.agility_exp),NToS(augmentInfo.charisma_exp)]
+        const hacking = [NToS(augmentInfo.hacking_chance),NToS(augmentInfo.hacking_speed),NToS(augmentInfo.hacking_money),NToS(augmentInfo.hacking_grow)]
+        const faction = [NToS(augmentInfo.company_rep),NToS(augmentInfo.faction_rep),NToS(augmentInfo.crime_money),NToS(augmentInfo.crime_success),NToS(augmentInfo.work_money)]
+        const hacknet = [NToS(augmentInfo.hacknet_node_money),NToS(augmentInfo.hacknet_node_purchase_cost),NToS(augmentInfo.hacknet_node_ram_cost),NToS(augmentInfo.hacknet_node_core_cost),NToS(augmentInfo.hacknet_node_level_cost)]
+        const bladeburner = [NToS(augmentInfo.bladeburner_max_stamina),NToS(augmentInfo.bladeburner_stamina_gain),NToS(augmentInfo.bladeburner_analysis),NToS(augmentInfo.bladeburner_success_chance)]
 
         return [player,hacking,faction,hacknet,bladeburner]
     })

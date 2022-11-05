@@ -28,7 +28,7 @@ const chooseAFaction = function (ns: NS, skipFactions:string[]): string {
         const requirements = factionUnlockRequirements.get(faction)
         if(!requirements?.not) return true
         if(requirements.not.faction && intersection(requirements.not.faction,ns.getPlayer().factions).length > 0) return false
-        if(requirements.not.employers && intersection(requirements.not.employers,ns.getPlayer().jobs).length > 0) return false
+        if(requirements.not.employers && intersection(requirements.not.employers,Object.keys(ns.getPlayer().jobs)).length > 0) return false
         return true
     })[0]
 }

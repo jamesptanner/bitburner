@@ -121,19 +121,19 @@ throw new Error("Unexpected data types Unable to solve contract.");
 }
 
 function checkPosition(ns: NS, array: number[], pos: number,depth:number): [boolean,number] {
-    logging.info(`${array}: checking position ${pos}`)
+    //logging.info(`${array}: checking position ${pos}`)
     if (pos === array.length - 1) return [true,depth]
     let minHops = array.length
     let ret = false;
     for (let jumpDist = 1; jumpDist <= array[pos]; jumpDist++) {
-        logging.info(`Jumping ${jumpDist}`)
+        //logging.info(`Jumping ${jumpDist}`)
         const [reachedEnd, hops] = checkPosition(ns, array, pos + jumpDist,depth+1)
         if (reachedEnd) {
             minHops = Math.min(minHops,hops)
             ret = true
         }
     }
-    logging.success(`${[ret,minHops]}`)
+    if(minHops === depth) logging.success(`${[ret,minHops]}`);
     return [ret,minHops];
 }
 

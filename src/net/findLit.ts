@@ -7,7 +7,7 @@ export async function main(ns: NS): Promise<void> {
     for (const host of servers){
         const lit = ns.ls(host, ".lit")
         if (lit.length > 0) {
-            await ns.scp(lit, host, "home")
+            await ns.scp(lit,"home", host)
         }
     }
 }

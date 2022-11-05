@@ -74,7 +74,7 @@ export async function main(ns: NS): Promise<void> {
             }
             else {
                 logging.success(`${result}`,true)
-                await ns.write("solvedContracts.txt",[type,data,answer,"\n"],'a')
+                await ns.write("solvedContracts.txt",JSON.stringify([type,data,answer,"\n"]),'a')
             }
         }
         else {

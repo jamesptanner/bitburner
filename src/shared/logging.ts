@@ -166,15 +166,18 @@ export const error =  function (msg: string, toast?: boolean): void {
      log(Level.Error, msg, toast)
 };
 
-export const sendMetric = function (key: string, value: string | number): void {
-    const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
-        key: key,
-        value: value,
-    });
-    
-    const tx = loggingDB.transaction(MetricTable,'readwrite')
-    void tx.store.add(logPayload)
-    void tx.done
+export const sendMetric = function (key: string, value: number): void {
+
+    if (!isNaN(value)){
+        const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
+            key: key,
+            value: value,
+        });
+        
+        const tx = loggingDB.transaction(MetricTable,'readwrite')
+        void tx.store.add(logPayload)
+        void tx.done
+    }
 };
 
 export const logging = {

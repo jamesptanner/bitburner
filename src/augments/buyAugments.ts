@@ -62,13 +62,13 @@ export async function main(ns: NS): Promise<void> {
                     logging.info(`Skipping ${aug.name}, cant find pre-requisite.`)
                     continue primeAugment
                 }
-                if (! await purchaseAugment(ns, preReqAugs[0], opts.wait)) {
+                if (! await purchaseAugment(ns, preReqAugs[0], opts.wait as boolean)) {
                     logging.info(`Skipping ${aug.name}, couldn't buy pre-requisite.`)
                     continue primeAugment
                 }
             }
         }
-        void await purchaseAugment(ns, aug, opts.wait);
+        void await purchaseAugment(ns, aug, opts.wait as boolean);
     }
 
     //keep buying neuroflux govenors until we hit the limit

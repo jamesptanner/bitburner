@@ -45,7 +45,7 @@ const sendTrace = async function (ns: NS, settings: LoggingSettings, payloads: L
     if ("key" in payloads[0].payload) {
         // const tags = `;trace=${payload.trace};host=${payload.host};script=${payload.script}`
         for (const payload of payloads) {
-            if ("key" in payload.payload) {
+            if ("key" in payload.payload && payload.payload.value !== undefined) {
 
                 const metricName = `bitburner.${settings.gameHost}.${payload.payload.key}`;
                 const request = graphiteRequest;

@@ -9,7 +9,7 @@ interface Contract {
 }
 
 export async function main(ns : NS) : Promise<void> {
-    const contractMap = JSON.parse(ns.read("contracts.txt"))
+    const contractMap = JSON.parse(ns.read("contracts.txt") as string)
     const contractsByType = new Array<Contract>()
     for (const host in contractMap) {
         if (Object.prototype.hasOwnProperty.call(contractMap, host)) {

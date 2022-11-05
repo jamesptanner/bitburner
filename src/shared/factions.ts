@@ -258,16 +258,16 @@ export const getUniqueAugmentsAvailableFromFaction = function (ns: NS, faction: 
 const waitToBackdoor = async function (ns: NS, server: string) {
     logging.info(`Waiting for ${server} to be backdoored`)
     while (!ns.getServer(server).backdoorInstalled) {
-        if (ns.getPlayer().workType !== "Studying or Taking a class at university") {
+        if (ns.singularity.getCurrentWork().type !== "CLASS") {
             logging.info(`improving hacking skills at uni`)
             //improve hacking skill
-            if (!ns.getPlayer().isWorking) {
+            if (!ns.singularity.isBusy()) {
                 if (ns.singularity.travelToCity('Volhaven')) { ns.singularity.universityCourse("ZB Institute of Technology", "Algorithms") }
             }
         }
         await ns.sleep(60 * 1000)
     }
-    if (ns.getPlayer().workType === "Studying or Taking a class at university") {
+    if (ns.singularity.getCurrentWork().type === "CLASS") {
         ns.singularity.stopAction()
     }
 }
@@ -735,8 +735,8 @@ const improveCorporateReputation = async function (ns: NS, corpName: string, rep
         ns.singularity.applyToCompany(corpName, "software")
         ns.singularity.workForCompany(corpName)
         const currentRep = ns.singularity.getCompanyRep(corpName)
-        while (currentRep + (ns.getPlayer().workRepGained / 2) < reputation) {
-            if (currentRep + (ns.getPlayer().workRepGained / 2) > repForNextRole(ns, corpName)) {
+        while (currentRep  < reputation) {
+            if (currentRep > repForNextRole(ns, corpName)) {
                 ns.singularity.stopAction()
                 break
             }
@@ -745,10 +745,10 @@ const improveCorporateReputation = async function (ns: NS, corpName: string, rep
                 ns.singularity.workForCompany(corpName)
 
             }
-            const repNeeded = ((reputation - currentRep) * 2) - ns.getPlayer().workRepGained
-
-            logging.info(`RepNeeded: ${ns.nFormat(repNeeded, "(0.000)")}, repGain: ${ns.nFormat(ns.getPlayer().workRepGainRate * 5, "(0.000)")}`)
-            logging.info(`estimated time remaining: ${ns.tFormat(repNeeded * 1000 / (ns.getPlayer().workRepGainRate * 5))}`)
+            // TODO
+            // const repNeeded = ((reputation - currentRep) * 2) - ns.getPlayer().workRepGained
+            // logging.info(`RepNeeded: ${ns.nFormat(repNeeded, "(0.000)")}, repGain: ${ns.nFormat(ns.getPlayer().workRepGainRate * 5, "(0.000)")}`)
+            // logging.info(`estimated time remaining: ${ns.tFormat(repNeeded * 1000 / (ns.getPlayer().workRepGainRate * 5))}`)
 
         }
         ns.singularity.stopAction()
@@ -817,16 +817,18 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
 }
 
 export const improveFactionReputation = async function (ns: NS, faction: string, reputation: number): Promise<void> {
-    while (reputation > ns.singularity.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0)) {
+    while (reputation > ns.singularity.getFactionRep(faction) ) {
         ns.tail()
-        logging.info(`current faction relationship ${faction} is ${ns.nFormat(ns.singularity.getFactionRep(faction) + (ns.getPlayer().currentWorkFactionName === faction ? ns.getPlayer().workRepGained : 0), "0,0.000a")}, want ${ns.nFormat(reputation, "0,0.000a")}.`)
-        logging.info(`Time Remaining: ${(ns.getPlayer().currentWorkFactionName === faction ? ns.tFormat(((reputation - (ns.singularity.getFactionRep(faction) + ns.getPlayer().workRepGained)) / (ns.getPlayer().workRepGainRate * 5)) * 1000, false) : "unknown")}`)
+        logging.info(`current faction relationship ${faction} is ${ns.nFormat(ns.singularity.getFactionRep(faction), "0,0.000a")}, want ${ns.nFormat(reputation, "0,0.000a")}.`)
+            // TODO
+        // logging.info(`Time Remaining: ${(ns.getPlayer()..currentWorkFactionName === faction ? ns.tFormat(((reputation - (ns.singularity.getFactionRep(faction) + ns.getPlayer().workRepGained)) / (ns.getPlayer().workRepGainRate * 5)) * 1000, false) : "unknown")}`)
         if (!ns.singularity.isBusy()) {
             logging.info(`improving relationship with ${faction}`)
             ns.singularity.workForFaction(faction, "hacking", true)
         }
         if (!ns.singularity.isFocused() && needToFocus(ns)) {
-            logging.info(`focusing on work. ${ns.getPlayer().currentWorkFactionName}`)
+            // TODO
+            // logging.info(`focusing on work. ${ns.getPlayer().currentWorkFactionName}`)
             ns.singularity.setFocus(true)
         }
         await ns.sleep(1000 * 60)
@@ -841,12 +843,12 @@ export const improveStat = async function (ns: NS, hacking = 0, combat = 0, char
         const player = ns.getPlayer()
         let skill = ""
 
-        if (player.agility < combat) skill = 'agility'
-        else if (player.strength < combat) skill = 'strength'
-        else if (player.defense < combat) skill = 'defense'
-        else if (player.dexterity < combat) skill = 'dexterity'
-        else if (player.charisma < charisma) skill = 'charisma'
-        else if (player.hacking < hacking) skill = 'hacking'
+        if (player.skills.agility < combat) skill = 'agility'
+        else if (player.skills.strength < combat) skill = 'strength'
+        else if (player.skills.defense < combat) skill = 'defense'
+        else if (player.skills.dexterity < combat) skill = 'dexterity'
+        else if (player.skills.charisma < charisma) skill = 'charisma'
+        else if (player.skills.hacking < hacking) skill = 'hacking'
 
         if (skill === "") {
             ns.singularity.stopAction()

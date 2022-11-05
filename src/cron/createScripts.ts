@@ -9,14 +9,14 @@ export async function main(ns: NS): Promise<void> {
     for (const iterator of scripts) {
         const script = iterator[0];
         const cost = iterator[1];
-        if (!ns.fileExists(script) && player.hacking >= cost) {
+        if (!ns.fileExists(script) && player.skills.hacking >= cost) {
             logging.info(`You should work on new script: ${script}`);
-            if(!ns.singularity.isBusy() || ns.getPlayer().workType.includes('program')){
+            if(!ns.singularity.isBusy() || ns.singularity.getCurrentWork()==="CREATE_PROGRAM"){
                 logging.info(`working on new script ${script}`)
                 ns.singularity.createProgram(script,true)
             }
             if(!ns.singularity.isFocused()){
-                logging.info(`focusing on current work. ${ns.getPlayer().workType}`)
+                logging.info(`focusing on current work. ${ns.singularity.getCurrentWork().type}`)
                 ns.singularity.setFocus(true)
             }
         }

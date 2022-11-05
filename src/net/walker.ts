@@ -8,7 +8,7 @@ export async function main(ns: NS): Promise<void> {
     const toBackdoor: string[] = []
     const toInfiltrate: string[] = []
     const servers = getAllServers(ns)
-    const ignoreHosts: string[] = JSON.parse(ns.read("ignoreHosts.txt") || "[]");
+    const ignoreHosts: string[] = JSON.parse(ns.read("ignoreHosts.txt") as string || "[]");
 
     for (const server of servers.filter(x => ignoreHosts.indexOf(x) === -1)) {
 
@@ -28,7 +28,7 @@ export async function main(ns: NS): Promise<void> {
                     }
                 }
             }
-            else if(serverInfo.requiredHackingSkill <= ns.getPlayer().hacking){
+            else if(serverInfo.requiredHackingSkill <= ns.getPlayer().skills.hacking){
                 logging.warning(`💻 Backdoor ${server}`);
                 logging.info(`nav via ${routeToHost(ns, 'home', server)}`)
                 toBackdoor.push(server);

@@ -7,9 +7,9 @@ export const monitorMarketPath = "/stockMarket/monitorMarket.js";
 export async function main(ns: NS): Promise<void> {
     await initLogging(ns)
     const symbols = ns.stock.getSymbols()
-    const has4s = ns.getPlayer().has4SDataTixApi
+    const has4s = ns.stock.has4SData()
 
-    if(!ns.getPlayer().hasTixApiAccess){
+    if(!ns.stock.has4SDataTIXAPI()){
         error("Dont have TIX API access",true)
     }
     while (true) {
