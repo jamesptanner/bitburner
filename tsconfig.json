@@ -16,13 +16,13 @@
             "*"
           ],
           "@ns": [
-            "../NetscriptDefinitions.d.ts",
+            "../NetScriptDefinitions.d.ts",
             "../global.d.ts",
           ]
         }
     },
     "include": [
-        "NetscriptDefinitions.d.ts",
+        "NetScriptDefinitions.d.ts",
         "global.d.ts",
         "src/**/*",
     ],
