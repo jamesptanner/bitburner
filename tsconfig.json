@@ -31,7 +31,7 @@
       "build"
     ],
     "typedocOptions":{
-      "entryPoints": ["NetscriptDefinitions.d.ts"],
+      "entryPoints": ["NetScriptDefinitions.d.ts"],
       "out": "docs"
     }
 

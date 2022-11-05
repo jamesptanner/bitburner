@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import * as bitburner from "./NetscriptDefinitions";
+import * as bitburner from "./NetScriptDefinitions";
 
 export { };
 

@@ -6,9 +6,9 @@
   ],
   "allowDeletingFiles": false,
   "port": 12525,
-  "scriptsFolder": "dist/",
+  "scriptsFolder": "dist/public",
   "quiet": false,
-  "dry": true,
+  "dry": false,
   "definitionFile": {
     "update": true,
     "location": "NetScriptDefinitions.d.ts"

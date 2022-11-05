@@ -11,7 +11,8 @@
     "lint": "./node_modules/.bin/eslint . --ext .ts --max-warnings 0 ",
     "defs": "node ./updateDefs.js",
     "createdist": "node ./createDistMap.js",
-    "docs": "npx typedoc"
+    "docs": "npx typedoc",
+    "sync": "npx bitburner-filesync"
   },
   "author": "",
   "license": "ISC",

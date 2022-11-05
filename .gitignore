@@ -2,4 +2,4 @@ build/
 docs/
 dist/
 node_modules/
-NetscriptDefinitions.d.ts
+NetScriptDefinitions.d.ts
