@@ -271,6 +271,7 @@ const waitToBackdoor = async function (ns: NS, server: string) {
         ns.singularity.stopAction()
     }
 }
+/*
 
 type JobRequirements = {
     name: string,
@@ -697,7 +698,7 @@ const jobRoles: JobRequirements[] = [
         rep:0
     },
 ];
-
+*/
 const repForNextRole = function (ns: NS, corpName: string): number {
     const jobs = ns.getPlayer().jobs as { [key: string]: string }
     switch (jobs[corpName]) {
