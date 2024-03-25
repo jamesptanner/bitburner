@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { Dijkstra, Graph, Node } from 'dijkstra-pathfinder';
+import { Dijkstra, Graph, Node } from 'lib/dijkstrapathfinder';
 
 
 export function asString(val: unknown): string {
