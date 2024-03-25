@@ -1,5 +1,6 @@
 import { logging } from 'shared/logging';
 import { needToFocus } from "/shared/utils";
+import { CityName, CompanyName, FactionWorkType, JobField, NS, NSEnums} from "@ns"
 
 export const factionsPath = "/shared/factions.js";
 
@@ -45,14 +46,14 @@ type FactionExclusions = {
 
 }
 type FactionUnlockRequirements = {
-    location?: string,
+    location?: CityName,
     backdoor?: string,
     hacking?: number,
     hackingLevels?: number,
     hackingRAM?: number,
     hackingCPU?: number,
     cash?: number,
-    corp?: string,
+    corp?: CompanyName,
     corpRep?: number,
     combatSkill?: number,
     karma?: number,
@@ -66,7 +67,7 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
     ["Tian Di Hui", {
         cash: 1000000,
         hacking: 50,
-        location: "Chongqing"
+        location: CityName.Chongqing
     }],
     ["Netburners", {
         hacking: 80,
@@ -75,7 +76,7 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
         hackingCPU: 4
     }],
     ["Sector-12", {
-        location: "Sector-12",
+        location: CityName.Sector12,
         cash: 15000000,
         not: {
             faction: [
@@ -87,7 +88,7 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
         }
     }],
     ["Chongqing", {
-        location: "Chongqing",
+        location: CityName.Chongqing,
         cash: 20000000,
         not: {
             faction: [
@@ -98,7 +99,7 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
         }
     }],
     ["New Tokyo", {
-        location: "New Tokyo",
+        location: CityName.NewTokyo,
         cash: 20000000,
         not: {
             faction: [
@@ -109,7 +110,7 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
         }
     }],
     ["Ishima", {
-        location: "Ishima",
+        location: CityName.Ishima,
         cash: 30000000,
         not: {
             faction: [
@@ -120,7 +121,7 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
         }
     }],
     ["Aevum", {
-        location: "Aevum",
+        location: CityName.Aevum,
         cash: 40000000,
         not: {
             faction: [
@@ -132,7 +133,7 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
         }
     }],
     ["Volhaven", {
-        location: "Volhaven",
+        location: CityName.Volhaven,
         cash: 50000000,
         not: {
             faction: [
@@ -154,51 +155,51 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
         backdoor: "run4theh111z"
     }],
     ["ECorp", {
-        corp: "ECorp",
+        corp: CompanyName.ECorp,
         corpRep: 200000
     }],
     ["MegaCorp", {
-        corp: "MegaCorp",
+        corp: CompanyName.MegaCorp,
         corpRep: 200000
 
     }],
     ["KuaiGong International", {
-        corp: "KuaiGong International",
+        corp: CompanyName.KuaiGongInternational,
         corpRep: 200000
 
     }],
     ["Four Sigma", {
-        corp: "Four Sigma",
+        corp: CompanyName.FourSigma,
         corpRep: 200000
 
     }],
     ["NWO", {
-        corp: "NWO",
+        corp: CompanyName.NWO,
         corpRep: 200000
 
     }],
     ["Blade Industries", {
-        corp: "Blade Industries",
+        corp: CompanyName.BladeIndustries,
         corpRep: 200000
 
     }],
     ["OmniTek Incorporated", {
-        corp: "OmniTek Incorporated",
+        corp: CompanyName.OmniTekIncorporated,
         corpRep: 200000
 
     }],
     ["Bachman & Associates", {
-        corp: "Bachman & Associates",
+        corp: CompanyName.BachmanAndAssociates,
         corpRep: 200000
 
     }],
     ["Clarke Incorporated", {
-        corp: "Clarke Incorporated",
+        corp: CompanyName.ClarkeIncorporated,
         corpRep: 200000
 
     }],
     ["Fulcrum Secret Technologies", {
-        corp: "Fulcrum Technologies",
+        corp: CompanyName.FulcrumTechnologies,
         corpRep: 200000,
         backdoor: "fulcrumassets"
     }],
@@ -208,7 +209,7 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
         cash: 1000000
     }],
     ["Tetrads", {
-        location: "Chongqing",
+        location: CityName.Chongqing,
         combatSkill: 75,
         karma: -22
     }],
@@ -258,7 +259,8 @@ export const getUniqueAugmentsAvailableFromFaction = function (ns: NS, faction: 
 const waitToBackdoor = async function (ns: NS, server: string) {
     logging.info(`Waiting for ${server} to be backdoored`)
     while (!ns.getServer(server).backdoorInstalled) {
-        if (ns.singularity.getCurrentWork().type !== "CLASS") {
+        const currentWork = ns.singularity.getCurrentWork();
+        if (currentWork && currentWork.type !== "CLASS") {
             logging.info(`improving hacking skills at uni`)
             //improve hacking skill
             if (!ns.singularity.isBusy()) {
@@ -267,7 +269,8 @@ const waitToBackdoor = async function (ns: NS, server: string) {
         }
         await ns.sleep(60 * 1000)
     }
-    if (ns.singularity.getCurrentWork().type === "CLASS") {
+    const currentWork = ns.singularity.getCurrentWork();
+    if (currentWork && currentWork.type === "CLASS") {
         ns.singularity.stopAction()
     }
 }
@@ -730,10 +733,10 @@ const repForNextRole = function (ns: NS, corpName: string): number {
     return Infinity
 }
 
-const improveCorporateReputation = async function (ns: NS, corpName: string, reputation: number) {
+const improveCorporateReputation = async function (ns: NS, corpName: CompanyName, reputation: number) {
     logging.info(`Waiting to improve reputation with ${corpName}`)
     while (ns.singularity.getCompanyRep(corpName) < reputation) {
-        ns.singularity.applyToCompany(corpName, "software")
+        ns.singularity.applyToCompany(corpName, JobField.software)
         ns.singularity.workForCompany(corpName)
         const currentRep = ns.singularity.getCompanyRep(corpName)
         while (currentRep  < reputation) {

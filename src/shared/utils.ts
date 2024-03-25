@@ -73,11 +73,11 @@ export const findBestTarget = function(ns:NS): string{
     let bestServer ="";
     getAllServers(ns).forEach(server =>{
         const serverDetails = ns.getServer(server)
-        if(serverDetails.backdoorInstalled && serverDetails.moneyMax > maxFunds){
+        if(serverDetails && serverDetails.backdoorInstalled && serverDetails.moneyMax && serverDetails.moneyMax > maxFunds){
             bestServer = server;
             maxFunds = serverDetails.moneyMax
         }
-    })
+    });
     return bestServer
 }
 

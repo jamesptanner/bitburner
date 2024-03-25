@@ -66,7 +66,7 @@ export async function main(ns: NS): Promise<void> {
     try {
         const answer = processors.get(type)?.(ns,data);
         if (answer !== undefined) {
-            const result = ns.codingcontract.attempt(answer, filename, host,{returnReward:true})
+            const result = ns.codingcontract.attempt(answer, filename, host)
             if (result === "") {
                 logging.error(`Failed Contract: ${host}.${filename} - '${type}'`,true)
                 ns.spawn(unsolveableContractPath,1,"--file",filename,"--host",host)

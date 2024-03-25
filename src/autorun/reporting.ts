@@ -7,9 +7,9 @@ export const reportingPath = "/autorun/reporting.js";
 
 const getBitnode = function (ns: NS): number {
     const player = ns.getPlayer()
-    const bitnode = ns.singularity.getOwnedSourceFiles().filter(src => { return src.n === player.bitNodeN })[0]
+    const bitnode = ns.singularity.getOwnedSourceFiles().filter(src => { return src.n === ns.getResetInfo().currentNode })[0]
     if (bitnode) return Number.parseInt(`${bitnode.n}.${bitnode.lvl}`)
-    return Number.parseInt(`${player.bitNodeN}.0`)
+    return Number.parseInt(`${ns.getResetInfo()}.0`)
 }
 export async function main(ns: NS): Promise<void> {
     await initLogging(ns)
@@ -89,7 +89,7 @@ export async function main(ns: NS): Promise<void> {
 const getHackState = function (ns: NS, server: string): number {
     const ServerInfo = ns.getServer(server)
 
-    if (ServerInfo.backdoorInstalled || ServerInfo.purchasedByPlayer) return 2
-    if (ServerInfo.openPortCount >= ServerInfo.numOpenPortsRequired && ServerInfo.requiredHackingSkill <= ns.getPlayer().skills.hacking) return 1
+    if (ServerInfo && (ServerInfo.backdoorInstalled || ServerInfo.purchasedByPlayer)) return 2
+    if (ServerInfo && ( ServerInfo.openPortCount && ServerInfo.numOpenPortsRequired && ServerInfo.openPortCount >= ServerInfo.numOpenPortsRequired) && ( ServerInfo.requiredHackingSkill && ServerInfo.requiredHackingSkill <= ns.getPlayer().skills.hacking)) return 1;
     return 0
 }

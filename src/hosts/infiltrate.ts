@@ -10,7 +10,7 @@ const infiltrate = function (ns:NS, host:string) {
                 return
             }
             const server = ns.getServer(host)
-            if (server.openPortCount < server.numOpenPortsRequired) {
+            if (server.openPortCount && server.numOpenPortsRequired && server.openPortCount < server.numOpenPortsRequired) {
                 if (server.numOpenPortsRequired <= getNumberOfTools(ns)) {
                     if (!server.ftpPortOpen && hasFTP(ns)) {
                         ns.ftpcrack(host)

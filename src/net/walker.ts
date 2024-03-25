@@ -28,7 +28,7 @@ export async function main(ns: NS): Promise<void> {
                     }
                 }
             }
-            else if(serverInfo.requiredHackingSkill <= ns.getPlayer().skills.hacking){
+            else if(serverInfo.requiredHackingSkill && serverInfo.requiredHackingSkill <= ns.getPlayer().skills.hacking){
                 logging.warning(`💻 Backdoor ${server}`);
                 logging.info(`nav via ${routeToHost(ns, 'home', server)}`)
                 toBackdoor.push(server);

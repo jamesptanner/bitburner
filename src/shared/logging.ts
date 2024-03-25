@@ -25,10 +25,13 @@ export class LoggingPayload {
     timestamp: number
     payload: MetricData | LogData
     constructor(host?: string, script?: string, trace?: string, payload?: MetricData | LogData) {
-        if (host) this.host = host
-        if (script) this.script = script
-        if (trace) this.trace = trace
-        if (payload) this.payload = payload
+
+        this.host = host ? host: "UNKNOWN";
+        this.script = script ? script: "UNKNOWN";
+        this.trace = trace ? trace: "UNKNOWN";
+        this.payload = payload ? payload: {level:Level.Error, message:"UNKNOWN"};
+
+
         this.timestamp = (Date.now())*1000000
     }
 

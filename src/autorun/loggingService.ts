@@ -11,9 +11,9 @@ class LoggingSettings {
     loggingHost: string
     metricHost: string
     constructor(gameHost?: string, loggingHost?: string, metricHost?: string) {
-        if (gameHost) this.gameHost = gameHost
-        if (loggingHost) this.loggingHost = loggingHost
-        if (metricHost) this.metricHost = metricHost
+        this.gameHost = gameHost ? gameHost : "";
+        this.loggingHost = loggingHost ? loggingHost : "";
+        this.metricHost = metricHost ? metricHost : "";
     }
     static fromJSON(d: string): LoggingSettings {
         if (d === ""){
