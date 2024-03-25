@@ -6,30 +6,20 @@
         "noImplicitReturns": true,
         "noImplicitThis": true,
         "esModuleInterop": true,
+        "inlineSourceMap": true,
+        "inlineSources": true,
         "strict": true,
-        "strictPropertyInitialization": false,
-        "rootDir": "",
+        "rootDir": "src/",
+        "outDir": "dist/",
         "baseUrl": "src/",
-        "outDir": "build/",
         "paths": {
-          "/*": [
-            "*"
-          ],
-          "@ns": [
-            "../NetScriptDefinitions.d.ts",
-            "../global.d.ts",
-          ]
+          "/*": ["*"],
+          "@ns": ["../NetScriptDefinitions.d.ts"],
+          "@react": ["lib/react.ts"]
         }
     },
-    "include": [
-        "NetScriptDefinitions.d.ts",
-        "global.d.ts",
-        "src/**/*",
-    ],
-    "exclude": [
-      "node_modules",
-      "build"
-    ],
+    "include": ["NetScriptDefinitions.d.ts","src/**/*"],
+    "exclude": ["src/lib/react.ts"],
     "typedocOptions":{
       "entryPoints": ["NetScriptDefinitions.d.ts"],
       "out": "docs"

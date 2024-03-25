@@ -4,38 +4,26 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "rollup --config -w",
-    "build": "rollup --config",
-    "clean": "rm -rf dist",
-    "lint": "./node_modules/.bin/eslint . --ext .ts --max-warnings 0 ",
-    "defs": "node ./updateDefs.js",
-    "createdist": "node ./createDistMap.js",
-    "docs": "npx typedoc",
-    "sync": "npx bitburner-filesync"
+    "watch:transpile": "tsc -w --preserveWatchOutput",
+    "watch:local": "node build/watch.js",
+    "watch:remote": "bitburner-filesync",
+    "watch:init": "node build/init.js",
+    "watch:all": "concurrently npm:watch:transpile npm:watch:local npm:watch:remote",
+    "watch": "npm run watch:init && npm run watch:all"
   },
-  "author": "",
+  "author": "jamesptanner",
   "license": "ISC",
-  "dependencies": {
-    "@types/lodash": "^4.14.178",
-    "@types/node": "^16.4.3",
-    "@typescript-eslint/eslint-plugin": "^4.28.4",
-    "@typescript-eslint/parser": "^4.28.4",
-    "eslint": "^7.31.0",
-    "idb": "^7.0.1",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.5.5"
-  },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^21.0.2",
-    "@rollup/plugin-node-resolve": "^13.1.3",
-    "@rollup/plugin-typescript": "^8.3.1",
-    "@types/jest": "^27.5.1",
+    "@types/react": "^18.2.70",
+    "@types/react-dom": "^18.2.22",
+    "@typescript-eslint/eslint-plugin": "^5.35.1",
+    "@typescript-eslint/parser": "^5.35.1",
+    "bitburner-filesync": "^1.1.5",
     "dijkstra-pathfinder": "^1.0.2",
-    "jest": "^28.1.0",
-    "moq.ts": "^7.3.4",
-    "rollup": "^2.69.1",
-    "ts-jest": "^28.0.2",
-    "typedoc": "^0.22.11"
+    "eslint": "^8.22.0",
+    "concurrently": "^8.2.2",
+    "typescript": "^4.7.4",
+    "sync-directory":"^5.1.7",
+    "idb": "^7.0.1"
   }
 }
