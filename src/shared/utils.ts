@@ -107,7 +107,11 @@ export const routeToHost = function(ns: NS, start: string, end:string): string[]
             if(!graph.findNodeByPayload(neighbour)){
                 graph.addNode(new Node(neighbour))
             }
-            graph.addArc(graph.findNodeByPayload(server),graph.findNodeByPayload(neighbour))
+            const serverNode = graph.findNodeByPayload(server);
+            const neighbourNode = graph.findNodeByPayload(neighbour);
+            if(serverNode && neighbourNode){
+                graph.addArc(serverNode,neighbourNode);
+            }
         })
 
     })

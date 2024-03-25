@@ -4,9 +4,9 @@ class Path {
    */
   public distance: number;
 
-  public nodeFrom: Node;
+  public nodeFrom: Node | null;
 
-  public constructor(distance: number, nodeFrom: Node) {
+  public constructor(distance: number, nodeFrom: Node | null) {
       this.distance = distance;
       this.nodeFrom = nodeFrom;
   }
@@ -20,7 +20,7 @@ class Node {
 
   public visited: boolean = false;
 
-  public bestPath: Path;
+  public bestPath: Path | null;
 
   /**
    * Object that represent this node in your business logic.
@@ -30,6 +30,7 @@ class Node {
 
   public constructor(payload: any = null) {
       this.payload = payload;
+      this.bestPath = null;
   }
 
   public getArcTo(node: Node): Arc | undefined {
@@ -117,7 +118,7 @@ class Graph {
       return this;
   }
 
-  public findNodeByPayload(payload: any): Node {
+  public findNodeByPayload(payload: any): Node | undefined {
       return this.nodes
           .find(node => node.payload === payload)
       ;
@@ -135,11 +136,11 @@ class Graph {
 
       this.nodes.forEach(nodeSource => {
           nodeSource.arcs.forEach(arcSource => {
-              graphClone.addOrientedArc(
-                  nodeClones.get(nodeSource),
-                  nodeClones.get(arcSource.nodeTo),
-                  arcSource.weight,
-              );
+              const nodea = nodeClones.get(nodeSource);
+              const nodeb = nodeClones.get(arcSource.nodeTo);
+              if (nodea && nodeb){
+              graphClone.addOrientedArc(nodea,nodeb,arcSource.weight);
+              }
           });
       });
 
@@ -170,14 +171,16 @@ class Dijkstra {
 
       this.nodeStart.bestPath = new Path(0, null);
 
-      let currentNode = this.nodeStart;
+      let currentNode: Node|null = this.nodeStart;
 
       while (currentNode) {
           currentNode.arcs.forEach(arc => {
-              const path = new Path(currentNode.bestPath.distance + arc.weight, currentNode);
+              if (currentNode && currentNode.bestPath){
+                const path = new Path(currentNode.bestPath.distance + arc.weight, currentNode);
 
-              if (!arc.nodeTo.bestPath || path.distance < arc.nodeTo.bestPath.distance) {
-                  arc.nodeTo.bestPath = path;
+                if (!arc.nodeTo.bestPath || path.distance < arc.nodeTo.bestPath.distance) {
+                    arc.nodeTo.bestPath = path;
+                }
               }
           });
 
@@ -187,7 +190,7 @@ class Dijkstra {
           this.graph.nodes
               .filter(node => !node.visited && node.bestPath)
               .forEach(node => {
-                  if (null === currentNode || node.bestPath.distance < currentNode.bestPath.distance) {
+                  if (null === currentNode ||( node.bestPath && currentNode.bestPath && node.bestPath.distance < currentNode.bestPath.distance)) {
                       currentNode = node;
                   }
               })
@@ -207,11 +210,16 @@ class Dijkstra {
           return null;
       }
 
-      let node = nodeTo;
+      let node : Node | null = nodeTo;
 
       while (node) {
           path.unshift(node);
-          node = node.bestPath.nodeFrom;
+          if (node.bestPath){
+            node = node.bestPath.nodeFrom;
+          }
+          else {
+            node = null;
+          }
       }
 
       return path;
