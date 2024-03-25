@@ -1,7 +1,6 @@
 import { NS } from '@ns';
-import { IDBPDatabase } from 'idb';
-import { MetricTable } from '../shared/logging';
-import { getLoggingDB, initLogging, LogData, LoggingDB, LoggingPayload, LoggingTable } from "/shared/logging";
+import { MetricTable } from 'shared/logging';
+import { getLoggingDB, initLogging, LogData, LoggingPayload, LoggingTable } from "/shared/logging";
 import { unique } from '/shared/utils';
 
 export const loggingServicePath = "/autorun/loggingService.js";
@@ -144,35 +143,37 @@ const checkLoggingSettings = async function (ns: NS): Promise<LoggingSettings> {
     return settings
 }
 
-async function trimRecords(ns: NS, loggingDB: IDBPDatabase<LoggingDB>): Promise<void> {
+async function trimRecords(ns: NS, loggingDB: IDBDatabase): Promise<void> {
     ns.print(`Tidying up records`)
     const deleteTime = (Date.now() - 6 * 60 * 60 * 1000) * 1e6 //drop older than 6hrs converted to nanosec
 
     const loggingTX = loggingDB.transaction('logging', 'readwrite')
-    const loggingIndex = loggingTX.store.index('timestamp')
+    // const loggingIndex = loggingTX.store.index('timestamp')
+    const loggingIndex = loggingTX.objectStore('logging').index('timestamp');
     const loggingRecords = await loggingIndex.count(IDBKeyRange.upperBound(deleteTime, false))
-    ns.print(`Deleting ${loggingRecords} from logging table`)
-    if (loggingRecords > 0) {
+    ns.print(`Deleting ${loggingRecords.result} from logging table`)
+    if (loggingRecords.result > 0) {
         let cursor = await loggingIndex.openCursor(IDBKeyRange.upperBound(deleteTime, false))
-        while (cursor !== null){
-            await cursor.delete()
-            cursor = await cursor.continue()
+        while (cursor && cursor.result){
+            await cursor.result.delete()
+            cursor.result.continue()
         }
     }
-    await loggingTX.done
+    loggingTX.commit();
 
     const metricTX = loggingDB.transaction('metrics', 'readwrite')
-    const metricIndex = metricTX.store.index('timestamp')
+    const metricIndex = metricTX.objectStore('metrics').index('timestamp')
     const metricRecords = await metricIndex.count(IDBKeyRange.upperBound(deleteTime, false))
-    ns.print(`Deleting ${metricRecords} from metrics table`)
-    if (metricRecords > 0) {
+    ns.print(`Deleting ${metricRecords.result} from metrics table`)
+    if (metricRecords.result > 0) {
         let cursor = await metricIndex.openCursor(IDBKeyRange.upperBound(deleteTime, false))
-        while (cursor !== null){
-            await cursor.delete()
-            cursor = await cursor.continue()
+        while (cursor && cursor.result){
+            await cursor.result.delete()
+            cursor.result.continue()
+
         }
     }
-    await metricTX.done
+    await metricTX.commit();
 
 }
 
@@ -201,10 +202,10 @@ export async function main(ns: NS): Promise<void> {
     }
 }
 
-async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSettings: LoggingSettings,
+async function sendLogs(loggingDB: IDBDatabase, ns: NS, loggingSettings: LoggingSettings,
     table: "logging" | "metrics",
     sender: (ns: NS, settings: LoggingSettings, payload: LoggingPayload[]) => Promise<boolean>): Promise<void> {
-    const lineCount = await loggingDB.transaction(table, 'readonly').store.count()
+    const lineCount = await loggingDB.transaction(table, 'readonly').objectStore(table).count().result;
     ns.print(`${lineCount} ${table} transactions queued.`)
     await sendTrace(ns,loggingSettings,[new LoggingPayload(ns.getHostname(), ns.getScriptName(), "641f4573-9d96-4c77-a703-cd6324cce93c", {
             key: `logging.${table}.count`,
@@ -213,7 +214,7 @@ async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSetti
     if (lineCount === 0) {
         return new Promise<void>((res) => { res() })
     }
-    const logLinesGetAll = await loggingDB.transaction(table, 'readonly').store.getAll(null, 3000);
+    const logLinesGetAll = await loggingDB.transaction(table, 'readonly').objectStore(table).getAll(null, 3000).result;
 
     const linesByTrace = new Map<string, [LoggingPayload[], number[]]>()
 
@@ -228,14 +229,14 @@ async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSetti
             traceSuccessful.set(trace[0], await sender(ns, loggingSettings, trace[1][0]))
         }
     }
-    const toDelete: number[] = []
+    const toDelete: IDBValidKey[] = []
     for (const trace of linesByTrace) {
         if (traceSuccessful.get(trace[0]) && trace[1][1].length > 0) {
             for (const index of trace[1][1]) {
-                let cursor = await loggingDB.transaction(table, 'readonly').store.index("timestamp").openCursor(index)
+                let cursor = await loggingDB.transaction(table, 'readonly').objectStore(table).index("timestamp").openCursor(index).result
                 while (cursor) {
-                    toDelete.push(cursor.primaryKey)
-                    cursor = await cursor.continue()
+                    toDelete.push(cursor.primaryKey);
+                    cursor.continue();
                 }
             }
         }
@@ -244,9 +245,9 @@ async function sendLogs(loggingDB: IDBPDatabase<LoggingDB>, ns: NS, loggingSetti
     const deletes: Promise<unknown>[] = []
     const tx = loggingDB.transaction(table, 'readwrite')
     toDelete.filter(unique).forEach(primaryKey => {
-        deletes.push(tx.store.delete(primaryKey))
+        tx.objectStore(table).delete(primaryKey)
     })
-    deletes.push(tx.done)
+    tx.commit()
     return Promise.all(deletes)
         .then(x => {
             ns.print(`${x.length - 1} ${table} transactions completed.`)

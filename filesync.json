@@ -7,7 +7,7 @@
   "allowDeletingFiles": false,
   "port": 12525,
   "scriptsFolder": "dist",
-  "quiet": false,
+  "quiet": true,
   "dry": false,
   "definitionFile": {
     "update": true,

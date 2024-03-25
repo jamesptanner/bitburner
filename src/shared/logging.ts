@@ -1,5 +1,6 @@
 import { NS } from "@ns";
-import { DBSchema, IDBPDatabase, openDB } from "idb";
+import { OpenIDB } from "lib/idb";
+
 export enum Level {
     Error,
     Warning,
@@ -67,34 +68,15 @@ const DBVERSION = 1
 export const LoggingTable = "logging"
 export const MetricTable = "metrics"
 
-let loggingDB: IDBPDatabase<LoggingDB>
+let loggingDB: IDBDatabase
 
-
-export interface LoggingDB extends DBSchema{
-    'logging':{
-        key:number;
-        value:LoggingPayload;
-        indexes:{
-            'timestamp':number;
-        };
-    };
-    'metrics':{
-        key: number;
-        value:LoggingPayload;
-        indexes:{
-            'timestamp':number;
-        };
-    }
-}
-
-export const getLoggingDB = function(): IDBPDatabase<LoggingDB> {
+export const getLoggingDB = function(): IDBDatabase {
     return loggingDB;
 }
 
 export const initLogging = async function (ns: NS): Promise<void> {
     n = ns;
-    // loggingDB = await DB.open("BBLogging",DBVERSION,createDB)
-    loggingDB = await openDB<LoggingDB>("BBLogging",DBVERSION,{
+    loggingDB = await OpenIDB("BBLogging",DBVERSION,{
         upgrade(db,prevVersion){
             if(prevVersion < 1){
                 const loggingStore = db.createObjectStore(LoggingTable, {autoIncrement:true})
@@ -141,14 +123,15 @@ export const log = function (level: Level, msg: string, toast?: boolean): void {
         if (toast) {
             n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
         }
-        n.print(`${levelToString(level)}: ${msg}`);
+        void n.print(`${levelToString(level)}: ${msg}`);
         const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
             level: level,
             message: msg,
         })
         const tx = loggingDB.transaction(LoggingTable,'readwrite')
-        void tx.store.add(logPayload)
-        void tx.done
+        const loggingObjStore = tx.objectStore(LoggingTable);
+        loggingObjStore.put(logPayload);
+        tx.commit();
     }
     else{
         throw new Error("Logging not initalised");
@@ -177,9 +160,11 @@ export const sendMetric = function (key: string, value: number): void {
             value: value,
         });
         
-        const tx = loggingDB.transaction(MetricTable,'readwrite')
-        void tx.store.add(logPayload)
-        void tx.done
+        const tx = loggingDB.transaction(MetricTable,'readwrite');
+        const loggingObjStore = tx.objectStore(MetricTable);
+        loggingObjStore.put(logPayload);
+        tx.commit();
+
     }
 };
 
