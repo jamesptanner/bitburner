@@ -1,5 +1,5 @@
 import { NS } from "@ns";
-import { OpenIDB } from "lib/idb";
+import { OpenIDB, IDBPDatabase } from "lib/idb";
 
 export enum Level {
     Error,
@@ -68,9 +68,9 @@ const DBVERSION = 1
 export const LoggingTable = "logging"
 export const MetricTable = "metrics"
 
-let loggingDB: IDBDatabase
+let loggingDB: IDBPDatabase
 
-export const getLoggingDB = function(): IDBDatabase {
+export const getLoggingDB = function(): IDBPDatabase {
     return loggingDB;
 }
 
@@ -129,8 +129,7 @@ export const log = function (level: Level, msg: string, toast?: boolean): void {
             message: msg,
         })
         const tx = loggingDB.transaction(LoggingTable,'readwrite')
-        const loggingObjStore = tx.objectStore(LoggingTable);
-        loggingObjStore.put(logPayload);
+        void tx.put(logPayload);
         tx.commit();
     }
     else{
@@ -161,10 +160,8 @@ export const sendMetric = function (key: string, value: number): void {
         });
         
         const tx = loggingDB.transaction(MetricTable,'readwrite');
-        const loggingObjStore = tx.objectStore(MetricTable);
-        loggingObjStore.put(logPayload);
+        void tx.put(logPayload);
         tx.commit();
-
     }
 };
 

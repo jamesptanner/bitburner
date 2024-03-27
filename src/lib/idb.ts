@@ -3,19 +3,19 @@ interface UpgradeFunc {
   upgrade(db :IDBDatabase, oldVersion: number) : void;
 }
 
-const OpenIDB = function (dbName: string, version: number, upgradeFunc: UpgradeFunc) :Promise<IDBDatabase> {
-  return new Promise<IDBDatabase>((resolve, reject) => {
+const OpenIDB = function (dbName: string, version: number, upgradeFunc: UpgradeFunc) :Promise<IDBPDatabase> {
+  return new Promise<IDBPDatabase>((resolve, reject) => {
     const dbOpenRequest = indexedDB.open(dbName, version);
     dbOpenRequest.onerror = (event) =>{
       reject(dbOpenRequest.error);
     };
-    dbOpenRequest.onsuccess = (event)=>{
-      resolve(dbOpenRequest.result);
+    dbOpenRequest.onsuccess = function(event){
+      resolve(new IDBPDatabase(this.result));
     };
     if(upgradeFunc){
         dbOpenRequest.onupgradeneeded = function(this: IDBOpenDBRequest, event:IDBVersionChangeEvent){
           upgradeFunc.upgrade(this.result,event.oldVersion);
-          resolve(this.result);
+          resolve(new IDBPDatabase(this.result));
       };
     }
   });
@@ -205,7 +205,7 @@ class IDBPIndex {
 
 class IDBPCursor {
 
-  protected cursor: IDBCursor;
+  readonly cursor: IDBCursor;
 
   constructor(cursor: IDBCursor){
     this.cursor = cursor;
@@ -233,14 +233,17 @@ class IDBPCursor {
     return wrapIDBRequest(req);
   }
 
+  get primaryKey() : IDBValidKey {
+    return this.cursor.primaryKey;
+  }
 }
 class IDBPCursorWithValue extends IDBPCursor {
   constructor(cursor: IDBCursorWithValue){
     super(cursor);
   }
 
-  public get() : any {
-    const value = (this.cursor as IDBCursorWithValue).value;
+  public get value() : any {
+    return (this.cursor as IDBCursorWithValue).value;
   }
 }
 
