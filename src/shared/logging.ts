@@ -160,7 +160,7 @@ export const sendMetric = function (key: string, value: number): void {
         });
         
         const tx = loggingDB.transaction(MetricTable,'readwrite');
-        void tx.put(logPayload);
+        tx.putAndForget(logPayload);
         tx.commit();
     }
 };

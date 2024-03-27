@@ -1,7 +1,7 @@
 import { NS, ProcessInfo } from '@ns';
-import { growPath } from './grow';
-import { weakenPath } from './weaken';
-import { hackPath } from '/batching/hack';
+import { growPath } from 'batching/grow';
+import { weakenPath } from 'batching/weaken';
+import { hackPath } from 'batching/hack';
 import { prepareHostPath } from '/batching/prepareHost';
 import { initLogging, logging } from '/shared/logging';
 import { findBestTarget, getAllServers } from '/shared/utils';

@@ -83,7 +83,6 @@ export async function main(ns: NS): Promise<void> {
                 sendMetric(`server.${server.replaceAll(".", "-")}.money`, ns.getServerMoneyAvailable(server))
                 sendMetric(`server.${server.replaceAll(".", "-")}.maxmoney`, ns.getServerMaxMoney(server))
             })
-        await ns.sleep(90000)
     }
 }
 const getHackState = function (ns: NS, server: string): number {

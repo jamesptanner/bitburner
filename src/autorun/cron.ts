@@ -53,6 +53,12 @@ const jobs: Job[] = [
         interval:60*60*1000,
         disable:false
     },
+    {
+        script: "cron/reporting.js",
+        args:[],
+        interval: 30*1000,
+        disable:false
+    },
 
 ]
 

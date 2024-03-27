@@ -24,17 +24,17 @@ const OpenIDB = function (dbName: string, version: number, upgradeFunc: UpgradeF
 const wrapIDBRequest = function<T>(request: IDBRequest<T>) : Promise<T>{
   return new Promise((resolve, reject) => {
     request.onerror = function(ev: Event){
-      reject(this.error);
+      reject(request.error);
     };
     request.onsuccess = function(ev: Event){
-      resolve(this.result);
+      resolve(request.result);
     };
   });
 }
 
 class IDBPTransaction {
 
-  private tx : IDBTransaction;
+  readonly tx : IDBTransaction;
   private objectStore;
 
   constructor(tx: IDBTransaction, name: string){
@@ -104,6 +104,10 @@ class IDBPTransaction {
     return wrapIDBRequest(retObj);
   }
 
+  public putAndForget(value: any, key?: IDBValidKey | undefined) {
+    this.objectStore.put(value,key);
+  }
+
   public index(name: string) : IDBPIndex {
     const retObj = this.objectStore.index(name);
     return new IDBPIndex(retObj);
@@ -112,6 +116,10 @@ class IDBPTransaction {
   public openCursor(query?: IDBValidKey | IDBKeyRange | null | undefined, direction?: IDBCursorDirection | undefined) : Promise<IDBCursorWithValue | null> {
     const retObj = this.objectStore.openCursor(query,direction);
     return wrapIDBRequest(retObj);
+  }
+
+  public openCursorRaw(query?: IDBValidKey | IDBKeyRange | null | undefined, direction?: IDBCursorDirection | undefined) : IDBRequest<IDBCursorWithValue | null> {
+    return this.objectStore.openCursor(query,direction);
   }
 
   public openKeyCursor(query?: IDBValidKey | IDBKeyRange | null | undefined, direction?: IDBCursorDirection | undefined) : Promise<IDBCursor | null>{
@@ -178,28 +186,13 @@ class IDBPIndex {
     return wrapIDBRequest(retObj);
   }
 
-  public openCursor(query?: IDBValidKey | IDBKeyRange | null | undefined, direction?: IDBCursorDirection | undefined) : Promise<IDBPCursorWithValue | null> {
-    const retObj = this.index.openCursor(query,direction);
-    return new Promise((resolve, reject) => {
-      retObj.onerror = function(ev: Event){
-        reject(this.error);
-      };
-      retObj.onsuccess = function(ev: Event){
-        resolve(this.result ? new IDBPCursorWithValue(this.result) : null);
-      };
-    });
+  public openCursor(query?: IDBValidKey | IDBKeyRange | null | undefined, direction?: IDBCursorDirection | undefined) : IDBRequest<IDBCursorWithValue | null>{
+    return this.index.openCursor(query,direction);
+
   }
 
-  public openKeyCursor(query?: IDBValidKey | IDBKeyRange | null | undefined, direction?: IDBCursorDirection | undefined) : Promise<IDBPCursor | null>{
-    const retObj = this.index.openKeyCursor(query,direction);
-    return new Promise((resolve, reject) => {
-      retObj.onerror = function(ev: Event){
-        reject(this.error);
-      };
-      retObj.onsuccess = function(ev: Event){
-        resolve(this.result ? new IDBPCursor(this.result) : null);
-      };
-    });
+  public openKeyCursor(query?: IDBValidKey | IDBKeyRange | null | undefined, direction?: IDBCursorDirection | undefined) : IDBRequest<IDBCursor | null>{
+    return this.index.openKeyCursor(query,direction);
   }
 }
 
@@ -248,4 +241,4 @@ class IDBPCursorWithValue extends IDBPCursor {
 }
 
 
-export {OpenIDB, IDBPDatabase, IDBPCursor, IDBPCursorWithValue, IDBPIndex, IDBPTransaction}
+export {OpenIDB, IDBPDatabase, IDBPCursor, IDBPCursorWithValue, IDBPIndex, IDBPTransaction, wrapIDBRequest}
