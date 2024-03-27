@@ -85,7 +85,7 @@ class IDBPTransaction {
   }
 
   public getAll(query?: IDBValidKey | IDBKeyRange | null, count?: number) : Promise<any[]> {
-    const retObj = this.objectStore.getAll();   
+    const retObj = this.objectStore.getAll(query, count);   
     return wrapIDBRequest<any[]>(retObj);
   }
 
@@ -131,7 +131,7 @@ class IDBPDatabase {
 
   public close(): void {
     this.db.close();
-  };
+  }
 
   public createObjectStore(name: string, options?: IDBObjectStoreParameters): IDBObjectStore{
     return this.db.createObjectStore(name, options);
@@ -164,7 +164,7 @@ class IDBPIndex {
   }
 
   public getAll(query?: IDBValidKey | IDBKeyRange | null, count?: number) : Promise<any[]> {
-    const retObj = this.index.getAll();   
+    const retObj = this.index.getAll(query,count);   
     return wrapIDBRequest<any[]>(retObj);
   }
 

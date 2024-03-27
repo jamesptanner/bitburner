@@ -149,15 +149,14 @@ async function trimRecords(ns: NS, loggingDB: IDBPDatabase): Promise<void> {
     const deleteTime = (Date.now() - 6 * 60 * 60 * 1000) * 1e6 //drop older than 6hrs converted to nanosec
 
     const loggingTX = loggingDB.transaction('logging', 'readwrite')
-    // const loggingIndex = loggingTX.store.index('timestamp')
     const loggingIndex = loggingTX.index('timestamp');
     const loggingRecords = await loggingIndex.count(IDBKeyRange.upperBound(deleteTime, false))
     ns.print(`Deleting ${loggingRecords} from logging table`)
     if (loggingRecords > 0) {
-        let cursor = await loggingIndex.openCursor(IDBKeyRange.upperBound(deleteTime, false))
+        const cursor = await loggingIndex.openCursor(IDBKeyRange.upperBound(deleteTime, false));
         while (cursor && cursor.cursor){
-            await cursor.delete()
-            cursor.continue()
+            ns.print(`deleting ${cursor.primaryKey}`);
+            await cursor.delete().then(()=>cursor.continue());
         }
     }
     loggingTX.commit();
@@ -167,11 +166,10 @@ async function trimRecords(ns: NS, loggingDB: IDBPDatabase): Promise<void> {
     const metricRecords = await metricIndex.count(IDBKeyRange.upperBound(deleteTime, false))
     ns.print(`Deleting ${metricRecords} from metrics table`)
     if (metricRecords > 0) {
-        let cursor = await metricIndex.openCursor(IDBKeyRange.upperBound(deleteTime, false))
+        const cursor = await metricIndex.openCursor(IDBKeyRange.upperBound(deleteTime, false))
         while (cursor && cursor.cursor){
-            await cursor.delete()
-            cursor.continue()
-
+            ns.print(`deleting ${cursor.primaryKey}`);
+            await cursor.delete().then(()=>cursor.continue());
         }
     }
     metricTX.commit();
@@ -234,7 +232,7 @@ async function sendLogs(loggingDB: IDBPDatabase, ns: NS, loggingSettings: Loggin
     for (const trace of linesByTrace) {
         if (traceSuccessful.get(trace[0]) && trace[1][1].length > 0) {
             for (const index of trace[1][1]) {
-                let cursor = await loggingDB.transaction(table, 'readonly').index("timestamp").openCursor(index);
+                const cursor = await loggingDB.transaction(table, 'readonly').index("timestamp").openCursor(index);
                 while (cursor  && cursor.cursor) {
                     toDelete.push(cursor.primaryKey);
                     cursor.continue();
