@@ -123,13 +123,13 @@ export const log = function (level: Level, msg: string, toast?: boolean): void {
         if (toast) {
             n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
         }
-        void n.print(`${levelToString(level)}: ${msg}`);
+        n.print(`${levelToString(level)}: ${msg}`);
         const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
             level: level,
             message: msg,
         })
         const tx = loggingDB.transaction(LoggingTable,'readwrite')
-        void tx.put(logPayload);
+        tx.putAndForget(logPayload);
         tx.commit();
     }
     else{
