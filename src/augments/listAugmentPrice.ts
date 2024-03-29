@@ -1,6 +1,6 @@
 import { NS } from '@ns';
 import { factions } from 'shared/factions';
-import { getAugmentsAvailableFromFaction } from '../shared/factions';
+import { getAugmentsAvailableFromFaction } from '/shared/factions';
 import { initLogging, logging } from '/shared/logging';
 import { makeTable } from '/shared/ui';
 
@@ -20,7 +20,7 @@ export async function main(ns: NS): Promise<void> {
         const augments = getAugmentsAvailableFromFaction(ns, faction)
         if (augments.length > 0) {
             const headers= ['augment','reputation','price']
-            const data = augments.map(aug=>{return [aug,`(${ns.formatNumber(ns.singularity.getAugmentationRepReq(aug))})`,`($${ns.formatNumber(ns.singularity.getAugmentationPrice(aug), 2)})`]})
+            const data = augments.map(aug=>{return [aug,`${ns.formatNumber(ns.singularity.getAugmentationRepReq(aug))}`,`$${ns.formatNumber(ns.singularity.getAugmentationPrice(aug), 2)}`]})
             logging.info(`${faction}: ${playerInFaction(faction)? ns.formatNumber(ns.singularity.getFactionRep(faction)) : "Locked"}`)
             logging.info(makeTable(ns,headers,data,1))
         }

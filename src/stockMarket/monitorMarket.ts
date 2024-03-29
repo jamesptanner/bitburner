@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { error } from './../shared/logging';
+import { error } from '/shared/logging';
 import { initLogging, sendMetric } from '/shared/logging';
 
 export const monitorMarketPath = "/stockMarket/monitorMarket.js";

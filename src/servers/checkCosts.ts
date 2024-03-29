@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { log } from './../shared/logging';
+import { log } from '/shared/logging';
 import { initLogging, Level } from '/shared/logging';
 
 export const checkCostsPath ="/servers/checkCosts.js";

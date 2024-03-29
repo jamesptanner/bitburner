@@ -1,8 +1,7 @@
 import { NS } from '@ns';
 import { factions, factionUnlockRequirements, getAvailableFactions, getUniqueAugmentsAvailableFromFaction, improveFactionReputation, unlockFaction } from 'shared/factions';
-import { getAugmentsAvailableFromFaction } from '../shared/factions';
-import { initLogging } from '/shared/logging';
-import { logging } from './../shared/logging';
+import { getAugmentsAvailableFromFaction } from '/shared/factions';
+import { initLogging, logging } from '/shared/logging';
 
 
 export const augmentsPath = "/cron/augments.js";

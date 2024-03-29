@@ -1,6 +1,6 @@
 import { NS } from '@ns';
 import { initLogging } from '/shared/logging';
-import { error } from '../shared/logging';
+import { error } from '/shared/logging';
 
 export const checkForUpdatePath ="/cron/checkForUpdate.js";
 
