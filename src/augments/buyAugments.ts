@@ -41,9 +41,9 @@ export async function main(ns: NS): Promise<void> {
     if (opts.dry) { ns.exit() }
 
     primeAugment: for (const aug of augments) {
-        if (opts.skip > 0) {
+        if (opts.skip as number > 0) {
             const currAugPrice = ns.singularity.getAugmentationPrice(aug.name)
-            if (currAugPrice >= opts.skip) {
+            if (currAugPrice >= (opts.skip as number)) {
                 logging.info(`Skipping ${aug.name}, too expensive.`)
                 continue;
             }
@@ -74,7 +74,7 @@ export async function main(ns: NS): Promise<void> {
     //keep buying neuroflux govenors until we hit the limit
     if (opts.neuro) {
         logging.info("getting neuroflux govenors.")
-        while (opts.skip === 0 ? true : ns.singularity.getAugmentationPrice("NeuroFlux Governor") > opts.skip) {
+        while (opts.skip === 0 ? true : ns.singularity.getAugmentationPrice("NeuroFlux Governor") > (opts.skip as number)) {
             logging.info(`next govener costs ${ns.nFormat(ns.singularity.getAugmentationPrice("NeuroFlux Governor"),'$(0.000a)')}`)
             while (ns.getPlayer().money < ns.singularity.getAugmentationPrice("NeuroFlux Governor")) {
                 await ns.asleep(60000);

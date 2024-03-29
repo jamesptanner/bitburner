@@ -21,7 +21,7 @@ export async function main(ns: NS): Promise<void> {
 export async function runHacknet(ns: NS,otherCheck?:()=>boolean):Promise<void> {
   if (ns.hacknet.numNodes() === 0) {
     while (ns.getPlayer().money < ns.hacknet.getPurchaseNodeCost()) {
-      await ns.sleep(60 * 1000);
+      await ns.asleep(60 * 1000);
     }
     ns.hacknet.purchaseNode();
   }
@@ -66,7 +66,7 @@ export async function runHacknet(ns: NS,otherCheck?:()=>boolean):Promise<void> {
         ns.hacknet.purchaseNode();
       }
     }
-    await ns.sleep(500);
+    await ns.asleep(500);
 
     if(otherCheck !== undefined && !otherCheck()){
       break;

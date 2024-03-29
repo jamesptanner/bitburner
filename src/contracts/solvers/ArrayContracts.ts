@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { is2DArray } from '../../shared/utils';
+import { is2DArray } from '/shared/utils';
 import { logging } from '/shared/logging';
 // "Spiralize Matrix"
 

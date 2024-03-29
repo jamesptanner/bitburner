@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { unsolveableContractPath } from './unsolveableContract';
+import { unsolveableContractPath } from '/contracts/unsolveableContract';
 import { ArrayJump, ArrayJump2, MergeOverlapping, SpiralMatrix } from '/contracts/solvers/ArrayContracts';
 import { largestPrimeFactor, MaxSubArray, TotalSums, TotalSums2 } from '/contracts/solvers/MathContracts';
 import { colorGraph, MinTrianglePath, UniquePath1, UniquePath2 } from '/contracts/solvers/PathContracts';
@@ -7,7 +7,7 @@ import { StockTrader1, StockTrader2, StockTrader3, StockTrader4 } from '/contrac
 import { FindValidMathExpressions, GenerateIPAddresses, HammingBtoI, runLengthEncoding, SanitizeParentheses } from '/contracts/solvers/StringContracts';
 import { initLogging,logging } from '/shared/logging';
 import { asString } from '/shared/utils';
-import { lzDecompression } from './solvers/StringContracts';
+import { lzDecompression } from '/contracts/solvers/StringContracts';
 
 export const solveContractPath = "/contracts/solveContract.js";
 

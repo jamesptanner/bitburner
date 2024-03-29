@@ -10,7 +10,7 @@ interface Contract {
 
 export async function main(ns : NS) : Promise<void> {
     const contractMap = JSON.parse(ns.read("contracts.txt") as string)
-    const contractsByType = new Array<Contract>()
+    let contractsByType = new Array<Contract>()
     for (const host in contractMap) {
         if (Object.prototype.hasOwnProperty.call(contractMap, host)) {
             const contracts = contractMap[host];
@@ -21,11 +21,20 @@ export async function main(ns : NS) : Promise<void> {
                 }
                 contractsByType.push(contract)
             }
-        }
+        } 
     }
     await ns.write("processedContracts.txt",JSON.stringify(contractsByType),"w")
-    contractsByType.forEach( contract => {
-        ns.exec(solveContractPath,"home",1,contract.name,contract.host)
-    });
-
+    let incompletedContracts = new Array<Contract>();
+    while (contractsByType.length > 0){
+        contractsByType.forEach( contract => {
+            if (ns.exec(solveContractPath,"home",1,contract.name,contract.host) === 0) {
+                incompletedContracts.push(contract);
+            }
+        });
+        if (incompletedContracts.length > 0){
+            contractsByType = incompletedContracts;
+        } 
+        incompletedContracts = new Array<Contract>();
+        await ns.asleep(1000);
+    }
 }

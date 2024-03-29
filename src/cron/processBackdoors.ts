@@ -17,8 +17,10 @@ export async function main(ns: NS): Promise<void> {
                     logging.info(`routing via ${hops}`)
                     ns.singularity.connect("home")
                     hops.forEach(hop => ns.singularity.connect(hop))
-                    logging.info(`installing backdoor ${host}`)
-                    await ns.singularity.installBackdoor();
+                    if(!ns.getServer(host).hasAdminRights){
+                        logging.info(`installing backdoor ${host}`)
+                        await ns.singularity.installBackdoor();
+                    }
                 }
                 catch (e) {
                     if (e instanceof Error) {

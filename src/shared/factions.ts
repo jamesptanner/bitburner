@@ -1,6 +1,8 @@
+//import { NS, CityName, CompanyName, JobField } from '@ns';
+import { NS } from '@ns';
+import { CityName, CompanyName, JobField } from '/lib/nsenums';
 import { logging } from 'shared/logging';
-import { needToFocus } from "/shared/utils";
-import { CityName, CompanyName, FactionWorkType, JobField, NS, NSEnums} from "@ns"
+import { needToFocus } from "shared/utils";
 
 export const factionsPath = "/shared/factions.js";
 
@@ -267,7 +269,7 @@ const waitToBackdoor = async function (ns: NS, server: string) {
                 if (ns.singularity.travelToCity('Volhaven')) { ns.singularity.universityCourse("ZB Institute of Technology", "Algorithms") }
             }
         }
-        await ns.sleep(60 * 1000)
+        await ns.asleep(60 * 1000)
     }
     const currentWork = ns.singularity.getCurrentWork();
     if (currentWork && currentWork.type === "CLASS") {
@@ -744,7 +746,7 @@ const improveCorporateReputation = async function (ns: NS, corpName: CompanyName
                 ns.singularity.stopAction()
                 break
             }
-            await ns.sleep(60 * 1000)
+            await ns.asleep(60 * 1000)
             if (!ns.singularity.isBusy()) {
                 ns.singularity.workForCompany(corpName)
 
@@ -771,7 +773,7 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
     if (!requirements) return false;
 
     while (ns.getPlayer().factions.indexOf(faction) === -1) {
-        await ns.sleep(100)
+        await ns.asleep(100)
         if (requirements.augments) {
             if (requirements.augments > ns.singularity.getOwnedAugmentations(false).length) {
                 logging.info(`Not enough augments installed ${ns.singularity.getOwnedAugmentations(false)}/${requirements.augments}`)
@@ -783,7 +785,7 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
         }
         if (requirements.cash && ns.getPlayer().money < requirements.cash) {
             logging.info(`waiting for ${ns.nFormat(requirements.cash, "$(0.000a)")}`)
-            await ns.sleep(1000 * 60)
+            await ns.asleep(1000 * 60)
         }
         if (requirements.combatSkill) {
             logging.info(`improving combat skill to ${requirements.combatSkill}`)
@@ -835,7 +837,7 @@ export const improveFactionReputation = async function (ns: NS, faction: string,
             // logging.info(`focusing on work. ${ns.getPlayer().currentWorkFactionName}`)
             ns.singularity.setFocus(true)
         }
-        await ns.sleep(1000 * 60)
+        await ns.asleep(1000 * 60)
     }
     ns.singularity.stopAction()
 }
@@ -843,7 +845,7 @@ export const improveFactionReputation = async function (ns: NS, faction: string,
 export const improveStat = async function (ns: NS, hacking = 0, combat = 0, charisma = 0): Promise<void> {
     let previousSkill = ""
     while (true) {
-        await ns.sleep(1000)
+        await ns.asleep(1000)
         const player = ns.getPlayer()
         let skill = ""
 

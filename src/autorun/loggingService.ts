@@ -197,7 +197,7 @@ export async function main(ns: NS): Promise<void> {
         catch (e) {
             ns.print(`failed to send log: ${e}`)
         }
-        await ns.sleep(500)
+        await ns.asleep(500)
     }
 }
 

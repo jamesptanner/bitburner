@@ -23,6 +23,6 @@ export async function main(ns: NS): Promise<void> {
                 sendMetric(`stock.${sym}.volatility`, ns.stock.getVolatility(sym))
             }
         })
-        await ns.sleep(48000)
+        await ns.asleep(48000)
     }
 }

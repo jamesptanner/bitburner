@@ -49,7 +49,7 @@ const purchaseAugment = async function (ns: NS, faction: string, augment: string
             const moneyDiff = currentMoneyCheck - lastMoneyCheck
             logging.info(`estimated time remaining: ${ns.tFormat((ns.singularity.getAugmentationPrice(augment) - currentMoneyCheck) / (60*1000 /moneyDiff))}`)
             lastMoneyCheck = currentMoneyCheck
-            await ns.sleep(1000 * 60)
+            await ns.asleep(1000 * 60)
         }
         purchaseAttempt++
     }
@@ -129,7 +129,7 @@ async function unlockNewFactionAndBuyAugments(ns: NS, skippedFactions: string[])
         else {
             unlocked = true;
         }
-        await ns.sleep(100);
+        await ns.asleep(100);
         if (faction === undefined) {
             ns.exit();
         }
