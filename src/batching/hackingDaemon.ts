@@ -1,7 +1,7 @@
 import { NS, ProcessInfo } from '@ns';
-import { growPath } from './grow';
-import { weakenPath } from './weaken';
-import { hackPath } from '/batching/hack';
+import { growPath } from 'batching/grow';
+import { weakenPath } from 'batching/weaken';
+import { hackPath } from 'batching/hack';
 import { prepareHostPath } from '/batching/prepareHost';
 import { initLogging, logging } from '/shared/logging';
 import { findBestTarget, getAllServers } from '/shared/utils';
@@ -20,7 +20,7 @@ export async function main(ns: NS): Promise<void> {
     // if we dont have a server to target yet, wait until we do have. 
 
     while (findBestTarget(ns) === "") {
-        await ns.sleep(60000)
+        await ns.asleep(60000)
     }
 
     const target = findBestTarget(ns)
@@ -76,7 +76,7 @@ export async function main(ns: NS): Promise<void> {
     let event = 1
     while (true) {
         if (event % 120 === 0) {
-            await ns.sleep(60 * 1000)
+            await ns.asleep(60 * 1000)
             // //check we are hacking the right target 
             const newTarget = findBestTarget(ns)
             if (newTarget !== target || (ns.getServerMoneyAvailable(target)/ns.getServerMaxMoney(target))<0.9) {
@@ -88,7 +88,7 @@ export async function main(ns: NS): Promise<void> {
         const scheduleWorked = await ScheduleHackEvent(event, weak_time, hack_time, grow_time, startTime, depth, period, t0, ns, target);
         if (!scheduleWorked) {
             logging.error(`Unable to schedule batch task`, true)
-            await ns.sleep((event % 120) * 1000)
+            await ns.asleep((event % 120) * 1000)
         }
         else {
             event++
@@ -137,7 +137,7 @@ async function waitForPids(pids: number[], ns: NS) {
         const finished = pids.filter(pid => pid === 0 || !ns.isRunning(pid, ""));
         finished.forEach(pid => pids.splice(pids.indexOf(pid), 1));
         logging.info(`${pids.length} processes left`);
-        if (pids.length > 0) await ns.sleep(30 * 1000);
+        if (pids.length > 0) await ns.asleep(30 * 1000);
     } while (pids.length > 0);
 }
 
@@ -163,7 +163,7 @@ async function ScheduleHackEvent(event: number, weak_time: number, hack_time: nu
     const script_start = startTime + (depth * period) - (event * t0 * -1) - event_time;
     if (script_start < 0) {
         logging.error(`Wait time negative. restarting script.`, true)
-        await ns.sleep(weak_time)
+        await ns.asleep(weak_time)
         ns.spawn(hackingDaemonPath, 1)
     }
     logging.info(`{"name":"${event_script}-${event}", "startTime":"${new Date(script_start).toISOString()}", "duration":${Math.floor(event_time / 1000)}}`)

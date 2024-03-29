@@ -24,7 +24,7 @@ export async function weakenServer(ns: NS, target: string): Promise<void> {
 
 export async function hackServer(ns: NS, target: string): Promise<void> {
     const earnings = await ns.hack(target, createHGWoptions(ns));
-    ns.toast(`${ns.getHostname()}:🤖 ${target} Earned ${ns.nFormat(earnings,'($0.00a)')}`,earnings >0?"success":"warning")
+    ns.toast(`${ns.getHostname()}:🤖 ${target} Earned ${ns.formatNumber(earnings,2)}`,earnings >0?"success":"warning")
 }
 
 export const scripts = new Map<string, number>([

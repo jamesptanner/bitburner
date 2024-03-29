@@ -17,9 +17,9 @@ export async function main(ns : NS) : Promise<void> {
     },0)
     const serverMem = 2 << Math.ceil(Math.log2(maxMem)) +1
     logging.info(`min server mem wanted: ${serverMem}GB`)
-    logging.info(`server cost: ${ns.nFormat(ns.getPurchasedServerCost(serverMem),"$(0.000a)")}`)
+    logging.info(`server cost: ${ns.formatNumber(ns.getPurchasedServerCost(serverMem))}`)
 
-    while(ns.getPlayer().money < ns.getPurchasedServerCost(serverMem)){await ns.sleep(100)}
+    while(ns.getPlayer().money < ns.getPurchasedServerCost(serverMem)){await ns.asleep(100)}
 
     const newHost = ns.purchaseServer(opts.host as string, serverMem)
     if (newHost === "") {

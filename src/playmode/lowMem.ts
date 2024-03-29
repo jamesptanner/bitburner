@@ -14,7 +14,7 @@ export async function main(ns: NS): Promise<void> {
             return ns.getPlayer().money < ns.getServerMaxRam('home') * 3.2e4 * Math.pow(1.58,Math.log2(ns.getServerMaxRam('home'))) 
         })
         ns.tprint(`Ready to buy at least 32gb memory`)
-        await ns.sleep(15*60*1000)
+        await ns.asleep(15*60*1000)
     }
 }
 

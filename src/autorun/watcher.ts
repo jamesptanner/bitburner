@@ -44,7 +44,7 @@ export async function main(ns: NS): Promise<void> {
             }
         }
 
-        await ns.sleep(1000)
+        await ns.asleep(1000)
     }
 }
 

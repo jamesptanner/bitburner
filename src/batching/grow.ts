@@ -11,7 +11,7 @@ export async function main(ns: NS): Promise<void> {
     const startTime = asNumber(ns.args[1])
     if (typeof target === 'string' && typeof startTime === 'number' ) {
         logging.info(`🎈: ${target}. ${(ns.getGrowTime(target) / 1000).toFixed(2)}s`)
-        await ns.sleep(Math.max(0,startTime-Date.now()))
+        await ns.asleep(Math.max(0,startTime-Date.now()))
         await growServer(ns, target);
     }
 }

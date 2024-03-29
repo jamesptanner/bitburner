@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { triggerJobPath } from '/cron/triggerJob';
+import { triggerJobPath } from 'cron/triggerJob';
 
 interface Job {
     script: string
@@ -51,6 +51,12 @@ const jobs: Job[] = [
         script:"cron/checkForUpdate.js",
         args:[],
         interval:60*60*1000,
+        disable:false
+    },
+    {
+        script: "cron/reporting.js",
+        args:[],
+        interval: 30*1000,
         disable:false
     },
 

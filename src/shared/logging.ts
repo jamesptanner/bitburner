@@ -1,5 +1,6 @@
 import { NS } from "@ns";
-import { DBSchema, IDBPDatabase, openDB } from "idb";
+import { OpenIDB, IDBPDatabase } from "lib/idb";
+
 export enum Level {
     Error,
     Warning,
@@ -21,14 +22,18 @@ export type MetricData = {
 export class LoggingPayload {
     host: string
     script: string
+    args: string
     trace: string
     timestamp: number
     payload: MetricData | LogData
-    constructor(host?: string, script?: string, trace?: string, payload?: MetricData | LogData) {
-        if (host) this.host = host
-        if (script) this.script = script
-        if (trace) this.trace = trace
-        if (payload) this.payload = payload
+    constructor(host?: string, script?: string, trace?: string, payload?: MetricData | LogData, args?: string) {
+
+        this.host = host ? host: "UNKNOWN";
+        this.script = script ? script: "UNKNOWN";
+        this.trace = trace ? trace: "UNKNOWN";
+        this.payload = payload ? payload: {level:Level.Error, message:"UNKNOWN"};
+        this.args = args? args: "";
+
         this.timestamp = (Date.now())*1000000
     }
 
@@ -64,34 +69,15 @@ const DBVERSION = 1
 export const LoggingTable = "logging"
 export const MetricTable = "metrics"
 
-let loggingDB: IDBPDatabase<LoggingDB>
+let loggingDB: IDBPDatabase
 
-
-export interface LoggingDB extends DBSchema{
-    'logging':{
-        key:number;
-        value:LoggingPayload;
-        indexes:{
-            'timestamp':number;
-        };
-    };
-    'metrics':{
-        key: number;
-        value:LoggingPayload;
-        indexes:{
-            'timestamp':number;
-        };
-    }
-}
-
-export const getLoggingDB = function(): IDBPDatabase<LoggingDB> {
+export const getLoggingDB = function(): IDBPDatabase {
     return loggingDB;
 }
 
 export const initLogging = async function (ns: NS): Promise<void> {
     n = ns;
-    // loggingDB = await DB.open("BBLogging",DBVERSION,createDB)
-    loggingDB = await openDB<LoggingDB>("BBLogging",DBVERSION,{
+    loggingDB = await OpenIDB("BBLogging",DBVERSION,{
         upgrade(db,prevVersion){
             if(prevVersion < 1){
                 const loggingStore = db.createObjectStore(LoggingTable, {autoIncrement:true})
@@ -142,14 +128,14 @@ export const log = function (level: Level, msg: string, toast?: boolean): void {
         const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
             level: level,
             message: msg,
-        })
+        }, n.args.toString())
         const tx = loggingDB.transaction(LoggingTable,'readwrite')
-        void tx.store.add(logPayload)
-        void tx.done
+        tx.putAndForget(logPayload);
+        tx.commit();
     }
     else{
         throw new Error("Logging not initalised");
-    }
+    } 
 
 };
 
@@ -172,11 +158,11 @@ export const sendMetric = function (key: string, value: number): void {
         const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
             key: key,
             value: value,
-        });
+        }, n.args.toString());
         
-        const tx = loggingDB.transaction(MetricTable,'readwrite')
-        void tx.store.add(logPayload)
-        void tx.done
+        const tx = loggingDB.transaction(MetricTable,'readwrite');
+        tx.putAndForget(logPayload);
+        tx.commit();
     }
 };
 

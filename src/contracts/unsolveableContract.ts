@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { initLogging, warning } from '/shared/logging';
+import { info, initLogging, warning } from '/shared/logging';
 
 export const unsolveableContractPath ="/contracts/unsolveableContract.js";
 
@@ -12,9 +12,18 @@ export async function main(ns : NS) : Promise<void> {
     }
     const filename = args.file as string
     const host = args.host as string
+
+    if (!ns.fileExists(filename,host)){
+        warning("contract missing.");
+        ns.exit();
+    }
+
     const contractDesc = ns.codingcontract.getDescription(filename,host)
     const contractData = ns.codingcontract.getData(filename,host)
     const contractType = ns.codingcontract.getContractType(filename,host)
-    ns.rm(filename,host)
+    if(!ns.rm(filename,host)){
+        info(`unable to delete ${host}:${filename}`);
+    }
+
     await ns.write(`/failedContracts/${filename.replace('cct','txt').replace('\'','_').replace('&','_')}`,[contractType,contractData,contractDesc].join('\n\n'),'w')
 }

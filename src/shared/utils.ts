@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { Dijkstra, Graph, Node } from 'dijkstra-pathfinder';
+import { Dijkstra, Graph, Node } from 'lib/dijkstrapathfinder';
 
 
 export function asString(val: unknown): string {
@@ -73,11 +73,11 @@ export const findBestTarget = function(ns:NS): string{
     let bestServer ="";
     getAllServers(ns).forEach(server =>{
         const serverDetails = ns.getServer(server)
-        if(serverDetails.backdoorInstalled && serverDetails.moneyMax > maxFunds){
+        if(serverDetails && serverDetails.backdoorInstalled && serverDetails.moneyMax && serverDetails.moneyMax > maxFunds){
             bestServer = server;
             maxFunds = serverDetails.moneyMax
         }
-    })
+    });
     return bestServer
 }
 
@@ -107,7 +107,11 @@ export const routeToHost = function(ns: NS, start: string, end:string): string[]
             if(!graph.findNodeByPayload(neighbour)){
                 graph.addNode(new Node(neighbour))
             }
-            graph.addArc(graph.findNodeByPayload(server),graph.findNodeByPayload(neighbour))
+            const serverNode = graph.findNodeByPayload(server);
+            const neighbourNode = graph.findNodeByPayload(neighbour);
+            if(serverNode && neighbourNode){
+                graph.addArc(serverNode,neighbourNode);
+            }
         })
 
     })

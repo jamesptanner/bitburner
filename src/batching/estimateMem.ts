@@ -18,7 +18,7 @@ export async function main(ns: NS): Promise<void> {
     .sort((a,b)=> {return ns.getServerMaxMoney(b) - ns.getServerMaxMoney(a)})
     .map(s =>{
         const { period, depth } = calculateBatchingProfile(ns,s);
-        return [s,`${ns.nFormat(ns.getServerMaxMoney(s),'($0.000a)')}`,`${ns.getServerMinSecurityLevel(s)}`,ns.tFormat(ns.getHackTime(s),true),ns.tFormat(ns.getWeakenTime(s),true),ns.tFormat(ns.getGrowTime(s),true),`${ns.tFormat(period,true)}`,`${depth}`]
+        return [s,`${ns.formatNumber(ns.getServerMaxMoney(s))}`,`${ns.getServerMinSecurityLevel(s)}`,ns.tFormat(ns.getHackTime(s),true),ns.tFormat(ns.getWeakenTime(s),true),ns.tFormat(ns.getGrowTime(s),true),`${ns.tFormat(period,true)}`,`${depth}`]
     })
 
     const headers = ['server','max money','min security','hack','weaken','growth','period','loops']

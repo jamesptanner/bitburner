@@ -1,7 +1,7 @@
 import { NS } from '@ns';
-import { getAugmentsAvailableFromFaction } from '/shared/factions';
-import { initLogging } from '/shared/logging';
-import { improveFactionReputation } from './../shared/factions';
+import { getAugmentsAvailableFromFaction } from 'shared/factions';
+import { initLogging } from 'shared/logging';
+import { improveFactionReputation } from 'shared/factions';
 
 export const improveFactionReleationsPath ="/utils/improveFactionReleations.js";
 

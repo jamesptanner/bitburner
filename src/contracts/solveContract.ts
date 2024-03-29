@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { unsolveableContractPath } from './unsolveableContract';
+import { unsolveableContractPath } from '/contracts/unsolveableContract';
 import { ArrayJump, ArrayJump2, MergeOverlapping, SpiralMatrix } from '/contracts/solvers/ArrayContracts';
 import { largestPrimeFactor, MaxSubArray, TotalSums, TotalSums2 } from '/contracts/solvers/MathContracts';
 import { colorGraph, MinTrianglePath, UniquePath1, UniquePath2 } from '/contracts/solvers/PathContracts';
@@ -7,7 +7,7 @@ import { StockTrader1, StockTrader2, StockTrader3, StockTrader4 } from '/contrac
 import { FindValidMathExpressions, GenerateIPAddresses, HammingBtoI, runLengthEncoding, SanitizeParentheses } from '/contracts/solvers/StringContracts';
 import { initLogging,logging } from '/shared/logging';
 import { asString } from '/shared/utils';
-import { lzDecompression } from './solvers/StringContracts';
+import { lzDecompression } from '/contracts/solvers/StringContracts';
 
 export const solveContractPath = "/contracts/solveContract.js";
 
@@ -55,6 +55,12 @@ export async function main(ns: NS): Promise<void> {
     const filename: string = asString(ns.args[0])
     const host: string = asString(ns.args[1])
 
+    if (!ns.fileExists(filename,host)){
+        logging.warning("contract missing.");
+        ns.exit()
+    }
+
+
     if (!ns.codingcontract.getContractType(filename, host)) {
         logging.error(`Invalid file ${host}:${filename}`)
         logging.info(usage)
@@ -63,10 +69,12 @@ export async function main(ns: NS): Promise<void> {
 
     const type = ns.codingcontract.getContractType(filename,host);
     const data = ns.codingcontract.getData(filename,host)
-    try {
+
+    logging.info(`${filename} : ${host} : ${type} : ${data}`);
+    try { 
         const answer = processors.get(type)?.(ns,data);
         if (answer !== undefined) {
-            const result = ns.codingcontract.attempt(answer, filename, host,{returnReward:true})
+            const result = ns.codingcontract.attempt(answer, filename, host)
             if (result === "") {
                 logging.error(`Failed Contract: ${host}.${filename} - '${type}'`,true)
                 ns.spawn(unsolveableContractPath,1,"--file",filename,"--host",host)

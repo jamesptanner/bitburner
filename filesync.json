@@ -6,8 +6,8 @@
   ],
   "allowDeletingFiles": false,
   "port": 12525,
-  "scriptsFolder": "dist/public",
-  "quiet": false,
+  "scriptsFolder": "dist",
+  "quiet": true,
   "dry": false,
   "definitionFile": {
     "update": true,

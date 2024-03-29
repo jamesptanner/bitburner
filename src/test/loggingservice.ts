@@ -10,7 +10,7 @@ export async function main(ns : NS) : Promise<void> {
     sendMetric("key.level.time",Date.now())
     for (let index = 0; index < 100; index++) {
         sendMetric("key.level.value",Math.random()%100)
-        await ns.sleep(1000)        
+        await ns.asleep(1000)        
     }
 
 }

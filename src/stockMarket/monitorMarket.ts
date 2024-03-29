@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { error } from './../shared/logging';
+import { error } from '/shared/logging';
 import { initLogging, sendMetric } from '/shared/logging';
 
 export const monitorMarketPath = "/stockMarket/monitorMarket.js";
@@ -23,6 +23,6 @@ export async function main(ns: NS): Promise<void> {
                 sendMetric(`stock.${sym}.volatility`, ns.stock.getVolatility(sym))
             }
         })
-        await ns.sleep(48000)
+        await ns.asleep(48000)
     }
 }
