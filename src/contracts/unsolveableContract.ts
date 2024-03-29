@@ -12,6 +12,12 @@ export async function main(ns : NS) : Promise<void> {
     }
     const filename = args.file as string
     const host = args.host as string
+
+    if (!ns.fileExists(filename,host)){
+        warning("contract missing.");
+        ns.exit();
+    }
+
     const contractDesc = ns.codingcontract.getDescription(filename,host)
     const contractData = ns.codingcontract.getData(filename,host)
     const contractType = ns.codingcontract.getContractType(filename,host)

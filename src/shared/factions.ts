@@ -784,7 +784,7 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
             ns.singularity.travelToCity(requirements.location)
         }
         if (requirements.cash && ns.getPlayer().money < requirements.cash) {
-            logging.info(`waiting for ${ns.nFormat(requirements.cash, "$(0.000a)")}`)
+            logging.info(`waiting for $${ns.formatNumber(requirements.cash)}`)
             await ns.asleep(1000 * 60)
         }
         if (requirements.combatSkill) {
@@ -825,7 +825,7 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
 export const improveFactionReputation = async function (ns: NS, faction: string, reputation: number): Promise<void> {
     while (reputation > ns.singularity.getFactionRep(faction) ) {
         ns.tail()
-        logging.info(`current faction relationship ${faction} is ${ns.nFormat(ns.singularity.getFactionRep(faction), "0,0.000a")}, want ${ns.nFormat(reputation, "0,0.000a")}.`)
+        logging.info(`current faction relationship ${faction} is ${ns.formatNumber(ns.singularity.getFactionRep(faction))}, want ${ns.formatNumber(reputation)}.`)
             // TODO
         // logging.info(`Time Remaining: ${(ns.getPlayer()..currentWorkFactionName === faction ? ns.tFormat(((reputation - (ns.singularity.getFactionRep(faction) + ns.getPlayer().workRepGained)) / (ns.getPlayer().workRepGainRate * 5)) * 1000, false) : "unknown")}`)
         if (!ns.singularity.isBusy()) {

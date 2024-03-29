@@ -20,7 +20,7 @@ export async function main(ns : NS) : Promise<void> {
 
     const NToS = function(val?:number):string{
         if(val===undefined) return '-'
-        return ns.nFormat(val,'0,0.000')
+        return ns.formatNumber(val)
     }
     const augmentData = augments.filter(unique).sort().map(augment =>{ 
         const augmentInfo = ns.singularity.getAugmentationStats(augment)
@@ -33,7 +33,7 @@ export async function main(ns : NS) : Promise<void> {
 
         return [player,hacking,faction,hacknet,bladeburner]
     })
-    const defaultData = augments.filter(unique).sort().map(augment =>{return [augment,ns.nFormat(ns.singularity.getAugmentationPrice(augment),'($ 0.00a)')]})
+    const defaultData = augments.filter(unique).sort().map(augment =>{return [augment,`$${ns.formatNumber(ns.singularity.getAugmentationPrice(augment))}`]})
     const defaultHeaders = ['augment','price']
     const playerHeaders = ['hack','str','def','dex','agi','cha', 'hack xp', 'str xp', 'def xp', 'dex xp', 'agi xp', 'cha xp']
     const hackingHeaders = ['hack chance','hack speed','hack money','hack growth']

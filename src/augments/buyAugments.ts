@@ -37,7 +37,7 @@ export async function main(ns: NS): Promise<void> {
             return a.price - b.price
         })
         .reverse()
-    logging.info(makeTable(ns, ['augment', 'faction', 'price'], augments.map(aug => { return [aug.name, aug.location, ns.nFormat(aug.price, '$(0.000a)')] })))
+    logging.info(makeTable(ns, ['augment', 'faction', 'price'], augments.map(aug => { return [aug.name, aug.location, ns.formatNumber(aug.price)] })))
     if (opts.dry) { ns.exit() }
 
     primeAugment: for (const aug of augments) {
@@ -75,7 +75,7 @@ export async function main(ns: NS): Promise<void> {
     if (opts.neuro) {
         logging.info("getting neuroflux govenors.")
         while (opts.skip === 0 ? true : ns.singularity.getAugmentationPrice("NeuroFlux Governor") > (opts.skip as number)) {
-            logging.info(`next govener costs ${ns.nFormat(ns.singularity.getAugmentationPrice("NeuroFlux Governor"),'$(0.000a)')}`)
+            logging.info(`next govener costs ${ns.formatNumber(ns.singularity.getAugmentationPrice("NeuroFlux Governor"))}`)
             while (ns.getPlayer().money < ns.singularity.getAugmentationPrice("NeuroFlux Governor")) {
                 await ns.asleep(60000);
             }

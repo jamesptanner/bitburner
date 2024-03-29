@@ -55,6 +55,12 @@ export async function main(ns: NS): Promise<void> {
     const filename: string = asString(ns.args[0])
     const host: string = asString(ns.args[1])
 
+    if (!ns.fileExists(filename,host)){
+        logging.warning("contract missing.");
+        ns.exit()
+    }
+
+
     if (!ns.codingcontract.getContractType(filename, host)) {
         logging.error(`Invalid file ${host}:${filename}`)
         logging.info(usage)
@@ -63,7 +69,9 @@ export async function main(ns: NS): Promise<void> {
 
     const type = ns.codingcontract.getContractType(filename,host);
     const data = ns.codingcontract.getData(filename,host)
-    try {
+
+    logging.info(`${filename} : ${host} : ${type} : ${data}`);
+    try { 
         const answer = processors.get(type)?.(ns,data);
         if (answer !== undefined) {
             const result = ns.codingcontract.attempt(answer, filename, host)

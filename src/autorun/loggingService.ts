@@ -63,7 +63,15 @@ const sendLog = async function (ns: NS, settings: LoggingSettings, payload: Logg
 
 
     if ("message" in payload.payload) {
-        const values = [[`${payload.timestamp}`, (payload.payload as LogData).message]];
+        const values = [[`${payload.timestamp}`, (payload.payload as LogData).message, JSON.stringify(
+            {
+            "host": payload.host,
+            "args": payload.args,
+            "script": payload.script,
+            "game": settings.gameHost,
+            "level": payload.payload.level
+        }
+        )]];
         const request = lokiRequest
         const body = {
             "streams": [
@@ -71,6 +79,7 @@ const sendLog = async function (ns: NS, settings: LoggingSettings, payload: Logg
                     "stream": {
                         "trace": payload.trace,
                         "host": payload.host,
+                        "args": payload.args,
                         "script": payload.script,
                         "game": settings.gameHost,
                         "level": payload.payload.level

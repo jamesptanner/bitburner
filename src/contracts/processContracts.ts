@@ -1,5 +1,6 @@
 import { NS } from '@ns';
 import { solveContractPath } from '/contracts/solveContract';
+import { logging, initLogging } from '/shared/logging';
 
 export const processContractsPath ="/contracts/processContracts.js";
 
@@ -9,6 +10,7 @@ interface Contract {
 }
 
 export async function main(ns : NS) : Promise<void> {
+    await initLogging(ns);
     const contractMap = JSON.parse(ns.read("contracts.txt") as string)
     let contractsByType = new Array<Contract>()
     for (const host in contractMap) {
@@ -27,6 +29,7 @@ export async function main(ns : NS) : Promise<void> {
     let incompletedContracts = new Array<Contract>();
     while (contractsByType.length > 0){
         contractsByType.forEach( contract => {
+            logging.info(`Running contract ${contract.name}`);
             if (ns.exec(solveContractPath,"home",1,contract.name,contract.host) === 0) {
                 incompletedContracts.push(contract);
             }
@@ -35,6 +38,6 @@ export async function main(ns : NS) : Promise<void> {
             contractsByType = incompletedContracts;
         } 
         incompletedContracts = new Array<Contract>();
-        await ns.asleep(1000);
+        await ns.asleep(10000);
     }
 }
