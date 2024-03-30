@@ -1,13 +1,10 @@
 /** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
-module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  moduleDirectories:[
-    "node_modules",
-    "src"
-  ],
-  moduleFileExtensions:[
-    "js","ts"
-  ]
-
-};
+export const preset = 'ts-jest';
+export const testEnvironment = 'node';
+export const moduleDirectories = [
+  "node_modules",
+  "src"
+];
+export const moduleFileExtensions = [
+  "js", "ts"
+];

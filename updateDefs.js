@@ -1,11 +1,11 @@
-const https = require("https")
-const fs = require("fs")
+import { get } from "https"
+import { createWriteStream } from "fs"
 
 const url = 'https://raw.githubusercontent.com/danielyxie/bitburner/dev/src/ScriptEditor/NetscriptDefinitions.d.ts'
-const path = './NetScriptDefinitions.d.ts'
+const path = './NetscriptDefinitions.d.ts'
 
-https.get(url, (res) => {
-    const file = fs.createWriteStream(path)
+get(url, (res) => {
+    const file = createWriteStream(path)
 
     res.pipe(file)
 
