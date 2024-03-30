@@ -1,21 +1,21 @@
-const fs = require('fs')
-const glob = require('glob')
+import { mkdir, copyFile, writeFileSync } from 'fs'
+import { sync } from 'glob'
 
 const sourceDir = 'dist/public'
 const packageDir = 'dist/package'
 
-fs.mkdir('dist/package',function(){})
+mkdir('dist/package')
 
 const fileMap = {}
-glob.sync(`${sourceDir}/**/*.js`).forEach(path =>{
+sync(`${sourceDir}/**/*.js`).forEach(path =>{
     if(path !== `${sourceDir}/bootstrap.js`){
         const genName = path.replace(`${sourceDir}/`,'').replaceAll("/","-",)
         fileMap[genName] = path.replace(sourceDir,'').substring(1)
-        fs.copyFile(path,`${packageDir}/${genName}`,function(){})
+        copyFile(path,`${packageDir}/${genName}`)
     }
     else{
-        fs.copyFile(path,`${packageDir}/bootstrap.js`,function(){})
+        copyFile(path,`${packageDir}/bootstrap.js`)
 
     }
 })
-fs.writeFileSync(`${packageDir}/map.txt`,JSON.stringify(fileMap))
+writeFileSync(`${packageDir}/map.txt`,JSON.stringify(fileMap))

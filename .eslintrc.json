@@ -16,7 +16,7 @@
         "@typescript-eslint"
     ],
     "ignorePatterns": [
-        "NetScriptDefiniitions.d.ts",
+        "NetscriptDefiniitions.d.ts",
         "build/*",
         "dist/**",
         "docs/**"

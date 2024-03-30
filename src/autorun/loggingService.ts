@@ -1,7 +1,6 @@
 import { NS } from '@ns';
 import { MetricTable } from 'shared/logging';
 import { getLoggingDB, initLogging, LogData, LoggingPayload, LoggingTable } from "/shared/logging";
-import { unique } from '/shared/utils';
 import { IDBPDatabase, wrapIDBRequest } from '/lib/idb';
 
 export const loggingServicePath = "/autorun/loggingService.js";
@@ -171,7 +170,7 @@ async function trimRecords(ns: NS, loggingDB: IDBPDatabase): Promise<void> {
     ns.print(`Deleting ${metricRecords} from metrics table`)
     if (metricRecords > 0) {
         const cursorReq = metricIndex.openCursor(IDBKeyRange.upperBound(deleteTime, false))
-        const cursor = await wrapIDBRequest(cursorReq);;
+        const cursor = await wrapIDBRequest(cursorReq);
         while (cursor) {
             ns.print(`deleting ${cursor.primaryKey}`);
             await cursor.delete();
@@ -254,14 +253,14 @@ async function sendLogs(loggingDB: IDBPDatabase, ns: NS, loggingSettings: Loggin
 
     //wait for the entries to finish sending
     const sentKeys = new Set<IDBValidKey>();
-    for (let [key,promise] of sendingLogs){
+    for (const [key,promise] of sendingLogs){
         const success = await promise;
         if (success) sentKeys.add(key);
     }
     ns.print(`Sent ${sentKeys.size} entries`);
 
     const deleteTransaction = await loggingDB.transaction(table,"readwrite");
-    for (let key of sentKeys){
+    for (const key of sentKeys){
         deleteTransaction.delete(key);
     }
     deleteTransaction.commit();

@@ -1,5 +1,5 @@
 {
-    "include": ["NetScriptDefinitions.d.ts","src/**/*"],
+    "include": ["NetscriptDefinitions.d.ts","src/**/*"],
     "exclude": ["src/lib/react.ts"],
     "compilerOptions": {
         "module": "esnext",
@@ -18,12 +18,12 @@
         "jsx": "react",
         "paths": {
           "/*": ["*"],
-          "@ns": ["../NetScriptDefinitions.d.ts"],
+          "@ns": ["../NetscriptDefinitions.d.ts"],
           "@react": ["lib/react.ts"]
         }
     },
     "typedocOptions":{
-      "entryPoints": ["NetScriptDefinitions.d.ts"],
+      "entryPoints": ["NetscriptDefinitions.d.ts"],
       "out": "docs"
     }
 

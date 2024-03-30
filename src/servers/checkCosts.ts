@@ -11,7 +11,7 @@ export async function main(ns : NS) : Promise<void> {
 
     let mem = 2
     while(mem <= ns.getPurchasedServerMaxRam()){
-        log(Level.Info,`${Math.log2(mem)} : ${mem}GB = $${ns.formatNumber(Math.round(ns.getPurchasedServerCost(mem))2)}`)
+        log(Level.Info,`${Math.log2(mem)} : ${mem}GB = $${ns.formatNumber(Math.round(ns.getPurchasedServerCost(mem)),2)}`)
         mem <<= 1
     }
 }

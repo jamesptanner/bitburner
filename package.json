@@ -8,8 +8,10 @@
     "watch:local": "node build/watch.js",
     "watch:remote": "bitburner-filesync",
     "watch:init": "node build/init.js",
-    "watch:all": "concurrently npm:watch:transpile npm:watch:local npm:watch:remote",
-    "watch": "npm run watch:init && npm run watch:all"
+    "watch:lint": "npx eslint-watch -w",
+    "watch:all": "concurrently npm:watch:transpile npm:watch:local npm:watch:remote npm:watch:lint",
+    "watch": "npm run watch:init && npm run watch:all",
+    "lint": "npx eslint"
   },
   "author": "jamesptanner",
   "license": "ISC",
@@ -20,6 +22,7 @@
     "@typescript-eslint/parser": "^5.35.1",
     "bitburner-filesync": "^1.1.5",
     "eslint": "^8.22.0",
+    "eslint-watch": "^8.0.0",
     "concurrently": "^8.2.2",
     "typescript": "^4.7.4",
     "sync-directory":"^5.1.7"
