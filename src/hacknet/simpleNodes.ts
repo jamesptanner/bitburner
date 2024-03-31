@@ -25,6 +25,7 @@ export async function runHacknet(ns: NS,otherCheck?:()=>boolean):Promise<void> {
     }
     ns.hacknet.purchaseNode();
   }
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const purchaseOptions: PurchaseOption[] = [];
     for (let index = 0; index < ns.hacknet.numNodes(); index++) {

@@ -7,5 +7,5 @@ const ReactDom = window.ReactDOM as typeof ReactDomNamespace;
 
 export default React;
 export {
-  ReactDom;
+  ReactDom,
 }

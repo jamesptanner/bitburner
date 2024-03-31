@@ -1,4 +1,4 @@
-import { NS, CreateProgramWorkTask } from '@ns';
+import { NS } from '@ns';
 import { scripts } from '/shared/HGW';
 import { initLogging,logging } from '/shared/logging';
 

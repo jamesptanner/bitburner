@@ -9,6 +9,7 @@ export async function main(ns: NS): Promise<void> {
         hashes[file] = getHash(contents)
     }
 
+    // eslint-disable-next-line no-constant-condition
     while (true) {
         const files = ns.ls('home', '.js')
 

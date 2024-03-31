@@ -123,7 +123,7 @@ export const routeToHost = function(ns: NS, start: string, end:string): string[]
         dijkstra.calculate();
         const path =dijkstra.getPathTo(endNode)
         if(path){
-            return path.map(node => node.payload) || []
+            return path.map(node => node.payload as string) || []
         }
     }
     return []

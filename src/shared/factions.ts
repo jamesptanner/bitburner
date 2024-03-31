@@ -1,6 +1,6 @@
-//import { NS, CityName, CompanyName, JobField } from '@ns';
-import { NS } from '@ns';
-import { CityName, CompanyName, JobField } from '/lib/nsenums';
+import { NS, CityName, CompanyName, JobField } from '@ns';
+// import { NS } from '@ns';
+// import { CityName, CompanyName, JobField } from '/lib/nsenums';
 import { logging } from 'shared/logging';
 import { needToFocus } from "shared/utils";
 
@@ -844,6 +844,7 @@ export const improveFactionReputation = async function (ns: NS, faction: string,
 
 export const improveStat = async function (ns: NS, hacking = 0, combat = 0, charisma = 0): Promise<void> {
     let previousSkill = ""
+    // eslint-disable-next-line no-constant-condition
     while (true) {
         await ns.asleep(1000)
         const player = ns.getPlayer()

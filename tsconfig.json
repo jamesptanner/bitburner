@@ -20,7 +20,8 @@
           "/*": ["*"],
           "@ns": ["../NetscriptDefinitions.d.ts"],
           "@react": ["lib/react.ts"]
-        }
+        },
+        
     },
     "typedocOptions":{
       "entryPoints": ["NetscriptDefinitions.d.ts"],

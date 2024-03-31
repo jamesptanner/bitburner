@@ -8,6 +8,7 @@ export async function main(ns: NS): Promise<void> {
     const target = ns.args[0];
    logging.info(`preparing target: ${target}`);
     if (typeof target === 'string') {
+        // eslint-disable-next-line no-constant-condition
         while (true) {
             if ((ns.getServerSecurityLevel(target) > ns.getServerMinSecurityLevel(target))) {
                 logging.info(`😷: ${target}. ${(ns.getWeakenTime(target) / 1000).toFixed(2)}s`)

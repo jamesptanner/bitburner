@@ -18,7 +18,7 @@ class Node {
    */
   public arcs: Arc[] = [];
 
-  public visited: boolean = false;
+  public visited = false;
 
   public bestPath: Path | null;
 
@@ -26,9 +26,9 @@ class Node {
    * Object that represent this node in your business logic.
    * In example: "A", new Point(x, y), new Square(4, 2), ...
    */
-  public payload: any;
+  public payload: unknown;
 
-  public constructor(payload: any = null) {
+  public constructor(payload: unknown = null) {
       this.payload = payload;
       this.bestPath = null;
   }
@@ -49,7 +49,7 @@ class Arc {
 
   public weight: number;
 
-  public constructor(nodeTo: Node, weight: number = 1) {
+  public constructor(nodeTo: Node, weight = 1) {
       this.nodeTo = nodeTo;
       this.weight = weight;
   }
@@ -79,7 +79,7 @@ class Graph {
       return this;
   }
 
-  public addOrientedArc(nodeFrom: Node, nodeTo: Node, weight: number = 1): Graph {
+  public addOrientedArc(nodeFrom: Node, nodeTo: Node, weight = 1): Graph {
       this
           .addNode(nodeFrom)
           .addNode(nodeTo)
@@ -100,7 +100,7 @@ class Graph {
       return this;
   }
 
-  public addArc(node0: Node, node1: Node, weight: number = 1): Graph {
+  public addArc(node0: Node, node1: Node, weight = 1): Graph {
       this
           .addOrientedArc(node0, node1, weight)
           .addOrientedArc(node1, node0, weight)
@@ -118,7 +118,7 @@ class Graph {
       return this;
   }
 
-  public findNodeByPayload(payload: any): Node | undefined {
+  public findNodeByPayload(payload: unknown): Node | undefined {
       return this.nodes
           .find(node => node.payload === payload)
       ;

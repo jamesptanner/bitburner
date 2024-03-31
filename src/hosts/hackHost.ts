@@ -11,6 +11,7 @@ export async function main(ns: NS): Promise<void> {
 
     logging.info(`hacking target: ${target}`);
     if (typeof target === 'string') {
+        // eslint-disable-next-line no-constant-condition
         while (true) {
             const current = ns.getServerMoneyAvailable(target)
             const max = ns.getServerMaxMoney(target)

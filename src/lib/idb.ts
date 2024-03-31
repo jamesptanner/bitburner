@@ -6,10 +6,10 @@ interface UpgradeFunc {
 const OpenIDB = function (dbName: string, version: number, upgradeFunc: UpgradeFunc) :Promise<IDBPDatabase> {
   return new Promise<IDBPDatabase>((resolve, reject) => {
     const dbOpenRequest = indexedDB.open(dbName, version);
-    dbOpenRequest.onerror = (event) =>{
+    dbOpenRequest.onerror = () =>{
       reject(dbOpenRequest.error);
     };
-    dbOpenRequest.onsuccess = function(event){
+    dbOpenRequest.onsuccess = function(){
       resolve(new IDBPDatabase(this.result));
     };
     if(upgradeFunc){
@@ -23,10 +23,10 @@ const OpenIDB = function (dbName: string, version: number, upgradeFunc: UpgradeF
 
 const wrapIDBRequest = function<T>(request: IDBRequest<T>) : Promise<T>{
   return new Promise((resolve, reject) => {
-    request.onerror = function(ev: Event){
+    request.onerror = function(){
       reject(request.error);
     };
-    request.onsuccess = function(ev: Event){
+    request.onsuccess = function(){
       resolve(request.result);
     };
   });
@@ -49,7 +49,7 @@ class IDBPTransaction {
     this.tx.commit();
   }
 
-  public add(value: any, key?: IDBValidKey | undefined) : Promise<IDBValidKey> {
+  public add(value: unknown, key?: IDBValidKey | undefined) : Promise<IDBValidKey> {
     const retKey = this.objectStore.add(value,key);
     return wrapIDBRequest<IDBValidKey>(retKey);
   }
@@ -99,12 +99,12 @@ class IDBPTransaction {
     return wrapIDBRequest(retObj);
   }
 
-  public put(value: any, key?: IDBValidKey | undefined) : Promise<IDBValidKey> {
+  public put(value: unknown, key?: IDBValidKey | undefined) : Promise<IDBValidKey> {
     const retObj = this.objectStore.put(value,key);
     return wrapIDBRequest(retObj);
   }
 
-  public putAndForget(value: any, key?: IDBValidKey | undefined) {
+  public putAndForget(value: unknown, key?: IDBValidKey | undefined) {
     this.objectStore.put(value,key);
   }
 
@@ -149,8 +149,8 @@ class IDBPDatabase {
     this.db.deleteObjectStore(name);
   }
 
-  public transaction(storeNames: string, mode?: IDBTransactionMode, options?: IDBTransactionOptions): IDBPTransaction{
-    return new IDBPTransaction(this.db.transaction(storeNames, mode, options),storeNames)
+  public transaction(storeNames: string, mode?: IDBTransactionMode): IDBPTransaction{
+    return new IDBPTransaction(this.db.transaction(storeNames, mode),storeNames)
 
   }
 }
@@ -235,7 +235,7 @@ class IDBPCursorWithValue extends IDBPCursor {
     super(cursor);
   }
 
-  public get value() : any {
+  public get value() : unknown {
     return (this.cursor as IDBCursorWithValue).value;
   }
 }
