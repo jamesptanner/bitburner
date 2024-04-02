@@ -1,6 +1,6 @@
 {
   "name": "bitburner",
-  "version": "1.6.9",
+  "version": "1.6.10",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -26,6 +26,6 @@
     "eslint-watch": "^8.0.0",
     "concurrently": "^8.2.2",
     "typescript": "^4.7.4",
-    "sync-directory":"^5.1.7"
+    "sync-directory": "^5.1.7"
   }
 }
