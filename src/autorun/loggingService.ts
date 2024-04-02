@@ -193,6 +193,7 @@ export async function main(ns: NS): Promise<void> {
     const loggingDB = getLoggingDB()
 
     await trimRecords(ns, loggingDB)
+    // eslint-disable-next-line no-constant-condition
     while (true) {
         try {
             let start = Date.now()
@@ -226,10 +227,10 @@ async function sendLogs(loggingDB: IDBPDatabase, ns: NS, loggingSettings: Loggin
     const readTransaction = await loggingDB.transaction(table);
     const readCursorProm = readTransaction.openCursorRaw();
     let batchSize = 3000;
-    const recordBatch = new Map<IDBValidKey,any>()
+    const recordBatch = new Map<IDBValidKey,unknown>()
 
 
-    readCursorProm.onsuccess = function(event: Event){
+    readCursorProm.onsuccess = function(){
         const cursor = this.result;
         if (cursor && batchSize > 0) {
             batchSize--;
@@ -239,7 +240,7 @@ async function sendLogs(loggingDB: IDBPDatabase, ns: NS, loggingSettings: Loggin
 
     }
     
-    await new Promise<void>((res,err)=>{
+    await new Promise<void>((res)=>{
         readTransaction.tx.oncomplete = function() { res();};
     });
     

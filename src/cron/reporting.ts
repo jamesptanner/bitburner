@@ -6,7 +6,6 @@ export const reportingPath = "/autorun/reporting.js";
 
 
 const getBitnode = function (ns: NS): number {
-    const player = ns.getPlayer()
     const bitnode = ns.singularity.getOwnedSourceFiles().filter(src => { return src.n === ns.getResetInfo().currentNode })[0]
     if (bitnode) return Number.parseInt(`${bitnode.n}.${bitnode.lvl}`)
     return Number.parseInt(`${ns.getResetInfo()}.0`)

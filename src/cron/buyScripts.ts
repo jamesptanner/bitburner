@@ -7,7 +7,6 @@ export const buyScriptsPath ="/cron/buyScripts.js";
 
 export async function main(ns : NS) : Promise<void> {
     await initLogging(ns)
-    const player = ns.getPlayer()
     if(!ns.hasTorRouter()){
         if(!ns.singularity.purchaseTor()){
             logging.warning(`not enough money to buy tor router`)

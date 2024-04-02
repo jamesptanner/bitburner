@@ -12,6 +12,7 @@ export async function main(ns: NS): Promise<void> {
     if(!ns.stock.has4SDataTIXAPI()){
         error("Dont have TIX API access",true)
     }
+    // eslint-disable-next-line no-constant-condition
     while (true) {
 
         symbols.forEach(sym => {

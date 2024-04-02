@@ -74,6 +74,7 @@ export async function main(ns: NS): Promise<void> {
     //period - one full cycle
     const startTime = Date.now()
     let event = 1
+    // eslint-disable-next-line no-constant-condition
     while (true) {
         if (event % 120 === 0) {
             await ns.asleep(60 * 1000)
