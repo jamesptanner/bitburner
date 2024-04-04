@@ -12,8 +12,11 @@ export async function main(ns : NS) : Promise<void> {
         const totalMem = ns.getServerMaxRam('home')
         const mem = ns.getScriptRam(script)
         const memPercent = mem/totalMem
-
-        const level = memPercent > 0.5 ? memPercent > 1 ? "ERROR": "WARN":"INFO"
+        let level = "ERROR"
+        if (memPercent > 0) {
+            if ( memPercent < 0.5) level = "INFO";
+            else if (memPercent < 1) level = "WARN";
+        }
         logging.info(`${level} ${script}: ${mem}GB`) 
     })
 }
