@@ -77,16 +77,16 @@ export const getLoggingDB = function(): IDBPDatabase {
 
 export const initLogging = async function (ns: NS): Promise<void> {
     n = ns;
-    loggingDB = await OpenIDB("BBLogging",DBVERSION,{
-        upgrade(db,prevVersion){
-            if(prevVersion < 1){
-                const loggingStore = db.createObjectStore(LoggingTable, {autoIncrement:true})
-                loggingStore.createIndex("timestamp","timestamp",{unique:false})
-                const metricStore = db.createObjectStore(MetricTable,{autoIncrement:true})
-                metricStore.createIndex("timestamp","timestamp",{unique:false})
-            }
-        }
-    })
+    // loggingDB = await OpenIDB("BBLogging",DBVERSION,{
+    //     upgrade(db,prevVersion){
+    //         if(prevVersion < 1){
+    //             const loggingStore = db.createObjectStore(LoggingTable, {autoIncrement:true})
+    //             loggingStore.createIndex("timestamp","timestamp",{unique:false})
+    //             const metricStore = db.createObjectStore(MetricTable,{autoIncrement:true})
+    //             metricStore.createIndex("timestamp","timestamp",{unique:false})
+    //         }
+    //     }
+    // })
     ns.disableLog('ALL')
     ns.clearLog()
 };
@@ -125,13 +125,13 @@ export const log = function (level: Level, msg: string, toast?: boolean): void {
             n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
         }
         n.print(`${levelToString(level)}: ${msg}`);
-        const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
-            level: level,
-            message: msg,
-        }, n.args.toString())
-        const tx = loggingDB.transaction(LoggingTable,'readwrite')
-        tx.putAndForget(logPayload);
-        tx.commit();
+        // const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
+        //     level: level,
+        //     message: msg,
+        // }, n.args.toString())
+        // const tx = loggingDB.transaction(LoggingTable,'readwrite')
+        // tx.putAndForget(logPayload);
+        // tx.commit();
     }
     else{
         throw new Error("Logging not initalised");
@@ -155,14 +155,15 @@ export const error =  function (msg: string, toast?: boolean): void {
 export const sendMetric = function (key: string, value: number): void {
 
     if (!isNaN(value)){
-        const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
-            key: key,
-            value: value,
-        }, n.args.toString());
+        info(`Metric ${key}: ${value}`)
+        // const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
+        //     key: key,
+        //     value: value,
+        // }, n.args.toString());
         
-        const tx = loggingDB.transaction(MetricTable,'readwrite');
-        tx.putAndForget(logPayload);
-        tx.commit();
+        // const tx = loggingDB.transaction(MetricTable,'readwrite');
+        // tx.putAndForget(logPayload);
+        // tx.commit();
     }
 };
 
