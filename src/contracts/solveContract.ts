@@ -37,7 +37,7 @@ const processors = new Map<string, ContractFunction>([
     ["HammingCodes: Encoded Binary to Integer",HammingBtoI],        //Strings   DONE
     // ["HammingCodes: Integer to encoded Binary",HammingItoB],        //Strings
     ["Compression I: RLE Compression",runLengthEncoding],           //Strings   DONE
-    ["Compression II: LZ Decompression",lzDecompression],           //Strings   
+    //["Compression II: LZ Decompression",lzDecompression],           //Strings   
     // ["Compression III: LZ Compression",lzCompression],              //Strings   
     ["Proper 2-Coloring of a Graph",colorGraph],                     //Paths    DONE
 
