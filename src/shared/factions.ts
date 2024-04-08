@@ -1,6 +1,4 @@
-import { NS, CityName, CompanyName, JobField } from '@ns';
-// import { NS } from '@ns';
-// import { CityName, CompanyName, JobField } from '/lib/nsenums';
+import { NS } from '@ns';
 import { logging } from 'shared/logging';
 import { needToFocus } from "shared/utils";
 
@@ -48,14 +46,14 @@ type FactionExclusions = {
 
 }
 type FactionUnlockRequirements = {
-    location?: CityName,
+    location?: string,
     backdoor?: string,
     hacking?: number,
     hackingLevels?: number,
     hackingRAM?: number,
     hackingCPU?: number,
     cash?: number,
-    corp?: CompanyName,
+    corp?: string,
     corpRep?: number,
     combatSkill?: number,
     karma?: number,
@@ -69,7 +67,7 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
     ["Tian Di Hui", {
         cash: 1000000,
         hacking: 50,
-        location: CityName.Chongqing
+        location: "Chongqing"
     }],
     ["Netburners", {
         hacking: 80,
@@ -78,7 +76,7 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
         hackingCPU: 4
     }],
     ["Sector-12", {
-        location: CityName.Sector12,
+        location: "Sector12",
         cash: 15000000,
         not: {
             faction: [
@@ -90,7 +88,7 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
         }
     }],
     ["Chongqing", {
-        location: CityName.Chongqing,
+        location: "Chongqing",
         cash: 20000000,
         not: {
             faction: [
@@ -101,7 +99,7 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
         }
     }],
     ["New Tokyo", {
-        location: CityName.NewTokyo,
+        location: "NewTokyo",
         cash: 20000000,
         not: {
             faction: [
@@ -112,7 +110,7 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
         }
     }],
     ["Ishima", {
-        location: CityName.Ishima,
+        location: "Ishima",
         cash: 30000000,
         not: {
             faction: [
@@ -123,7 +121,7 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
         }
     }],
     ["Aevum", {
-        location: CityName.Aevum,
+        location: "Aevum",
         cash: 40000000,
         not: {
             faction: [
@@ -135,7 +133,7 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
         }
     }],
     ["Volhaven", {
-        location: CityName.Volhaven,
+        location: "Volhaven",
         cash: 50000000,
         not: {
             faction: [
@@ -157,51 +155,51 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
         backdoor: "run4theh111z"
     }],
     ["ECorp", {
-        corp: CompanyName.ECorp,
+        corp: "ECorp",
         corpRep: 200000
     }],
     ["MegaCorp", {
-        corp: CompanyName.MegaCorp,
+        corp: "MegaCorp",
         corpRep: 200000
 
     }],
     ["KuaiGong International", {
-        corp: CompanyName.KuaiGongInternational,
+        corp: "KuaiGong International",
         corpRep: 200000
 
     }],
     ["Four Sigma", {
-        corp: CompanyName.FourSigma,
+        corp: "Four Sigma",
         corpRep: 200000
 
     }],
     ["NWO", {
-        corp: CompanyName.NWO,
+        corp: "NWO",
         corpRep: 200000
 
     }],
     ["Blade Industries", {
-        corp: CompanyName.BladeIndustries,
+        corp: "Blade Industries",
         corpRep: 200000
 
     }],
     ["OmniTek Incorporated", {
-        corp: CompanyName.OmniTekIncorporated,
+        corp: "OmniTek Incorporated",
         corpRep: 200000
 
     }],
     ["Bachman & Associates", {
-        corp: CompanyName.BachmanAndAssociates,
+        corp: "Bachman & Associates",
         corpRep: 200000
 
     }],
     ["Clarke Incorporated", {
-        corp: CompanyName.ClarkeIncorporated,
+        corp: "Clarke Incorporated",
         corpRep: 200000
 
     }],
     ["Fulcrum Secret Technologies", {
-        corp: CompanyName.FulcrumTechnologies,
+        corp: "Fulcrum Technologies",
         corpRep: 200000,
         backdoor: "fulcrumassets"
     }],
@@ -211,7 +209,7 @@ export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
         cash: 1000000
     }],
     ["Tetrads", {
-        location: CityName.Chongqing,
+        location: "Chongqing",
         combatSkill: 75,
         karma: -22
     }],
@@ -735,10 +733,11 @@ const repForNextRole = function (ns: NS, corpName: string): number {
     return Infinity
 }
 
-const improveCorporateReputation = async function (ns: NS, corpName: CompanyName, reputation: number) {
-    logging.info(`Waiting to improve reputation with ${corpName}`)
+const improveCorporateReputation = async function (ns: NS, corpNameAsString: string, reputation: number) {
+    logging.info(`Waiting to improve reputation with ${corpNameAsString}`)
+    const corpName = ns.enums.CompanyName[corpNameAsString as keyof typeof ns.enums.CompanyName]
     while (ns.singularity.getCompanyRep(corpName) < reputation) {
-        ns.singularity.applyToCompany(corpName, JobField.software)
+        ns.singularity.applyToCompany(corpName, ns.enums.JobField.software)
         ns.singularity.workForCompany(corpName)
         const currentRep = ns.singularity.getCompanyRep(corpName)
         while (currentRep  < reputation) {
@@ -781,7 +780,8 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
             }
         }
         if (requirements.location && ns.getPlayer().location !== requirements.location) {
-            ns.singularity.travelToCity(requirements.location)
+            ns.enums.CityName[requirements.location as keyof typeof ns.enums.CityName]
+            ns.singularity.travelToCity(ns.enums.CityName[requirements.location as keyof typeof ns.enums.CityName])
         }
         if (requirements.cash && ns.getPlayer().money < requirements.cash) {
             logging.info(`waiting for $${ns.formatNumber(requirements.cash)}`)
@@ -792,7 +792,7 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
             await improveStat(ns, 0, requirements.combatSkill)
 
         }
-        if (requirements.hacking) {
+        if (requirements.hacking && ns.getPlayer().skills.hacking < requirements.hacking) {
             logging.info(`improving hacking to ${requirements.hacking}`)
 
             await improveStat(ns, requirements.hacking)
