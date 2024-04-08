@@ -6,6 +6,12 @@ export const processBackdoorsPath = "/cron/processBackdoors.js";
 
 export async function main(ns: NS): Promise<void> {
     await initLogging(ns)
+
+    if(!ns.fileExists("toBackdoor.txt")){
+        logging.warning("no backdorr file found.");
+        return;
+    }
+
     const hosts: Array<string> = JSON.parse(ns.read("toBackdoor.txt")  as string)
     if (hosts.length > 0) {
         logging.info(`need to backdoor : ${hosts.join()}`)
