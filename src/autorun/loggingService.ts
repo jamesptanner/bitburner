@@ -185,6 +185,7 @@ async function trimRecords(ns: NS, loggingDB: IDBPDatabase): Promise<void> {
 }
 
 export async function main(ns: NS): Promise<void> {
+    return;
     const loggingSettings = await checkLoggingSettings(ns)
     setupLoki(loggingSettings)
     setupGraphite(loggingSettings)
