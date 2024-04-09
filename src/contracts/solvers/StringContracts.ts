@@ -1,6 +1,6 @@
-import { NS } from '@ns';
+import { NS } from "@ns";
 import { asNumber, asString } from "shared/utils";
-import { Logging } from '/shared/logging';
+import { Logging } from "/shared/logging";
 // "Generate IP Addresses"
 
 // Given a string containing only digits, return an array with all possible
@@ -12,12 +12,16 @@ import { Logging } from '/shared/logging';
 // Examples:
 // 25525511135 -> [255.255.11.135, 255.255.111.35]
 // 1938718066 -> [193.87.180.66]
-export function GenerateIPAddresses(ns: NS, data: unknown): number | string[] | undefined {
-    
+export function GenerateIPAddresses(
+  ns: NS,
+  data: unknown,
+): number | string[] | undefined {
   const logging = new Logging(ns);
+  await logging.initLogging();
   logging.info(`${JSON.stringify(data)} type:${typeof data}`);
   const baseAddress: string = asString(data);
-  const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)$/;
+  const ipv4Regex =
+    /^(?:(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)$/;
   const validAddresses: string[] = [];
   const expectedLength = baseAddress.length + 3;
   for (let octalSize1 = 1; octalSize1 <= 3; octalSize1++) {
@@ -28,15 +32,18 @@ export function GenerateIPAddresses(ns: NS, data: unknown): number | string[] | 
           let addrString = "";
           addrString = parseInt(addressCopy.substring(0, octalSize1)) + ".";
           addressCopy = addressCopy.slice(octalSize1);
-          addrString = addrString + parseInt(addressCopy.substring(0, octalSize2)) + ".";
+          addrString =
+            addrString + parseInt(addressCopy.substring(0, octalSize2)) + ".";
           addressCopy = addressCopy.slice(octalSize2);
-          addrString = addrString + parseInt(addressCopy.substring(0, octalSize3)) + ".";
+          addrString =
+            addrString + parseInt(addressCopy.substring(0, octalSize3)) + ".";
           addressCopy = addressCopy.slice(octalSize3);
-          addrString = addrString + parseInt(addressCopy.substring(0, octalSize4));
+          addrString =
+            addrString + parseInt(addressCopy.substring(0, octalSize4));
           addressCopy = addressCopy.slice(octalSize4);
 
           if (addressCopy.length > 0) {
-            logging.error("invalid addr, leftover numbers")
+            logging.error("invalid addr, leftover numbers");
             continue;
           }
           logging.info(`addr: ${addrString}, leftover string: ${addressCopy}`);
@@ -57,7 +64,7 @@ export function GenerateIPAddresses(ns: NS, data: unknown): number | string[] | 
   logging.success(
     `Valid Addresses ${validAddresses.filter((v, i, self) => {
       return self.indexOf(v) === i;
-    })}`
+    })}`,
   );
   return validAddresses.filter((v, i, self) => {
     return self.indexOf(v) === i;
@@ -77,9 +84,12 @@ export function GenerateIPAddresses(ns: NS, data: unknown): number | string[] | 
 // ()())() -> [()()(), (())()]
 // (a)())() -> [(a)()(), (a())()]
 // )( -> [“”]
-export function SanitizeParentheses(ns: NS, data: unknown): number | string[] | undefined {
-    
+export function SanitizeParentheses(
+  ns: NS,
+  data: unknown,
+): number | string[] | undefined {
   const logging = new Logging(ns);
+  await logging.initLogging();
   logging.info(`${JSON.stringify(data)} type:${typeof data}`);
   const parentheses: string = asString(data);
 
@@ -103,14 +113,18 @@ export function SanitizeParentheses(ns: NS, data: unknown): number | string[] | 
 
   function removeChar(str: string, depth: number, ans: string[]) {
     let bestSoFar = -Infinity;
-    for (let index = 0, strcpy = str; index < str.length; index++, strcpy = str) {
+    for (
+      let index = 0, strcpy = str;
+      index < str.length;
+      index++, strcpy = str
+    ) {
       strcpy = strcpy.substring(0, index) + strcpy.substring(index + 1);
       if (depth === 0) {
         if (isValid(strcpy)) {
           ans.push(strcpy);
           bestSoFar = depth;
         }
-      } else if(bestSoFar >= depth) {
+      } else if (bestSoFar >= depth) {
         removeChar(strcpy, depth - 1, ans);
       }
     }
@@ -136,8 +150,8 @@ export function SanitizeParentheses(ns: NS, data: unknown): number | string[] | 
     `${JSON.stringify(
       answers.filter((v, i, self) => {
         return self.indexOf(v) === i;
-      })
-    )}`
+      }),
+    )}`,
   );
   return answers.filter((v, i, self) => {
     return self.indexOf(v) === i;
@@ -159,10 +173,21 @@ export function SanitizeParentheses(ns: NS, data: unknown): number | string[] | 
 
 // Input: digits = “105”, target = 5
 // Output: [1*0+5, 10-5]
-export function FindValidMathExpressions(ns: NS, data: unknown): number | string[] | undefined {
-    
+export function FindValidMathExpressions(
+  ns: NS,
+  data: unknown,
+): number | string[] | undefined {
   const logging = new Logging(ns);
-  function helper(res: string[], path: string, num: string, target: number, pos: number, evaluated: number, multed: number) {
+  await logging.initLogging();
+  function helper(
+    res: string[],
+    path: string,
+    num: string,
+    target: number,
+    pos: number,
+    evaluated: number,
+    multed: number,
+  ) {
     if (pos === num.length) {
       if (target === evaluated) {
         res.push(path);
@@ -178,8 +203,24 @@ export function FindValidMathExpressions(ns: NS, data: unknown): number | string
         helper(res, path + cur, num, target, i + 1, cur, cur);
       } else {
         helper(res, path + "+" + cur, num, target, i + 1, evaluated + cur, cur);
-        helper(res, path + "-" + cur, num, target, i + 1, evaluated - cur, -cur);
-        helper(res, path + "*" + cur, num, target, i + 1, evaluated - multed + multed * cur, multed * cur);
+        helper(
+          res,
+          path + "-" + cur,
+          num,
+          target,
+          i + 1,
+          evaluated - cur,
+          -cur,
+        );
+        helper(
+          res,
+          path + "*" + cur,
+          num,
+          target,
+          i + 1,
+          evaluated - multed + multed * cur,
+          multed * cur,
+        );
       }
     }
   }
@@ -209,37 +250,45 @@ export function FindValidMathExpressions(ns: NS, data: unknown): number | string
 // Note 2: Index 0 is an 'overall' parity bit. Watch the Hammingcode-video from 3Blue1Brown for more information
 // Note 3: There's a ~55% chance for an altered Bit. So... MAYBE there is an altered Bit 😉
 // Extranote for automation: return the decimal value as a string
-export function HammingBtoI(ns: NS, data: unknown): number | string[] | undefined {
-    
+export function HammingBtoI(
+  ns: NS,
+  data: unknown,
+): number | string[] | undefined {
   const logging = new Logging(ns);
-  const bin2Dec = function (bin: string): number { 
-    return parseInt(bin,2)
-  }
+  await logging.initLogging();
+  const bin2Dec = function (bin: string): number {
+    return parseInt(bin, 2);
+  };
 
-  if (typeof data === 'string') {
-    const binary = data
-    const bits: number[] = []
+  if (typeof data === "string") {
+    const binary = data;
+    const bits: number[] = [];
     for (const c of binary) {
-      bits.push(c==='1'?1:0)
+      bits.push(c === "1" ? 1 : 0);
     }
-    const err = bits.map((v, i) => { return v > 0 ? i : 0 }).reduce((p, c) => { return p ^ c })
+    const err = bits
+      .map((v, i) => {
+        return v > 0 ? i : 0;
+      })
+      .reduce((p, c) => {
+        return p ^ c;
+      });
     if (err > 0) {
-      logging.info(`error at ${err}`)
-      bits[err]  = (bits[err] === 1)? 0 :1
+      logging.info(`error at ${err}`);
+      bits[err] = bits[err] === 1 ? 0 : 1;
+    } else {
+      logging.info("no error detected.");
     }
-    else {
-      logging.info('no error detected.')
-    }
-    for (let bit = bits.length - 1; bit >= 0; bit--){
+    for (let bit = bits.length - 1; bit >= 0; bit--) {
       if ((bit & (bit - 1)) === 0) {
-        bits.splice(bit,1)
+        bits.splice(bit, 1);
       }
     }
-    logging.info(`remaining bits: ${bits.join('')}`)
+    logging.info(`remaining bits: ${bits.join("")}`);
 
-    const integer = bin2Dec(bits.join(''))
-    logging.success(`integer value: ${integer}`)
-    return [`${integer}`]
+    const integer = bin2Dec(bits.join(""));
+    logging.success(`integer value: ${integer}`);
+    return [`${integer}`];
   }
   throw new Error("Unexpected data types Unable to solve contract.");
 }
@@ -256,137 +305,155 @@ export function HammingBtoI(ns: NS, data: unknown): number | string[] | undefine
 // Now the only one rule for this encoding:
 // It's not allowed to add additional leading '0's to the binary value
 // That means, the binary value has to be encoded as it is
-export function HammingItoB(ns: NS, data: unknown): number | string[] | undefined {
-    
+export function HammingItoB(
+  ns: NS,
+  data: unknown,
+): number | string[] | undefined {
   const logging = new Logging(ns);
-  
-  const decToBin = function (dec: number): number[] { 
-    const bin = []
+  await logging.initLogging();
+
+  const decToBin = function (dec: number): number[] {
+    const bin = [];
     while (dec > 0) {
-      bin.push(dec % 2)
-      dec = Math.floor(dec / 2)
+      bin.push(dec % 2);
+      dec = Math.floor(dec / 2);
     }
-    return bin
-  }
-  if(typeof data === 'number'){
-    const decimal = data
-    logging.info(`converting: ${decimal}`)
+    return bin;
+  };
+  if (typeof data === "number") {
+    const decimal = data;
+    logging.info(`converting: ${decimal}`);
 
     //convert decimal to binary
-    const bin = decToBin(decimal)
-    logging.info(`convert to binary: ${bin.join('')}`)
-    //calculate number of parity bits 
-    const controlBitsIndex: number[] = []
-    let i = 1
+    const bin = decToBin(decimal);
+    logging.info(`convert to binary: ${bin.join("")}`);
+    //calculate number of parity bits
+    const controlBitsIndex: number[] = [];
+    let i = 1;
     while ((bin.length + controlBitsIndex.length) / i >= 1) {
-      controlBitsIndex.push(i)
-      i *= 2
+      controlBitsIndex.push(i);
+      i *= 2;
     }
 
-    bin.splice(0,0,0)
-    controlBitsIndex.forEach(i => {
-      bin.splice(i,0,0)
-    })
-    logging.info(`inserted parity: ${bin.join('')}`)
+    bin.splice(0, 0, 0);
+    controlBitsIndex.forEach((i) => {
+      bin.splice(i, 0, 0);
+    });
+    logging.info(`inserted parity: ${bin.join("")}`);
 
-    controlBitsIndex.forEach(i => {
-      logging.info(`calculating parity ${i}`)
-      bin[i] = bin.filter((v,index)=>{
-        logging.info(`${index} & ${i} == ${index&i}`)
-        return (i & index) !== 0
-      }).reduce((prev, curr, index) => {return prev ^ (index & i) ? curr : 0},0)
-      logging.info(`${i} parity: ${bin[i]}`)
-      logging.info(`bin update: ${bin.join('')}`)
-    })
+    controlBitsIndex.forEach((i) => {
+      logging.info(`calculating parity ${i}`);
+      bin[i] = bin
+        .filter((v, index) => {
+          logging.info(`${index} & ${i} == ${index & i}`);
+          return (i & index) !== 0;
+        })
+        .reduce((prev, curr, index) => {
+          return prev ^ (index & i) ? curr : 0;
+        }, 0);
+      logging.info(`${i} parity: ${bin[i]}`);
+      logging.info(`bin update: ${bin.join("")}`);
+    });
 
-    logging.info(`calulating parity 0`)
-    bin[0] = bin.reduce((prev, curr) => { return prev ^ curr })
-    logging.info(`0 parity: ${bin[0]}`)
-    logging.success(`with parity: ${bin.join('')}`)
-   return [bin.join('')]
+    logging.info(`calulating parity 0`);
+    bin[0] = bin.reduce((prev, curr) => {
+      return prev ^ curr;
+    });
+    logging.info(`0 parity: ${bin[0]}`);
+    logging.success(`with parity: ${bin.join("")}`);
+    return [bin.join("")];
   }
   throw new Error("Unexpected data types Unable to solve contract.");
 }
 
-export function runLengthEncoding(ns: NS, data: unknown): number | string[] | undefined {
-    
+export function runLengthEncoding(
+  ns: NS,
+  data: unknown,
+): number | string[] | undefined {
   const logging = new Logging(ns);
-  if (typeof data === 'string') {
-    const dataArray = [...data]
-    logging.info(data)
+  await logging.initLogging();
+  if (typeof data === "string") {
+    const dataArray = [...data];
+    logging.info(data);
 
     type pairs = {
-      char:string
-      count:number
+      char: string;
+      count: number;
+    };
+    const rlPairs = dataArray.reduce<pairs[]>((prev, curr) => {
+      if (prev.length === 0 || curr !== prev[prev.length - 1].char) {
+        prev.push({ char: curr, count: 1 });
+        return prev;
+      } else {
+        prev[prev.length - 1] = {
+          char: curr,
+          count: prev[prev.length - 1].count + 1,
+        };
+        return prev;
+      }
+    }, []);
+    logging.info(`${rlPairs}`);
+    let retData = "";
+    while (rlPairs.length > 0) {
+      if (rlPairs[0].count > 9) {
+        retData = `${retData}9${rlPairs[0].char}`;
+        rlPairs[0].count = rlPairs[0].count - 9;
+      } else {
+        retData = `${retData}${rlPairs[0].count}${rlPairs[0].char}`;
+        rlPairs.splice(0, 1);
+      }
     }
-    const rlPairs = dataArray.reduce<pairs[]>((prev,curr)=>{
-      if(prev.length===0 || curr !== prev[prev.length-1].char){
-        prev.push({char:curr, count:1})
-        return prev
-      }
-      else {
-        prev[prev.length-1] = {char:curr,count:prev[prev.length-1].count+1}
-        return prev
-      }
-    },[])
-    logging.info(`${rlPairs}`)
-    let retData = ""
-    while (rlPairs.length > 0){
-      if(rlPairs[0].count > 9){
-        retData = `${retData}9${rlPairs[0].char}`
-        rlPairs[0].count = rlPairs[0].count-9
-      }
-      else{
-        retData = `${retData}${rlPairs[0].count}${rlPairs[0].char}`
-        rlPairs.splice(0,1)
-      } 
-    }
-    logging.success(retData)
-    return [retData]
+    logging.success(retData);
+    return [retData];
   }
   throw new Error("Unexpected data types Unable to solve contract.");
 }
 
-export function lzDecompression(ns: NS, data: unknown): number | string[] | undefined {
-    
+export function lzDecompression(
+  ns: NS,
+  data: unknown,
+): number | string[] | undefined {
   const logging = new Logging(ns);
-  if (typeof data === 'string') {
-    logging.info(data)
-    const datArr = [...data]
-    let ret = ""
-    while (datArr.length > 0){
+  await logging.initLogging();
+  if (typeof data === "string") {
+    logging.info(data);
+    const datArr = [...data];
+    let ret = "";
+    while (datArr.length > 0) {
       //copy
-      const count = parseInt(datArr.splice(0,1)[0])
-      if(count !== 0)
-      {
-        ret = ret + datArr.splice(0,count).join('')
+      const count = parseInt(datArr.splice(0, 1)[0]);
+      if (count !== 0) {
+        ret = ret + datArr.splice(0, count).join("");
         if (datArr.length === 0) {
-          break
+          break;
         }
       }
       //ref
-      const count2 = parseInt(datArr.splice(0,1)[0])
-      if(count !==0){
-        const pos = parseInt(datArr.splice(0,1)[0])
-        for(let i = 0; i < count2;  i++){
-          ret = ret + ret[Math.max(0,ret.length - pos-1)]
+      const count2 = parseInt(datArr.splice(0, 1)[0]);
+      if (count !== 0) {
+        const pos = parseInt(datArr.splice(0, 1)[0]);
+        for (let i = 0; i < count2; i++) {
+          ret = ret + ret[Math.max(0, ret.length - pos - 1)];
         }
       }
     }
-    logging.success(ret)
+    logging.success(ret);
     // return [ret]
   }
   throw new Error("Unexpected data types Unable to solve contract.");
 }
 
-export function lzCompression(ns: NS, data: unknown): number | string[] | undefined {
-    
+export function lzCompression(
+  ns: NS,
+  data: unknown,
+): number | string[] | undefined {
   const logging = new Logging(ns);
-  if (typeof data === 'string') {
-    const ret = ""
+  await logging.initLogging();
+  if (typeof data === "string") {
+    const ret = "";
 
-    logging.info(`${data} -> ${ret}`)
-    return [ret]
+    logging.info(`${data} -> ${ret}`);
+    return [ret];
   }
-  throw new Error("Unexpected data types Unable to solve contract."); 
+  throw new Error("Unexpected data types Unable to solve contract.");
 }

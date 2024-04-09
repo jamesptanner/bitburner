@@ -3,8 +3,8 @@
 // You are given an array of numbers representing stock prices, where the
 // i-th element represents the stock price on day i.
 
-import { NS } from '@ns';
-import { Logging } from '/shared/logging';
+import { NS } from "@ns";
+import { Logging } from "/shared/logging";
 // Determine the maximum possible profit you can earn using at most one
 // transaction (i.e. you can buy an sell the stock once). If no profit
 // can be made, then the answer should be 0. Note that you must buy the stock
@@ -19,9 +19,12 @@ const isNumberArray = function (val: unknown): val is number[] {
   );
 };
 
-export function StockTrader1(ns: NS, data: unknown): number | string[] | undefined {
-    
+export function StockTrader1(
+  ns: NS,
+  data: unknown,
+): number | string[] | undefined {
   const logging = new Logging(ns);
+  await logging.initLogging();
   if (isNumberArray(data)) {
     const stocks: number[] = data;
     let bestProfit = 0;
@@ -48,9 +51,12 @@ export function StockTrader1(ns: NS, data: unknown): number | string[] | undefin
 // share of the stock. Note that you cannot engage in multiple transactions at
 // once. In other words, you must sell the stock before you buy it again. If no
 // profit can be made, then the answer should be 0.
-export function StockTrader2(ns: NS, data: unknown): number | string[] | undefined {
-    
+export function StockTrader2(
+  ns: NS,
+  data: unknown,
+): number | string[] | undefined {
   const logging = new Logging(ns);
+  await logging.initLogging();
   if (isNumberArray(data)) {
     const stocks: number[] = data;
     let profit = 0;
@@ -75,7 +81,10 @@ export function StockTrader2(ns: NS, data: unknown): number | string[] | undefin
 // of the stock. Note that you cannot engage in multiple transactions at once.
 // In other words, you must sell the stock before you buy it again. If no profit
 // can be made, then the answer should be 0.
-export function StockTrader3(ns: NS, data: unknown): number | string[] | undefined {
+export function StockTrader3(
+  ns: NS,
+  data: unknown,
+): number | string[] | undefined {
   if (isNumberArray(data)) {
     let hold1 = Number.MIN_SAFE_INTEGER;
     let hold2 = Number.MIN_SAFE_INTEGER;
@@ -104,8 +113,15 @@ export function StockTrader3(ns: NS, data: unknown): number | string[] | undefin
 // Note that you cannot engage in multiple transactions at once. In other words,
 // you must sell the stock before you can buy it. If no profit can be made, then
 // the answer should be 0.
-export function StockTrader4(ns: NS, data: unknown): number | string[] | undefined {
-  if (Array.isArray(data) && typeof data[0] === "number" && isNumberArray(data[1])) {
+export function StockTrader4(
+  ns: NS,
+  data: unknown,
+): number | string[] | undefined {
+  if (
+    Array.isArray(data) &&
+    typeof data[0] === "number" &&
+    isNumberArray(data[1])
+  ) {
     const k = data[0];
     const prices = data[1];
     const len = prices.length;
