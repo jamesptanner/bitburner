@@ -17,7 +17,8 @@
     ],
     "ignorePatterns": [
         "**/NetscriptDefiniitions.d.ts",
-        "build/*",
+        "build/**",
+        "bundle/**",
         "dist/**",
         "docs/**"
     ],
