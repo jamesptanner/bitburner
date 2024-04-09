@@ -1,6 +1,7 @@
 import { NS } from '@ns';
 import { solveContractPath } from '/contracts/solveContract';
-import { logging, initLogging } from '/shared/logging';
+import { Logging } from '/shared/logging';
+
 
 export const processContractsPath ="/contracts/processContracts.js";
 
@@ -10,7 +11,9 @@ interface Contract {
 }
 
 export async function main(ns : NS) : Promise<void> {
-    await initLogging(ns);
+    
+    const logging = new Logging(ns);
+    
     const contractMap = JSON.parse(ns.read("contracts.txt") as string)
     let contractsByType = new Array<Contract>()
     for (const host in contractMap) {

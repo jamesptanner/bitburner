@@ -1,13 +1,15 @@
 import { NS } from '@ns';
 import { factions, getAllAugmentsFromFaction } from '/shared/factions';
-import { initLogging,logging } from '/shared/logging';
+
 import { makeTable } from '/shared/ui';
 import { unique } from '/shared/utils';
+import { Logging } from '/shared/logging';
 
 export const dumpAllAugmentsPath ="/augments/dumpAllAugments.js";
 
 export async function main(ns : NS) : Promise<void> {
-    await initLogging(ns)
+    const logging = new Logging(ns);
+    
     ns.clearLog()
     ns.tail()
     const augments:string[] = ns.singularity.getOwnedAugmentations(true)

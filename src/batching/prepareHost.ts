@@ -1,10 +1,12 @@
 import { NS } from "@ns";
 import { growServer, weakenServer } from "/shared/HGW";
-import { initLogging, logging } from "/shared/logging";
+import { Logging } from "/shared/logging";
 export const prepareHostPath ="/batching/prepareHost.js";
 
 export async function main(ns: NS): Promise<void> {
-    await initLogging(ns)
+    
+    const logging = new Logging(ns);
+    
     const target = ns.args[0];
    logging.info(`preparing target: ${target}`);
     if (typeof target === 'string') {

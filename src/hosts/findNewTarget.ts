@@ -1,10 +1,10 @@
 import { NS } from '@ns';
 import { hackHostPath } from "/hosts/hackHost";
 import { asString, getAllServers } from "/shared/utils";
-import { initLogging, logging } from '/shared/logging';
+import { Logging } from '/shared/logging';
 
 export async function main(ns : NS) : Promise<void> {
-    await initLogging(ns)
+    const logging = new Logging(ns);
     const oldTarget = asString(ns.args[0])
     const target = findBestTarget(ns)
     const serverInfo = ns.getServer(oldTarget);

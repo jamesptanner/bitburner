@@ -1,11 +1,12 @@
 import { NS } from "@ns";
 import { growServer, hackServer, weakenServer } from "/shared/HGW";
-import { initLogging, logging } from '/shared/logging';
+import { Logging } from "/shared/logging";
+
 
 export const hackHostPath ="/hosts/hackHost.js";
 
 export async function main(ns: NS): Promise<void> {
-    await initLogging(ns)
+    const logging = new Logging(ns);
     const flags = ns.flags([['host',ns.getHostname()]])
     const target = flags.host;
 

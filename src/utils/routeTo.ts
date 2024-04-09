@@ -1,11 +1,11 @@
 import { NS } from '@ns';
-import { initLogging,logging } from '/shared/logging';
 import { routeToHost } from '/shared/utils';
+import { Logging } from '/shared/logging';
 
 export const routeToPath ="/utils/routeTo.js";
 
 export async function main(ns : NS) : Promise<void> {
-    await initLogging(ns)
+    const logging = new Logging(ns);
     ns.disableLog('ALL')
     ns.tail()
     const opts  = ns.flags([["host","home"]])

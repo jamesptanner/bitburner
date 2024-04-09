@@ -4,12 +4,12 @@
       "prefix": "template",
       "body": [
         "import { NS } from '@ns';",
-        "import { initLogging } from '/shared/logging';",
+        "import { Logging } from '/shared/logging';",
         "",
         "export const ${TM_FILENAME_BASE}Path =\"${RELATIVE_FILEPATH/(src[\\\\\\\/])|([\\\\\\\/][\\w]*\\.ts)|([\\\\\\\/])/\\//gm}${TM_FILENAME_BASE}.js\";",
         "",
         "export async function main(ns : NS) : Promise<void> {",
-        "\tawait initLogging(ns)",
+        "\tconst logging = new Logging(ns);",
         "\t$0",
         "}"
       ]

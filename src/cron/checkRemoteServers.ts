@@ -1,15 +1,18 @@
 import { NS } from '@ns';
-import { initLogging, logging } from '/shared/logging';
+
 import { getAllServers, routeToHost, walk } from '/shared/utils';
+import { Logging } from '/shared/logging';
 
 export const checkRemoteServersPath = "/cron/checkRemoteServers.js";
 
 export async function main(ns: NS): Promise<void> {
-  await initLogging(ns)
+  
 
   const servers = getAllServers(ns);
 
   for (let index = 0; index < servers.length; index++) {
+    
+    const logging = new Logging(ns);
     const host = servers[index];
     let serverInfo = ns.getServer(host);
 

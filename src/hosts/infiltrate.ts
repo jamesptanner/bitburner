@@ -1,9 +1,11 @@
 import { NS } from '@ns';
 import { getNumberOfTools, hasFTP, hasHTTP, hasSMTP, hasSQL, hasSSH } from '/shared/HGW';
-import { logging, initLogging } from '/shared/logging';
+import { Logging } from '/shared/logging';
+
 export const infiltratePath = "/hosts/infiltrate.js";
 
 const infiltrate = function (ns: NS, host: string) {
+    const logging = new Logging(ns);
     const targetHackLevel = ns.getServerRequiredHackingLevel(host)
     if (targetHackLevel > ns.getHackingLevel()) {
         logging.warning(`not able to hack host: ${host}(${targetHackLevel})`)
@@ -41,8 +43,9 @@ const infiltrate = function (ns: NS, host: string) {
 
 
 export async function main(ns: NS): Promise<void> {
-    await initLogging(ns)
+    
 
+    const logging = new Logging(ns);
     if (ns.args.length === 1) {
         const target = ns.args[0];
         logging.info(`infiltrating target: ${target}`)

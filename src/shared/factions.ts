@@ -1,5 +1,5 @@
 import { NS } from '@ns';
-import { logging } from 'shared/logging';
+import { Logging } from 'shared/logging';
 import { needToFocus } from "shared/utils";
 
 export const factionsPath = "/shared/factions.js";
@@ -257,6 +257,8 @@ export const getUniqueAugmentsAvailableFromFaction = function (ns: NS, faction: 
 }
 
 const waitToBackdoor = async function (ns: NS, server: string) {
+    
+    const logging = new Logging(ns);
     logging.info(`Waiting for ${server} to be backdoored`)
     while (!ns.getServer(server).backdoorInstalled) {
         const currentWork = ns.singularity.getCurrentWork();
@@ -734,6 +736,8 @@ const repForNextRole = function (ns: NS, corpName: string): number {
 }
 
 const improveCorporateReputation = async function (ns: NS, corpNameAsString: string, reputation: number) {
+    const logging = new Logging(ns);
+    
     logging.info(`Waiting to improve reputation with ${corpNameAsString}`)
     const corpName = ns.enums.CompanyName[corpNameAsString as keyof typeof ns.enums.CompanyName]
     while (ns.singularity.getCompanyRep(corpName) < reputation) {
@@ -761,6 +765,8 @@ const improveCorporateReputation = async function (ns: NS, corpNameAsString: str
 }
 
 export const unlockFaction = async function (ns: NS, faction: string): Promise<boolean> {
+    
+    const logging = new Logging(ns);
     if (ns.getPlayer().factions.indexOf(faction) !== -1) return true
     if (getAvailableFactions(ns).indexOf(faction) !== -1) {
         ns.singularity.joinFaction(faction)
@@ -823,6 +829,7 @@ export const unlockFaction = async function (ns: NS, faction: string): Promise<b
 }
 
 export const improveFactionReputation = async function (ns: NS, faction: string, reputation: number): Promise<void> {
+    const logging = new Logging(ns);
     while (reputation > ns.singularity.getFactionRep(faction) ) {
         ns.tail()
         logging.info(`current faction relationship ${faction} is ${ns.formatNumber(ns.singularity.getFactionRep(faction))}, want ${ns.formatNumber(reputation)}.`)
@@ -843,6 +850,8 @@ export const improveFactionReputation = async function (ns: NS, faction: string,
 }
 
 export const improveStat = async function (ns: NS, hacking = 0, combat = 0, charisma = 0): Promise<void> {
+    
+    const logging = new Logging(ns);
     let previousSkill = ""
     // eslint-disable-next-line no-constant-condition
     while (true) {

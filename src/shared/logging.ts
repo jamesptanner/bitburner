@@ -61,116 +61,107 @@ function generateUUID() { // Public Domain/MIT
     });
 }
 
-export const LOGGING_PORT = 1;
-const loggingTrace = generateUUID();
-let n: NS;
+export class Logging {
 
-const DBVERSION = 1
-export const LoggingTable = "logging"
-export const MetricTable = "metrics"
+    private loggingTrace = generateUUID();
+    private n: NS;
 
-let loggingDB: IDBPDatabase
+    // const DBVERSION = 1
+    // export const LoggingTable = "logging"
+    // export const MetricTable = "metrics"
 
-export const getLoggingDB = function(): IDBPDatabase {
-    return loggingDB;
-}
+    // private loggingDB: IDBPDatabase
 
-export const initLogging = async function (ns: NS): Promise<void> {
-    n = ns;
-    // loggingDB = await OpenIDB("BBLogging",DBVERSION,{
-    //     upgrade(db,prevVersion){
-    //         if(prevVersion < 1){
-    //             const loggingStore = db.createObjectStore(LoggingTable, {autoIncrement:true})
-    //             loggingStore.createIndex("timestamp","timestamp",{unique:false})
-    //             const metricStore = db.createObjectStore(MetricTable,{autoIncrement:true})
-    //             metricStore.createIndex("timestamp","timestamp",{unique:false})
-    //         }
-    //     }
-    // })
-    ns.disableLog('ALL')
-    ns.clearLog()
-};
+    constructor(ns: NS){
+        this.n = ns;
+        // loggingDB = await OpenIDB("BBLogging",DBVERSION,{
+        //     upgrade(db,prevVersion){
+        //         if(prevVersion < 1){
+        //             const loggingStore = db.createObjectStore(LoggingTable, {autoIncrement:true})
+        //             loggingStore.createIndex("timestamp","timestamp",{unique:false})
+        //             const metricStore = db.createObjectStore(MetricTable,{autoIncrement:true})
+        //             metricStore.createIndex("timestamp","timestamp",{unique:false})
+        //         }
+        //     }
+        // })
+        ns.disableLog('ALL')
+        ns.clearLog()
+        return this;
+    };
 
-const levelToString = function (level: Level): string {
-    switch (level) {
-        case Level.Error:
-            return "ERROR";
-        case Level.Info:
-            return "INFO";
-        case Level.Warning:
-            return "WARNING";
-        case Level.success:
-            return "SUCCESS";
-    }
-    return "";
-};
-
-const levelToToast = function (level: Level): "success" | "warning" | "error" | "info" | undefined {
-    switch (level) {
-        case Level.Error:
-            return "error";
-        case Level.Info:
-            return "info";
-        case Level.Warning:
-            return "warning";
-        case Level.success:
-            return "success";
-    }
-    return undefined;
-};
-
-export const log = function (level: Level, msg: string, toast?: boolean): void {
-    if(n){
-        if (toast) {
-            n.toast(`${levelToString(level)}: ${msg}`, levelToToast(level));
+    private levelToString(level: Level): string {
+        switch (level) {
+            case Level.Error:
+                return "ERROR";
+            case Level.Info:
+                return "INFO";
+            case Level.Warning:
+                return "WARNING";
+            case Level.success:
+                return "SUCCESS";
         }
-        n.print(`${levelToString(level)}: ${msg}`);
-        // const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
-        //     level: level,
-        //     message: msg,
-        // }, n.args.toString())
-        // const tx = loggingDB.transaction(LoggingTable,'readwrite')
-        // tx.putAndForget(logPayload);
-        // tx.commit();
-    }
-    else{
-        throw new Error("Logging not initalised");
-    } 
+        return "";
+    };
 
-};
+    private levelToToast(level: Level): "success" | "warning" | "error" | "info" | undefined {
+        switch (level) {
+            case Level.Error:
+                return "error";
+            case Level.Info:
+                return "info";
+            case Level.Warning:
+                return "warning";
+            case Level.success:
+                return "success";
+        }
+        return undefined;
+    };
 
-export const success = function (msg: string, toast?: boolean): void {
-    log(Level.success, msg, toast)
-};
-export const info = function (msg: string, toast?: boolean): void {
-     log(Level.Info, msg, toast)
-};
-export const warning =  function (msg: string, toast?: boolean): void {
-     log(Level.Warning, msg, toast)
-};
-export const error =  function (msg: string, toast?: boolean): void {
-     log(Level.Error, msg, toast)
-};
+    public log(level: Level, msg: string, toast?: boolean): void {
+        if(this.n){
+            if (toast) {
+                this.n.toast(`${this.levelToString(level)}: ${msg}`, this.levelToToast(level));
+            }
+            this.n.print(`${this.levelToString(level)}: ${msg}`);
+            // const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
+            //     level: level,
+            //     message: msg,
+            // }, n.args.toString())
+            // const tx = loggingDB.transaction(LoggingTable,'readwrite')
+            // tx.putAndForget(logPayload);
+            // tx.commit();
+        }
+        else{
+            throw new Error("Logging not initalised");
+        } 
 
-export const sendMetric = function (key: string, value: number): void {
+    };
 
-    if (!isNaN(value)){
-        info(`Metric ${key}: ${value}`)
-        // const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
-        //     key: key,
-        //     value: value,
-        // }, n.args.toString());
-        
-        // const tx = loggingDB.transaction(MetricTable,'readwrite');
-        // tx.putAndForget(logPayload);
-        // tx.commit();
-    }
-};
+    public success(msg: string, toast?: boolean): void {
+        this.log(Level.success, msg, toast)
+    };
+    public info(msg: string, toast?: boolean): void {
+        this.log(Level.Info, msg, toast)
+    };
+    public  warning(msg: string, toast?: boolean): void {
+        this.log(Level.Warning, msg, toast)
+    };
+    public error(msg: string, toast?: boolean): void {
+        this.log(Level.Error, msg, toast)
+    };
 
-export const logging = {
-    log: log,
-    error: error,
-    warning: warning,
-    success: success,
-    info: info
+    public sendMetric(key: string, value: number): void {
+
+        if (!isNaN(value)){
+            this.info(`Metric ${key}: ${value}`)
+            // const logPayload = new LoggingPayload(n.getHostname(), n.getScriptName(), loggingTrace, {
+            //     key: key,
+            //     value: value,
+            // }, n.args.toString());
+            
+            // const tx = loggingDB.transaction(MetricTable,'readwrite');
+            // tx.putAndForget(logPayload);
+            // tx.commit();
+        }
+    };
 }

@@ -5,9 +5,10 @@ import { largestPrimeFactor, MaxSubArray, TotalSums, TotalSums2 } from '/contrac
 import { colorGraph, MinTrianglePath, UniquePath1, UniquePath2 } from '/contracts/solvers/PathContracts';
 import { StockTrader1, StockTrader2, StockTrader3, StockTrader4 } from '/contracts/solvers/StockContracts';
 import { FindValidMathExpressions, GenerateIPAddresses, HammingBtoI, runLengthEncoding, SanitizeParentheses } from '/contracts/solvers/StringContracts';
-import { initLogging,logging } from '/shared/logging';
+
 import { asString } from '/shared/utils';
 import { lzDecompression } from '/contracts/solvers/StringContracts';
+import { Logging } from '/shared/logging';
 
 export const solveContractPath = "/contracts/solveContract.js";
 
@@ -44,7 +45,9 @@ const processors = new Map<string, ContractFunction>([
 ])
 
 export async function main(ns: NS): Promise<void> {
-    await initLogging(ns)
+    
+    const logging = new Logging(ns);
+    
     const usage = `solveContract.ts USAGE: ${solveContractPath} <contract filename> <host>`;
     if (ns.args.length !== 2) {
         logging.error(`Invalid number of arguments`)

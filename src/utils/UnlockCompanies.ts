@@ -1,6 +1,6 @@
 import { NS } from '@ns';
 import { unlockFaction } from 'shared/factions';
-import { initLogging,logging } from '/shared/logging';
+import { Logging } from '/shared/logging';
 
 export const UnlockCompaniesPath ="/utils/UnlockCompanies.js";
 const earlyGameFactions = [
@@ -30,7 +30,7 @@ const corporateFactions = [
     "Fulcrum Secret Technologies"
 ]
 export async function main(ns : NS) : Promise<void> {
-    await initLogging(ns)
+    const logging = new Logging(ns);
     ns.tail()
     const opts = ns.flags([["crime", false],["early",false],["corp",false]])
 

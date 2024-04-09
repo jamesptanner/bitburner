@@ -1,6 +1,6 @@
 import { NS } from '@ns';
 import { is2DArray } from '/shared/utils';
-import { logging } from '/shared/logging';
+import { Logging } from '/shared/logging';
 // "Spiralize Matrix"
 
 // Given an array of array of numbers representing a 2D matrix, return the
@@ -14,6 +14,8 @@ import { logging } from '/shared/logging';
 
 // is [1, 2, 3, 4, 8, 12, 11, 10, 9, 5, 6, 7]
 export function SpiralMatrix(ns: NS, data: unknown): number | string[] | undefined {
+    
+    const logging = new Logging(ns);
     if (is2DArray<number>(data, (val): val is number => { return typeof val === 'number' })) {
         logging.info(`${JSON.stringify(data)} type:${typeof data}`)
         const numberArray: number[][] = data
@@ -77,6 +79,8 @@ export function SpiralMatrix(ns: NS, data: unknown): number | string[] | undefin
 // Assuming you are initially positioned at the start of the array, determine
 // whether you are able to reach the last index of the array.
 export function ArrayJump(ns: NS, data: unknown): number | string[] | undefined {
+    
+    const logging = new Logging(ns);
     if(Array.isArray(data) && data.every(val => typeof val === 'number')){
         logging.info(`${JSON.stringify(data)} type:${typeof data}`)
     const numberArray: number[] = data
@@ -106,6 +110,8 @@ throw new Error("Unexpected data types Unable to solve contract.");
 
 // If it's impossible to reach the end, then the answer should be 0.
 export function ArrayJump2(ns: NS, data: unknown): number | string[] | undefined {
+    
+    const logging = new Logging(ns);
     if(Array.isArray(data) && data.every(val => typeof val === 'number')){
     logging.info(`${JSON.stringify(data)} type:${typeof data}`)
     const numberArray: number[] = data
@@ -121,6 +127,8 @@ throw new Error("Unexpected data types Unable to solve contract.");
 }
 
 function checkPosition(ns: NS, array: number[], pos: number,depth:number): [boolean,number] {
+    
+    const logging = new Logging(ns);
     //logging.info(`${array}: checking position ${pos}`)
     if (pos === array.length - 1) return [true,depth]
     let minHops = array.length
@@ -149,6 +157,8 @@ function checkPosition(ns: NS, array: number[], pos: number,depth:number): [bool
 // [[1, 3], [8, 10], [2, 6], [10, 16]]
 // merges into [[1, 6], [8, 16]]
 export function MergeOverlapping(ns: NS, data: unknown): number | string[] | undefined {
+    
+    const logging = new Logging(ns);
     if (is2DArray<number>(data, (val): val is number => { return typeof val === 'number' })) {
         const numberArray: number[][] = data
 

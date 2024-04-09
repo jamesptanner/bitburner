@@ -1,6 +1,6 @@
 import { NS } from '@ns';
 import { asNumber, asString } from "shared/utils";
-import { logging } from 'shared/logging';
+import { Logging } from '/shared/logging';
 // "Generate IP Addresses"
 
 // Given a string containing only digits, return an array with all possible
@@ -13,6 +13,8 @@ import { logging } from 'shared/logging';
 // 25525511135 -> [255.255.11.135, 255.255.111.35]
 // 1938718066 -> [193.87.180.66]
 export function GenerateIPAddresses(ns: NS, data: unknown): number | string[] | undefined {
+    
+  const logging = new Logging(ns);
   logging.info(`${JSON.stringify(data)} type:${typeof data}`);
   const baseAddress: string = asString(data);
   const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[1]?[0-9][0-9]?)$/;
@@ -76,6 +78,8 @@ export function GenerateIPAddresses(ns: NS, data: unknown): number | string[] | 
 // (a)())() -> [(a)()(), (a())()]
 // )( -> [“”]
 export function SanitizeParentheses(ns: NS, data: unknown): number | string[] | undefined {
+    
+  const logging = new Logging(ns);
   logging.info(`${JSON.stringify(data)} type:${typeof data}`);
   const parentheses: string = asString(data);
 
@@ -156,6 +160,8 @@ export function SanitizeParentheses(ns: NS, data: unknown): number | string[] | 
 // Input: digits = “105”, target = 5
 // Output: [1*0+5, 10-5]
 export function FindValidMathExpressions(ns: NS, data: unknown): number | string[] | undefined {
+    
+  const logging = new Logging(ns);
   function helper(res: string[], path: string, num: string, target: number, pos: number, evaluated: number, multed: number) {
     if (pos === num.length) {
       if (target === evaluated) {
@@ -204,6 +210,8 @@ export function FindValidMathExpressions(ns: NS, data: unknown): number | string
 // Note 3: There's a ~55% chance for an altered Bit. So... MAYBE there is an altered Bit 😉
 // Extranote for automation: return the decimal value as a string
 export function HammingBtoI(ns: NS, data: unknown): number | string[] | undefined {
+    
+  const logging = new Logging(ns);
   const bin2Dec = function (bin: string): number { 
     return parseInt(bin,2)
   }
@@ -249,6 +257,8 @@ export function HammingBtoI(ns: NS, data: unknown): number | string[] | undefine
 // It's not allowed to add additional leading '0's to the binary value
 // That means, the binary value has to be encoded as it is
 export function HammingItoB(ns: NS, data: unknown): number | string[] | undefined {
+    
+  const logging = new Logging(ns);
   
   const decToBin = function (dec: number): number[] { 
     const bin = []
@@ -299,6 +309,8 @@ export function HammingItoB(ns: NS, data: unknown): number | string[] | undefine
 }
 
 export function runLengthEncoding(ns: NS, data: unknown): number | string[] | undefined {
+    
+  const logging = new Logging(ns);
   if (typeof data === 'string') {
     const dataArray = [...data]
     logging.info(data)
@@ -336,6 +348,8 @@ export function runLengthEncoding(ns: NS, data: unknown): number | string[] | un
 }
 
 export function lzDecompression(ns: NS, data: unknown): number | string[] | undefined {
+    
+  const logging = new Logging(ns);
   if (typeof data === 'string') {
     logging.info(data)
     const datArr = [...data]
@@ -366,6 +380,8 @@ export function lzDecompression(ns: NS, data: unknown): number | string[] | unde
 }
 
 export function lzCompression(ns: NS, data: unknown): number | string[] | undefined {
+    
+  const logging = new Logging(ns);
   if (typeof data === 'string') {
     const ret = ""
 

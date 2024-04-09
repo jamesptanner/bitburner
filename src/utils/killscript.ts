@@ -1,11 +1,11 @@
 import { NS } from '@ns';
 import { getAllServers } from '/shared/utils';
-import { initLogging,logging } from '/shared/logging';
+import { Logging } from '/shared/logging';
 
 export const killscriptPath ="/utils/killscript.js";
 
 export async function main(ns : NS) : Promise<void> {
-    await initLogging(ns)
+    const logging = new Logging(ns);
     ns.disableLog('ALL')
     const target = ns.args[0] || "";
     logging.info(`killing script: ${target}`)

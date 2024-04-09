@@ -1,12 +1,14 @@
 import { NS } from '@ns';
 import { weakenServer } from '/shared/HGW';
 import { asNumber, asString } from '/shared/utils';
-import { initLogging, logging } from "/shared/logging";
+import { Logging } from '/shared/logging';
 
 export const weakenPath ="/batching/weaken.js";
 
 export async function main(ns: NS): Promise<void> {
-    await initLogging(ns)
+    
+    const logging = new Logging(ns);
+    
     const target = asString(ns.args[0])
     const startTime = asNumber(ns.args[1])
     if (typeof target === 'string' && typeof startTime === 'number' ) {

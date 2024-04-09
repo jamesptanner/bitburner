@@ -1,7 +1,8 @@
 import { NS } from '@ns';
 import { factions, factionUnlockRequirements, getAvailableFactions, getUniqueAugmentsAvailableFromFaction, improveFactionReputation, unlockFaction } from 'shared/factions';
 import { getAugmentsAvailableFromFaction } from '/shared/factions';
-import { initLogging, logging } from '/shared/logging';
+import { Logging } from '/shared/logging';
+
 
 
 export const augmentsPath = "/cron/augments.js";
@@ -39,6 +40,7 @@ const chooseAFaction = function (ns: NS, skipFactions:string[]): string {
  * @param augment augment to buy
  */
 const purchaseAugment = async function (ns: NS, faction: string, augment: string) {
+    const logging = new Logging(ns);
     logging.info(`buying ${augment} from ${faction}`)
     let purchaseAttempt = 0
     while (!ns.singularity.purchaseAugmentation(faction, augment) && purchaseAttempt < 3) {
@@ -59,6 +61,7 @@ const purchaseAugment = async function (ns: NS, faction: string, augment: string
 }
 
 const purchaseAugments = async function (ns: NS, faction: string, augments: string[]) {
+    const logging = new Logging(ns);
     const sortedAugments = augments.sort((a, b) => {
         return ns.singularity.getAugmentationPrice(b) - ns.singularity.getAugmentationPrice(a) //prices change but the order wont.
     })
@@ -84,7 +87,8 @@ const purchaseAugments = async function (ns: NS, faction: string, augments: stri
 }
 
 export async function main(ns: NS): Promise<void> {
-    await initLogging(ns)
+    const logging = new Logging(ns);
+    
     ns.disableLog("ALL")
     const skippedFactions:string[] = []
     //do we already have some factions we could buy from unlocked?
@@ -110,6 +114,7 @@ export async function main(ns: NS): Promise<void> {
 }
 
 async function unlockNewFactionAndBuyAugments(ns: NS, skippedFactions: string[]) {
+    const logging = new Logging(ns);
     let faction = chooseAFaction(ns, skippedFactions);
     let unlocked = false;
     do {

@@ -1,15 +1,15 @@
 import { NS } from '@ns';
-import { initLogging, Level, log, sendMetric } from '/shared/logging';
+import { Logging } from '/shared/logging';
 
 export const loggingservicePath ="/test/loggingservice.js";
 
 export async function main(ns : NS) : Promise<void> {
-    await initLogging(ns)
-    await log(Level.Error,`This is a message at ${Date.now().toLocaleString()}`)
-    sendMetric("key.level.depth",11)
-    sendMetric("key.level.time",Date.now())
+    const logging = new Logging(ns);
+    logging.error(`This is a message at ${Date.now().toLocaleString()}`)
+    logging.sendMetric("key.level.depth",11)
+    logging.sendMetric("key.level.time",Date.now())
     for (let index = 0; index < 100; index++) {
-        sendMetric("key.level.value",Math.random()%100)
+        logging.sendMetric("key.level.value",Math.random()%100)
         await ns.asleep(1000)        
     }
 

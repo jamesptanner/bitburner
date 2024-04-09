@@ -1,10 +1,10 @@
 import { NS } from '@ns';
-import { initLogging, logging } from '/shared/logging';
+import { Logging } from '/shared/logging';
 
 export const checkmemPath ="/utils/checkmem.js";
 
 export async function main(ns : NS) : Promise<void> {
-    await initLogging(ns)
+    const logging = new Logging(ns);
     ns.disableLog('ALL')
     ns.tail()
     ns.clearLog()
