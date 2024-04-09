@@ -1,12 +1,13 @@
 import { NS } from '@ns';
 import { routeToHost } from '/shared/utils';
-import { initLogging, logging } from '/shared/logging';
+import { Logging } from '/shared/logging';
+
 
 export const processBackdoorsPath = "/cron/processBackdoors.js";
 
 export async function main(ns: NS): Promise<void> {
-    await initLogging(ns)
-
+    
+    const logging = new Logging(ns);
     if(!ns.fileExists("toBackdoor.txt")){
         logging.warning("no backdorr file found.");
         return;

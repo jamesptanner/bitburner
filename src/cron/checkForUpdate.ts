@@ -1,11 +1,13 @@
 import { NS } from '@ns';
-import { initLogging } from '/shared/logging';
-import { error } from '/shared/logging';
+import { Logging } from '/shared/logging';
+
 
 export const checkForUpdatePath ="/cron/checkForUpdate.js";
 
 export async function main(ns : NS) : Promise<void> {
-    await initLogging(ns)
+    
+    const logging = new Logging(ns);
+    
     if(ns.fileExists("dev.txt",'home')){
         ns.exit()
     }
@@ -14,7 +16,7 @@ export async function main(ns : NS) : Promise<void> {
   //get download map file from list
   const mapResponse = await fetch(`${releaseDir}/map.txt`);
   if (!mapResponse.ok) {
-    error(`failed to download release manifest. Reason: ${mapResponse.statusText}`);
+    logging.error(`failed to download release manifest. Reason: ${mapResponse.statusText}`);
   }
   const map = Object.entries<string>(await mapResponse.json());
 

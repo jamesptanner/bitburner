@@ -3,14 +3,17 @@ import { growPath } from 'batching/grow';
 import { weakenPath } from 'batching/weaken';
 import { hackPath } from 'batching/hack';
 import { prepareHostPath } from '/batching/prepareHost';
-import { initLogging, logging } from '/shared/logging';
+
 import { findBestTarget, getAllServers } from '/shared/utils';
+import { Logging } from '/shared/logging';
 
 export const hackingDaemonPath = "/batching/hackingDaemon.js";
 
 export async function main(ns: NS): Promise<void> {
+    
+    const logging = new Logging(ns);
     ns.disableLog('ALL')
-    await initLogging(ns)
+    
     const servers = getAllServers(ns)
 
     
@@ -103,6 +106,8 @@ export async function main(ns: NS): Promise<void> {
 }
 
 async function waitForBatchedHackToFinish(ns: NS) {
+    
+    const logging = new Logging(ns);
     logging.info(`waiting for current hacking threads to finish.`);
     const pids = getAllServers(ns).map(server => {
         return ns.ps(server);
@@ -118,6 +123,8 @@ async function waitForBatchedHackToFinish(ns: NS) {
 }
 
 function killPrepScripts(ns: NS) {
+    
+    const logging = new Logging(ns);
     logging.info(`Killing any preparation scripts.`);
     getAllServers(ns).map(server => {
         return ns.ps(server);
@@ -134,6 +141,8 @@ function killPrepScripts(ns: NS) {
 }
 
 async function waitForPids(pids: number[], ns: NS) {
+    
+    const logging = new Logging(ns);
     do { 
         const finished = pids.filter(pid => pid === 0 || !ns.isRunning(pid, ""));
         finished.forEach(pid => pids.splice(pids.indexOf(pid), 1));
@@ -143,6 +152,8 @@ async function waitForPids(pids: number[], ns: NS) {
 }
 
 async function ScheduleHackEvent(event: number, weak_time: number, hack_time: number, grow_time: number, startTime: number, depth: number, period: number, t0: number, ns: NS, target: string): Promise<boolean> {
+    
+    const logging = new Logging(ns);
     let event_time = 0;
     let event_script = "";
     switch (event % 4) {
@@ -173,6 +184,8 @@ async function ScheduleHackEvent(event: number, weak_time: number, hack_time: nu
 }
 
 async function runTask(ns: NS, script: string, ...args: (string | number | boolean)[]): Promise<boolean> {
+    
+    const logging = new Logging(ns);
     const servers = getAllServers(ns)
     //find a server with enough free memory to run the script.
     const scriptMem = ns.getScriptRam(script)

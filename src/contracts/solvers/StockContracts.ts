@@ -4,7 +4,7 @@
 // i-th element represents the stock price on day i.
 
 import { NS } from '@ns';
-import { logging } from '/shared/logging';
+import { Logging } from '/shared/logging';
 // Determine the maximum possible profit you can earn using at most one
 // transaction (i.e. you can buy an sell the stock once). If no profit
 // can be made, then the answer should be 0. Note that you must buy the stock
@@ -20,6 +20,8 @@ const isNumberArray = function (val: unknown): val is number[] {
 };
 
 export function StockTrader1(ns: NS, data: unknown): number | string[] | undefined {
+    
+  const logging = new Logging(ns);
   if (isNumberArray(data)) {
     const stocks: number[] = data;
     let bestProfit = 0;
@@ -47,6 +49,8 @@ export function StockTrader1(ns: NS, data: unknown): number | string[] | undefin
 // once. In other words, you must sell the stock before you buy it again. If no
 // profit can be made, then the answer should be 0.
 export function StockTrader2(ns: NS, data: unknown): number | string[] | undefined {
+    
+  const logging = new Logging(ns);
   if (isNumberArray(data)) {
     const stocks: number[] = data;
     let profit = 0;

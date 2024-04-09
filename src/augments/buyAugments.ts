@@ -1,13 +1,14 @@
 import { NS } from '@ns';
-import { initLogging, logging } from '/shared/logging';
+
 import { getAugmentsAvailableFromFaction } from '/shared/factions';
 import { unique } from '/shared/utils';
 import { makeTable } from '/shared/ui';
+import { Logging } from '/shared/logging';
 
 export const buyAugmentsPath = "/augments/buyAugments.js";
 
 export async function main(ns: NS): Promise<void> {
-    await initLogging(ns)
+    const logging = new Logging(ns);
 
     const opts = ns.flags([['dry', false], ['wait', false], ['skip', 0], ['neuro', false]])
 
@@ -85,6 +86,7 @@ export async function main(ns: NS): Promise<void> {
 }
 
 async function purchaseAugment(ns: NS, aug: { name: string; location: string; }, wait: boolean): Promise<boolean> {
+    const logging = new Logging(ns);
     do {
         if (ns.getPlayer().money < ns.singularity.getAugmentationPrice(aug.name)) {
             await ns.asleep(60000);

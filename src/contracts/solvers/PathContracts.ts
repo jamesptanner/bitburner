@@ -1,6 +1,6 @@
 import { NS } from '@ns';
 import { is2DArray } from '/shared/utils';
-import { logging } from '/shared/logging';
+import { Logging } from '/shared/logging';
 // "Minimum Path Sum in a Triangle"
 
 // You are given a 2D array of numbers (array of array of numbers) that represents a
@@ -9,6 +9,8 @@ import { logging } from '/shared/logging';
 // bottom of the triangle. In each step of the path, you may only move to adjacent
 // numbers in the row below.
 export function MinTrianglePath(ns: NS, data: unknown): number | string[] | undefined {
+    
+    const logging = new Logging(ns);
 
     if (is2DArray<number>(data, (val: unknown): val is number => { return typeof val === 'number' })) {
         const numberArray: number[][] = data;
@@ -44,6 +46,8 @@ export function MinTrianglePath(ns: NS, data: unknown): number | string[] | unde
 
 // Determine how many unique paths there are from start to finish.
 export function UniquePath1(ns: NS, data: unknown): number | string[] | undefined {
+    
+    const logging = new Logging(ns);
 
     if (Array.isArray(data) && data.every(v => typeof v === 'number')) {
         const maxX: number = data[0]
@@ -82,6 +86,8 @@ export function UniquePath1(ns: NS, data: unknown): number | string[] | undefine
 
 // Determine how many unique paths there are from start to finish.
 export function UniquePath2(ns: NS, data: unknown): number | string[] | undefined {
+    
+    const logging = new Logging(ns);
     if (is2DArray<number>(data, (val: unknown): val is number => { return typeof val === 'number' })) {
 
         const maxX: number = data.length
@@ -121,6 +127,8 @@ export function UniquePath2(ns: NS, data: unknown): number | string[] | undefine
 
 
 export function ShortestPath(ns: NS, data: unknown): number | string[] | undefined {
+    
+    const logging = new Logging(ns);
     type node = {
         position: {
             x: number,
@@ -221,6 +229,8 @@ export function ShortestPath(ns: NS, data: unknown): number | string[] | undefin
 
 
 export function colorGraph(ns: NS, data: unknown): number | string[] | undefined {
+    
+    const logging = new Logging(ns);
     if (Array.isArray(data) && typeof data[0] === 'number' && is2DArray<number>(data[1], (val: unknown): val is number => { return typeof val === 'number' })) {
         const nodeCount = data[0] 
         const edges = (data[1] ).sort((a,b)=>{ return a[0] - b[0] })

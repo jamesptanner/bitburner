@@ -1,6 +1,5 @@
 import { NS } from '@ns';
-import { MetricTable } from 'shared/logging';
-import { getLoggingDB, initLogging, LogData, LoggingPayload, LoggingTable } from "/shared/logging";
+import { LogData, LoggingPayload } from "/shared/logging";
 import { IDBPDatabase, wrapIDBRequest } from '/lib/idb';
 
 export const loggingServicePath = "/autorun/loggingService.js";
@@ -190,25 +189,25 @@ export async function main(ns: NS): Promise<void> {
     setupLoki(loggingSettings)
     setupGraphite(loggingSettings)
 
-    await initLogging(ns)
-    const loggingDB = getLoggingDB()
+    
+    // const loggingDB = getLoggingDB()
 
-    await trimRecords(ns, loggingDB)
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-        try {
-            let start = Date.now()
-            await sendLogs(loggingDB, ns, loggingSettings, LoggingTable, sendLog);
-            ns.print(`time taken: ${ns.tFormat(Date.now() - start)}`)
-            start = Date.now()
-            await sendLogs(loggingDB, ns, loggingSettings, MetricTable, sendTrace)
-            ns.print(`time taken: ${ns.tFormat(Date.now() - start)}`)
-        }
-        catch (e) {
-            ns.print(`failed to send log: ${e}`)
-        }
-        await ns.asleep(500)
-    }
+    // await trimRecords(ns, loggingDB)
+    // // eslint-disable-next-line no-constant-condition
+    // while (true) {
+    //     try {
+    //         let start = Date.now()
+    //         await sendLogs(loggingDB, ns, loggingSettings, LoggingTable, sendLog);
+    //         ns.print(`time taken: ${ns.tFormat(Date.now() - start)}`)
+    //         start = Date.now()
+    //         await sendLogs(loggingDB, ns, loggingSettings, MetricTable, sendTrace)
+    //         ns.print(`time taken: ${ns.tFormat(Date.now() - start)}`)
+    //     }
+    //     catch (e) {
+    //         ns.print(`failed to send log: ${e}`)
+    //     }
+    //     await ns.asleep(500)
+    // }
 }
 
 async function sendLogs(loggingDB: IDBPDatabase, ns: NS, loggingSettings: LoggingSettings, table: "logging" | "metrics",

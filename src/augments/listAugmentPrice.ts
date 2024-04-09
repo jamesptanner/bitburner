@@ -1,13 +1,15 @@
 import { NS } from '@ns';
 import { factions } from 'shared/factions';
 import { getAugmentsAvailableFromFaction } from '/shared/factions';
-import { initLogging, logging } from '/shared/logging';
+
 import { makeTable } from '/shared/ui';
+import { Logging } from '/shared/logging';
 
 export const listAugmentsPath = "/utils/listAugments.js";
 
 export async function main(ns: NS): Promise<void> {
-    await initLogging(ns)
+    const logging = new Logging(ns);
+    
     ns.clearLog()
     ns.tail()
 

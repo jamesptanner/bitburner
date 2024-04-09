@@ -1,12 +1,15 @@
 import { NS } from '@ns';
 import { scripts } from '/shared/HGW';
 import { getHostsPath } from '/startup/getHosts';
-import { initLogging,logging } from '/shared/logging';
+import { Logging } from '/shared/logging';
+
 
 export const buyScriptsPath ="/cron/buyScripts.js";
 
 export async function main(ns : NS) : Promise<void> {
-    await initLogging(ns)
+    
+    const logging = new Logging(ns);
+    
     if(!ns.hasTorRouter()){
         if(!ns.singularity.purchaseTor()){
             logging.warning(`not enough money to buy tor router`)

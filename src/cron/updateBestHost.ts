@@ -1,12 +1,13 @@
 import { NS } from '@ns';
 import { findBestTarget } from '/shared/utils';
 import { killscriptPath } from '/utils/killscript';
-import { initLogging, logging} from '/shared/logging';
+import { Logging } from '/shared/logging';
 
 export const updateBestHostPath ="/cron/updateBestHost.js";
 
 export async function main(ns : NS) : Promise<void> {
-    await initLogging(ns)
+    
+    const logging = new Logging(ns);
     const currentBest = ns.read("target.txt")
     const target = findBestTarget(ns)  
     if(currentBest !== target){

@@ -1,13 +1,16 @@
 import { NS } from '@ns';
 import { makeTable } from '/shared/ui';
 import { getAllServers } from '/shared/utils';
-import { initLogging, logging } from '/shared/logging';
+import { Logging } from '/shared/logging';
+
 
 
 export const hackingDaemonPath = "/batching/hackingDaemon.js";
 
 export async function main(ns: NS): Promise<void> {
-    await initLogging(ns)
+    
+    const logging = new Logging(ns);
+    
     ns.disableLog('ALL')
     ns.clearLog()
     ns.tail()

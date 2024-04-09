@@ -1,12 +1,12 @@
 import { NS } from '@ns';
-import { initLogging, logging } from '/shared/logging';
 import { getAllServers } from '/shared/utils';
 import { makeTable } from '/shared/ui';
+import { Logging } from '/shared/logging';
 
 export const listServersPath ="/utils/listServers.js";
 
 export async function main(ns : NS) : Promise<void> {
-    await initLogging(ns)
+    const logging = new Logging(ns);
     const serverInfo = getAllServers(ns).map(server =>{
         return [server, ns.getServer(server).requiredHackingSkill]
     })

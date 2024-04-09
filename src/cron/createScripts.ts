@@ -1,10 +1,12 @@
 import { NS } from '@ns';
 import { scripts } from '/shared/HGW';
-import { initLogging,logging } from '/shared/logging';
+import { Logging } from '/shared/logging';
+
 
 
 export async function main(ns: NS): Promise<void> {
-    await initLogging(ns)
+    const logging = new Logging(ns);
+    
     const player = ns.getPlayer();
     for (const iterator of scripts) {
         const script = iterator[0];

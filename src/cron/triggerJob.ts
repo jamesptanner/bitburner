@@ -1,11 +1,13 @@
 import { NS } from '@ns';
 import { asNumber, asString } from '/shared/utils';
-import { initLogging, logging } from '/shared/logging';
+import { Logging } from '/shared/logging';
+
 
 export const triggerJobPath = "/cron/triggerJob.js";
 
 export async function main(ns: NS): Promise<void> {
-  await initLogging(ns)
+  
+  const logging = new Logging(ns);
   const args = Array.from(ns.args)
   let tmp = args.shift()
   if (!tmp) {
@@ -29,7 +31,8 @@ export async function main(ns: NS): Promise<void> {
       ns.print(`failed to start script.`)
     }
     ns.print(`cronjob triggered.`)
-    await ns.sleep(interval).catch(() => logging.info("did I get killed while sleeping"))
+    logging.info(`Running ${script}`,true);
+    await ns.asleep(interval).catch(() => logging.info("did I get killed while sleeping"))
     ns.print("loop end")
 
   }

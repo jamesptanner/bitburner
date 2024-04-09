@@ -1,10 +1,12 @@
 import { NS } from '@ns'
-import { logging } from '/shared/logging'
+import { Logging } from '/shared/logging';
 // "Find Largest Prime Factor"
 
 // Given a number, find its largest prime factor. A prime factor
 // is a factor that is a prime number.
 export function largestPrimeFactor(ns: NS, data: unknown): number | string[] | undefined {
+    
+    const logging = new Logging(ns);
     if (typeof data === 'number') {
         logging.info(`${JSON.stringify(data)} type:${typeof data}`)
         let num: number = data
@@ -27,6 +29,8 @@ export function largestPrimeFactor(ns: NS, data: unknown): number | string[] | u
 // Given an array of integers, find the contiguous subarray (containing
 // at least one number) which has the largest sum and return that sum.
 export function MaxSubArray(ns: NS, data: unknown): number | string[] | undefined {
+    
+    const logging = new Logging(ns);
     if (Array.isArray(data) && data.every(val => { return typeof val === 'number' })) {
         const numberArray: number[] = data
         logging.info(`${numberArray}`)
@@ -58,6 +62,8 @@ export function MaxSubArray(ns: NS, data: unknown): number | string[] | undefine
 // Given a number, how many different ways can that number be written as
 // a sum of at least two positive integers?
 export function TotalSums(ns: NS, data: unknown): number | string[] | undefined {
+    
+    const logging = new Logging(ns);
     if (typeof data === 'number') {
         const value: number = data;
         // An array to store a partition
@@ -85,6 +91,8 @@ export function TotalSums(ns: NS, data: unknown): number | string[] | undefined 
 
 // You may use each integer in the set zero or more times.
 export function TotalSums2(ns: NS, data: unknown): number | string[] | undefined {
+    
+    const logging = new Logging(ns);
     if (Array.isArray(data) &&
       typeof data[0] === 'number' &&
       Array.isArray(data[1]) &&

@@ -1,10 +1,12 @@
 import { NS } from '@ns';
-import { initLogging,logging } from '/shared/logging';
+import { Logging } from '/shared/logging';
+
 
 export const ScriptServerPath ="/servers/ScriptServer.js";
 
 export async function main(ns : NS) : Promise<void> {
-    await initLogging(ns)
+    
+    const logging = new Logging(ns);
     ns.disableLog('ALL')
     ns.tail()
     const opts = ns.flags([["host","home"]])

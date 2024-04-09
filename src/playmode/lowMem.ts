@@ -6,7 +6,7 @@ export const lowMemPath = "/playmode/lowMem.js";
 export async function main(ns: NS): Promise<void> {
     
     //not using usual logging until we have more memory.
-    // await initLogging(ns) 
+    //  
     ns.disableLog('ALL')
     ns.tail()
     while (ns.getServerMaxRam('home') <= 32) {
