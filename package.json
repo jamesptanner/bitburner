@@ -5,11 +5,12 @@
   "main": "index.js",
   "scripts": {
     "watch:transpile": "tsc -w --preserveWatchOutput",
+    "watch:rollup": "npx rollup -wc",
     "watch:local": "node build/watch.js",
     "watch:remote": "bitburner-filesync",
     "watch:init": "node build/init.js",
     "watch:lint": "npx eslint-watch -w --ext ts,tsx,js,jsx",
-    "watch:all": "concurrently npm:watch:transpile npm:watch:local npm:watch:remote npm:watch:lint",
+    "watch:all": "concurrently npm:watch:rollup npm:watch:local npm:watch:remote npm:watch:lint",
     "watch": "npm run watch:init && npm run watch:all",
     "lint": "npx eslint --ext ts,tsx,js,jsx",
     "docs": "npx typedoc"

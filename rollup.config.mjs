@@ -29,7 +29,7 @@ function addApp(path,includes) {
     config.push({
         input: path,
         output: {
-            file: path.replace('src/', 'bundle/public/').replace('.ts', '.js'),
+            file: path.replace('src/', 'bundle/').replace('.ts', '.js'),
             format: 'es',
             sourcemap: "inline",
             interop: 'esModule',
