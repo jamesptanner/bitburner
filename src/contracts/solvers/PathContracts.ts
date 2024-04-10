@@ -11,9 +11,8 @@ import { Logging } from "/shared/logging";
 export function MinTrianglePath(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
 
   if (
     is2DArray<number>(data, (val: unknown): val is number => {
@@ -57,9 +56,8 @@ export function MinTrianglePath(
 export function UniquePath1(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
 
   if (Array.isArray(data) && data.every((v) => typeof v === "number")) {
     const maxX: number = data[0];
@@ -97,9 +95,8 @@ export function UniquePath1(
 export function UniquePath2(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   if (
     is2DArray<number>(data, (val: unknown): val is number => {
       return typeof val === "number";
@@ -139,9 +136,8 @@ export function UniquePath2(
 export function ShortestPath(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   type node = {
     position: {
       x: number;
@@ -241,9 +237,8 @@ export function ShortestPath(
 export function colorGraph(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   if (
     Array.isArray(data) &&
     typeof data[0] === "number" &&

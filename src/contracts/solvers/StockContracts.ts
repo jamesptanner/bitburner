@@ -22,9 +22,8 @@ const isNumberArray = function (val: unknown): val is number[] {
 export function StockTrader1(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   if (isNumberArray(data)) {
     const stocks: number[] = data;
     let bestProfit = 0;
@@ -54,9 +53,8 @@ export function StockTrader1(
 export function StockTrader2(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   if (isNumberArray(data)) {
     const stocks: number[] = data;
     let profit = 0;
@@ -84,6 +82,7 @@ export function StockTrader2(
 export function StockTrader3(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
   if (isNumberArray(data)) {
     let hold1 = Number.MIN_SAFE_INTEGER;
@@ -116,6 +115,7 @@ export function StockTrader3(
 export function StockTrader4(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
   if (
     Array.isArray(data) &&

@@ -16,7 +16,7 @@ export async function main(ns: NS): Promise<void> {
 
   const servers = getAllServers(ns);
 
-  killPrepScripts(ns);
+  killPrepScripts(ns,logging);
   await waitForBatchedHackToFinish(ns);
 
   // if we dont have a server to target yet, wait until we do have.
@@ -44,7 +44,7 @@ export async function main(ns: NS): Promise<void> {
       );
     return 0;
   });
-  await waitForPids(prepPid, ns);
+  await waitForPids(prepPid, ns,logging);
 
   const hack_time = ns.getHackTime(target);
   const weak_time = ns.getWeakenTime(target);
@@ -139,12 +139,10 @@ async function waitForBatchedHackToFinish(ns: NS) {
       );
     })
     .map((procInfo) => procInfo.pid);
-  await waitForPids(pids, ns);
+  await waitForPids(pids, ns,logging);
 }
 
-function killPrepScripts(ns: NS) {
-  const logging = new Logging(ns);
-  await logging.initLogging();
+function killPrepScripts(ns: NS, logging: Logging) {
   logging.info(`Killing any preparation scripts.`);
   getAllServers(ns)
     .map((server) => {
@@ -161,9 +159,7 @@ function killPrepScripts(ns: NS) {
     });
 }
 
-async function waitForPids(pids: number[], ns: NS) {
-  const logging = new Logging(ns);
-  await logging.initLogging();
+async function waitForPids(pids: number[], ns: NS, logging: Logging) {
   do {
     const finished = pids.filter((pid) => pid === 0 || !ns.isRunning(pid, ""));
     finished.forEach((pid) => pids.splice(pids.indexOf(pid), 1));
