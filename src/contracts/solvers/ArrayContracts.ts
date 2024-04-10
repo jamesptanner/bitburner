@@ -16,9 +16,8 @@ import { Logging } from "/shared/logging";
 export function SpiralMatrix(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   if (
     is2DArray<number>(data, (val): val is number => {
       return typeof val === "number";
@@ -86,14 +85,13 @@ export function SpiralMatrix(
 export function ArrayJump(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   if (Array.isArray(data) && data.every((val) => typeof val === "number")) {
     logging.info(`${JSON.stringify(data)} type:${typeof data}`);
     const numberArray: number[] = data;
 
-    const result = checkPosition(ns, numberArray, 0, 0);
+    const result = checkPosition(ns, numberArray, 0, 0,logging);
     logging.success(`${result}`);
     if (result) {
       return 1;
@@ -120,14 +118,13 @@ export function ArrayJump(
 export function ArrayJump2(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   if (Array.isArray(data) && data.every((val) => typeof val === "number")) {
     logging.info(`${JSON.stringify(data)} type:${typeof data}`);
     const numberArray: number[] = data;
 
-    const [result, minHops] = checkPosition(ns, numberArray, 0, 0);
+    const [result, minHops] = checkPosition(ns, numberArray, 0, 0, logging);
     logging.success(`${result}`);
     if (result) {
       return minHops;
@@ -142,9 +139,8 @@ function checkPosition(
   array: number[],
   pos: number,
   depth: number,
+  logging: Logging
 ): [boolean, number] {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   //logging.info(`${array}: checking position ${pos}`)
   if (pos === array.length - 1) return [true, depth];
   let minHops = array.length;
@@ -156,6 +152,7 @@ function checkPosition(
       array,
       pos + jumpDist,
       depth + 1,
+      logging
     );
     if (reachedEnd) {
       minHops = Math.min(minHops, hops);
@@ -180,9 +177,8 @@ function checkPosition(
 export function MergeOverlapping(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   if (
     is2DArray<number>(data, (val): val is number => {
       return typeof val === "number";

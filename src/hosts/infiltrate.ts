@@ -11,9 +11,7 @@ import { Logging } from "/shared/logging";
 
 export const infiltratePath = "/hosts/infiltrate.js";
 
-const infiltrate = function (ns: NS, host: string) {
-  const logging = new Logging(ns);
-  await logging.initLogging();
+const infiltrate = function (ns: NS, host: string, logging: Logging) {
   const targetHackLevel = ns.getServerRequiredHackingLevel(host);
   if (targetHackLevel > ns.getHackingLevel()) {
     logging.warning(`not able to hack host: ${host}(${targetHackLevel})`);
@@ -62,7 +60,7 @@ export async function main(ns: NS): Promise<void> {
     const target = ns.args[0];
     logging.info(`infiltrating target: ${target}`);
     if (typeof target === "string") {
-      infiltrate(ns, target);
+      infiltrate(ns, target,logging);
     }
   } else {
     const targets: Array<string> = JSON.parse(
@@ -70,7 +68,7 @@ export async function main(ns: NS): Promise<void> {
     );
     targets.forEach((target) => {
       logging.info(`infiltrating target: ${target}`);
-      infiltrate(ns, target);
+      infiltrate(ns, target,logging);
     });
   }
 }

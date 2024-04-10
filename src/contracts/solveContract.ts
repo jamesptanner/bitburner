@@ -39,7 +39,7 @@ import { Logging } from "/shared/logging";
 export const solveContractPath = "/contracts/solveContract.js";
 
 interface ContractFunction {
-  (ns: NS, data: unknown): number | string[] | undefined;
+  (ns: NS, data: unknown, logging: Logging): number | string[] | undefined;
 }
 
 const processors = new Map<string, ContractFunction>([
@@ -99,7 +99,7 @@ export async function main(ns: NS): Promise<void> {
 
   logging.info(`${filename} : ${host} : ${type} : ${data}`);
   try {
-    const answer = processors.get(type)?.(ns, data);
+    const answer = processors.get(type)?.(ns, data,logging);
     if (answer !== undefined) {
       const result = ns.codingcontract.attempt(answer, filename, host);
       if (result === "") {

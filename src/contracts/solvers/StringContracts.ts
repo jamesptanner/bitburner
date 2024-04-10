@@ -15,9 +15,8 @@ import { Logging } from "/shared/logging";
 export function GenerateIPAddresses(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   logging.info(`${JSON.stringify(data)} type:${typeof data}`);
   const baseAddress: string = asString(data);
   const ipv4Regex =
@@ -87,9 +86,8 @@ export function GenerateIPAddresses(
 export function SanitizeParentheses(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   logging.info(`${JSON.stringify(data)} type:${typeof data}`);
   const parentheses: string = asString(data);
 
@@ -176,9 +174,8 @@ export function SanitizeParentheses(
 export function FindValidMathExpressions(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   function helper(
     res: string[],
     path: string,
@@ -253,9 +250,8 @@ export function FindValidMathExpressions(
 export function HammingBtoI(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   const bin2Dec = function (bin: string): number {
     return parseInt(bin, 2);
   };
@@ -308,9 +304,8 @@ export function HammingBtoI(
 export function HammingItoB(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
 
   const decToBin = function (dec: number): number[] {
     const bin = [];
@@ -369,9 +364,8 @@ export function HammingItoB(
 export function runLengthEncoding(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   if (typeof data === "string") {
     const dataArray = [...data];
     logging.info(data);
@@ -412,9 +406,8 @@ export function runLengthEncoding(
 export function lzDecompression(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   if (typeof data === "string") {
     logging.info(data);
     const datArr = [...data];
@@ -446,9 +439,8 @@ export function lzDecompression(
 export function lzCompression(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   if (typeof data === "string") {
     const ret = "";
 

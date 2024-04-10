@@ -85,7 +85,7 @@ export class Logging {
   private loggingTrace = generateUUID();
   private n: NS;
 
-  readonly loggingDB: IDBPDatabase | undefined;
+  loggingDB: IDBPDatabase | undefined;
 
   constructor(ns: NS) {
     this.n = ns;

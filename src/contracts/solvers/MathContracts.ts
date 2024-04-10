@@ -7,9 +7,8 @@ import { Logging } from "/shared/logging";
 export function largestPrimeFactor(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   if (typeof data === "number") {
     logging.info(`${JSON.stringify(data)} type:${typeof data}`);
     let num: number = data;
@@ -34,9 +33,8 @@ export function largestPrimeFactor(
 export function MaxSubArray(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   if (
     Array.isArray(data) &&
     data.every((val) => {
@@ -76,9 +74,8 @@ export function MaxSubArray(
 export function TotalSums(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   if (typeof data === "number") {
     const value: number = data;
     // An array to store a partition
@@ -107,9 +104,8 @@ export function TotalSums(
 export function TotalSums2(
   ns: NS,
   data: unknown,
+  logging: Logging
 ): number | string[] | undefined {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   if (
     Array.isArray(data) &&
     typeof data[0] === "number" &&
