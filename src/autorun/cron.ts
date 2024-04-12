@@ -58,6 +58,12 @@ const jobs: Job[] = [
     interval: 30 * 1000,
     disable: false,
   },
+  {
+    script: "cron/checkRemoteServers.js",
+    args: [],
+    interval: 60 * 1000,
+    disable: false,
+  },
 ];
 
 export async function main(ns: NS): Promise<void> {

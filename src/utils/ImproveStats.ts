@@ -20,6 +20,7 @@ export async function main(ns: NS): Promise<void> {
   const all = args.all as number;
   await improveStat(
     ns,
+    logging,
     Math.max(all, hacking),
     Math.max(all, combat),
     Math.max(all, charisma),

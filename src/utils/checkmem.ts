@@ -1,5 +1,5 @@
 import { NS } from "@ns";
-import { Logging } from "/shared/logging";
+import { Level, Logging } from "/shared/logging";
 
 export const checkmemPath = "/utils/checkmem.js";
 
@@ -13,11 +13,11 @@ export async function main(ns: NS): Promise<void> {
     const totalMem = ns.getServerMaxRam("home");
     const mem = ns.getScriptRam(script);
     const memPercent = mem / totalMem;
-    let level = "ERROR";
+    let level: Level = Level.Error;
     if (memPercent > 0) {
-      if (memPercent < 0.5) level = "INFO";
-      else if (memPercent < 1) level = "WARN";
+      if (memPercent < 0.5) level = Level.Info;
+      else if (memPercent < 1) level = Level.Warning;
     }
-    logging.info(`${level} ${script}: ${mem}GB`);
+    logging.log(level,`${script}: ${mem}GB`);
   });
 }
