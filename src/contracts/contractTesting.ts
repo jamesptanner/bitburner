@@ -10,9 +10,7 @@ export async function main(ns : NS) : Promise<void> {
   const contractTypes = ns.codingcontract.getContractTypes();
   contractTypes.forEach(type =>{
     const contractFilename = ns.codingcontract.createDummyContract(type);
+    game.logging.info(`creating test "${type}" contract: ${contractFilename}`)
     ns.exec(solveContractPath,"home",{},contractFilename, "home");
   })
-
-
-
 }

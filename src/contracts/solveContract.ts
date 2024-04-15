@@ -25,48 +25,54 @@ import {
   StockTrader4,
 } from "/contracts/solvers/StockContracts";
 import {
+  caesarEncrypt,
   FindValidMathExpressions,
   GenerateIPAddresses,
   HammingBtoI,
+  HammingItoB,
   runLengthEncoding,
   SanitizeParentheses,
+  lzCompression,
+  lzDecompression,
+  VigenereCipher
 } from "/contracts/solvers/StringContracts";
 
 import { asString } from "/shared/utils";
-import { lzDecompression } from "/contracts/solvers/StringContracts";
 import { Logging } from "/shared/logging";
 
 export const solveContractPath = "/contracts/solveContract.js";
 
 interface ContractFunction {
-  (ns: NS, data: unknown, logging: Logging): number | string[] | undefined;
+  (ns: NS, data: any, logging: Logging): number | string | any[];
 }
 
 const processors = new Map<string, ContractFunction>([
-  ["Find Largest Prime Factor", largestPrimeFactor], //Maths     DONE
-  ["Subarray with Maximum Sum", MaxSubArray], //Maths     DONE
-  ["Total Ways to Sum", TotalSums], //Maths     DONE
-  ["Total Ways to Sum II", TotalSums2], //Maths     DONE
-  ["Spiralize Matrix", SpiralMatrix], //Arrays    DONE
-  ["Array Jumping Game", ArrayJump], //Arrays    DONE
-  ["Array Jumping Game II", ArrayJump2], //Arrays    DONE
-  ["Merge Overlapping Intervals", MergeOverlapping], //Arrays    DONE
-  ["Generate IP Addresses", GenerateIPAddresses], //Strings   DONE
-  ["Algorithmic Stock Trader I", StockTrader1], //Stocks    DONE
-  ["Algorithmic Stock Trader II", StockTrader2], //Stocks    DONE
-  ["Algorithmic Stock Trader III", StockTrader3], //Stocks    DONE
-  ["Algorithmic Stock Trader IV", StockTrader4], //Stocks    DONE
-  ["Minimum Path Sum in a Triangle", MinTrianglePath], //Paths     DONE
-  ["Unique Paths in a Grid I", UniquePath1], //Paths     DONE
-  ["Unique Paths in a Grid II", UniquePath2], //Paths     DONE
-  ["Sanitize Parentheses in Expression", SanitizeParentheses], //Strings   DONE
-  ["Find All Valid Math Expressions", FindValidMathExpressions], //Strings   DONE
-  ["HammingCodes: Encoded Binary to Integer", HammingBtoI], //Strings   DONE
-  // ["HammingCodes: Integer to encoded Binary",HammingItoB],        //Strings
-  ["Compression I: RLE Compression", runLengthEncoding], //Strings   DONE
-  //["Compression II: LZ Decompression",lzDecompression],           //Strings
-  // ["Compression III: LZ Compression",lzCompression],              //Strings
-  ["Proper 2-Coloring of a Graph", colorGraph], //Paths    DONE
+  ["Find Largest Prime Factor", largestPrimeFactor],
+  ["Subarray with Maximum Sum", MaxSubArray],
+  ["Total Ways to Sum", TotalSums],
+  ["Total Ways to Sum II", TotalSums2],
+  ["Spiralize Matrix", SpiralMatrix],
+  ["Array Jumping Game", ArrayJump],
+  ["Array Jumping Game II", ArrayJump2],
+  ["Merge Overlapping Intervals", MergeOverlapping],
+  ["Generate IP Addresses", GenerateIPAddresses],
+  ["Algorithmic Stock Trader I", StockTrader1],
+  ["Algorithmic Stock Trader II", StockTrader2],
+  ["Algorithmic Stock Trader III", StockTrader3],
+  ["Algorithmic Stock Trader IV", StockTrader4],
+  ["Minimum Path Sum in a Triangle", MinTrianglePath],
+  ["Unique Paths in a Grid I", UniquePath1],
+  ["Unique Paths in a Grid II", UniquePath2],
+  ["Sanitize Parentheses in Expression", SanitizeParentheses],
+  ["Find All Valid Math Expressions", FindValidMathExpressions],
+  ["HammingCodes: Encoded Binary to Integer", HammingBtoI],
+  ["HammingCodes: Integer to Encoded Binary",HammingItoB],
+  ["Compression I: RLE Compression", runLengthEncoding],
+  ["Compression II: LZ Decompression",lzDecompression],
+  ["Compression III: LZ Compression",lzCompression],
+  ["Proper 2-Coloring of a Graph", colorGraph],
+  ["Encryption I: Caesar Cipher", caesarEncrypt],
+  ["Encryption II: Vigenère Cipher", VigenereCipher]
 ]);
 
 export async function main(ns: NS): Promise<void> {
@@ -113,7 +119,7 @@ export async function main(ns: NS): Promise<void> {
           host,
         );
       } else {
-        logging.success(`${result}`, true);
+        //logging.success(`${result}`, true);
         await ns.write(
           "solvedContracts.txt",
           JSON.stringify([type, data, answer, "\n"]),

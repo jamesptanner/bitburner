@@ -1,6 +1,7 @@
 import { NS } from "@ns";
 import { asNumber, asString } from "shared/utils";
 import { Logging } from "/shared/logging";
+import { StrictMode } from "react";
 // "Generate IP Addresses"
 
 // Given a string containing only digits, return an array with all possible
@@ -16,7 +17,7 @@ export function GenerateIPAddresses(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): string[] {
   logging.info(`${JSON.stringify(data)} type:${typeof data}`);
   const baseAddress: string = asString(data);
   const ipv4Regex =
@@ -87,7 +88,7 @@ export function SanitizeParentheses(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+):  string[] {
   logging.info(`${JSON.stringify(data)} type:${typeof data}`);
   const parentheses: string = asString(data);
 
@@ -175,7 +176,7 @@ export function FindValidMathExpressions(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): string[] {
   function helper(
     res: string[],
     path: string,
@@ -251,7 +252,7 @@ export function HammingBtoI(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): string {
   const bin2Dec = function (bin: string): number {
     return parseInt(bin, 2);
   };
@@ -284,7 +285,7 @@ export function HammingBtoI(
 
     const integer = bin2Dec(bits.join(""));
     logging.success(`integer value: ${integer}`);
-    return [`${integer}`];
+    return `${integer}`;
   }
   throw new Error("Unexpected data types Unable to solve contract.");
 }
@@ -305,7 +306,7 @@ export function HammingItoB(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): string {
 
   const decToBin = function (dec: number): number[] {
     const bin = [];
@@ -356,7 +357,7 @@ export function HammingItoB(
     });
     logging.info(`0 parity: ${bin[0]}`);
     logging.success(`with parity: ${bin.join("")}`);
-    return [bin.join("")];
+    return bin.join("");
   }
   throw new Error("Unexpected data types Unable to solve contract.");
 }
@@ -365,7 +366,7 @@ export function runLengthEncoding(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): string {
   if (typeof data === "string") {
     const dataArray = [...data];
     logging.info(data);
@@ -398,7 +399,7 @@ export function runLengthEncoding(
       }
     }
     logging.success(retData);
-    return [retData];
+    return retData;
   }
   throw new Error("Unexpected data types Unable to solve contract.");
 }
@@ -407,7 +408,7 @@ export function lzDecompression(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): string {
   if (typeof data === "string") {
     logging.info(data);
     const datArr = [...data];
@@ -440,12 +441,39 @@ export function lzCompression(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): string {
   if (typeof data === "string") {
     const ret = "";
 
     logging.info(`${data} -> ${ret}`);
-    return [ret];
+    return ret;
   }
   throw new Error("Unexpected data types Unable to solve contract.");
+}
+
+function mod(n: number, m:number):number {
+  return ((n % m) + m) % m;
+}
+
+export function caesarEncrypt(ns: NS, data: unknown, logging: Logging) : string {
+  const [plaintext, shift] = data as [string, number];
+
+  var cipherText = "";
+  for(let index = 0; index < plaintext.length; index++) {
+    cipherText += plaintext[index] !== " " ? String.fromCharCode(mod((plaintext.toUpperCase().charCodeAt(index)-65-shift), 26) + 65) : " ";
+  }
+  logging.info(`"${cipherText}"`);
+
+  return cipherText;
+}
+
+export function VigenereCipher(ns: NS, data: unknown, logging: Logging) : string {
+  const [plaintext, keyword] = data as string[];
+
+  var response = ""
+  for (let index = 0; index < plaintext.length; index++) {
+    response += String.fromCharCode(((plaintext.toUpperCase().charCodeAt(index)-65) + ((keyword.toUpperCase().charCodeAt(index % keyword.length)-65)))%26 + 65).toUpperCase();
+  }
+  logging.info(`"${response}"`);
+  return response;
 }

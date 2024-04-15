@@ -8,7 +8,7 @@ export function largestPrimeFactor(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): number {
   if (typeof data === "number") {
     logging.info(`${JSON.stringify(data)} type:${typeof data}`);
     let num: number = data;
@@ -34,7 +34,7 @@ export function MaxSubArray(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): number {
   if (
     Array.isArray(data) &&
     data.every((val) => {
@@ -75,7 +75,7 @@ export function TotalSums(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): number {
   if (typeof data === "number") {
     const value: number = data;
     // An array to store a partition
@@ -105,7 +105,7 @@ export function TotalSums2(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): number {
   if (
     Array.isArray(data) &&
     typeof data[0] === "number" &&
