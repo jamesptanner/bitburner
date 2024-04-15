@@ -236,7 +236,7 @@ async function runTask(
   });
   if (candidateServers.length === 0) return false;
   await ns.scp(script, candidateServers[0]);
-  const pid = ns.exec(script, candidateServers[0], 1, ...args);
+  const pid = ns.exec(script, candidateServers[0], {threads: 1, temporary: true}, ...args);
   if (pid === 0) {
     logging.error(`Failed to run ${script} on ${candidateServers[0]}`);
     return false;

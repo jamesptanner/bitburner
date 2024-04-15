@@ -23,7 +23,7 @@ export async function main(ns: NS): Promise<void> {
   ns.print(`setting up cronjob: ${script}`);
   await ns.sleep(Math.random() * interval);
   while (interval && script) {
-    const pid = ns.run(script, 1, ...args);
+    const pid = ns.run(script, {threads:1, temporary:true}, ...args);
 
     if (pid === 0) {
       ns.print(`failed to start script.`);
