@@ -22,17 +22,18 @@ export async function main(ns: NS): Promise<void> {
     logging.warning("contract missing.");
     ns.exit();
   }
-
-  const contractDesc = ns.codingcontract.getDescription(filename, host);
-  const contractData = ns.codingcontract.getData(filename, host);
-  const contractType = ns.codingcontract.getContractType(filename, host);
+  const contractInfo = {
+    description: ns.codingcontract.getDescription(filename, host),
+    type: ns.codingcontract.getContractType(filename, host),
+    data: ns.codingcontract.getData(filename, host),
+  }
   if (!ns.rm(filename, host)) {
     logging.info(`unable to delete ${host}:${filename}`);
   }
 
   await ns.write(
     `/failedContracts/${filename.replace("cct", "txt").replace("'", "_").replace("&", "_")}`,
-    [contractType, contractData, contractDesc].join("\n\n"),
+    JSON.stringify(contractInfo,undefined,2),
     "w",
   );
 }
