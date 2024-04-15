@@ -43,9 +43,7 @@ export async function main(ns: NS): Promise<void> {
         incompletedContracts.push(contract);
       }
     });
-    if (incompletedContracts.length > 0) {
-      contractsByType = incompletedContracts;
-    }
+    contractsByType = incompletedContracts;
     incompletedContracts = new Array<Contract>();
     await ns.asleep(10000);
   }
