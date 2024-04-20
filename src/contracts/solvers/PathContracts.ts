@@ -12,7 +12,7 @@ export function MinTrianglePath(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): number {
 
   if (
     is2DArray<number>(data, (val: unknown): val is number => {
@@ -57,7 +57,7 @@ export function UniquePath1(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): number {
 
   if (Array.isArray(data) && data.every((v) => typeof v === "number")) {
     const maxX: number = data[0];
@@ -96,7 +96,7 @@ export function UniquePath2(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): number {
   if (
     is2DArray<number>(data, (val: unknown): val is number => {
       return typeof val === "number";
@@ -137,7 +137,7 @@ export function ShortestPath(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): number {
   type node = {
     position: {
       x: number;
@@ -238,7 +238,7 @@ export function colorGraph(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): number[] {
   if (
     Array.isArray(data) &&
     typeof data[0] === "number" &&

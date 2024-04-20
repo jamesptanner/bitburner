@@ -23,7 +23,7 @@ export function StockTrader1(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): number {
   if (isNumberArray(data)) {
     const stocks: number[] = data;
     let bestProfit = 0;
@@ -54,7 +54,7 @@ export function StockTrader2(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): number {
   if (isNumberArray(data)) {
     const stocks: number[] = data;
     let profit = 0;
@@ -83,7 +83,7 @@ export function StockTrader3(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): number {
   if (isNumberArray(data)) {
     let hold1 = Number.MIN_SAFE_INTEGER;
     let hold2 = Number.MIN_SAFE_INTEGER;
@@ -116,7 +116,7 @@ export function StockTrader4(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): number {
   if (
     Array.isArray(data) &&
     typeof data[0] === "number" &&

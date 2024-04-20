@@ -17,7 +17,7 @@ export function SpiralMatrix(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): number[] {
   if (
     is2DArray<number>(data, (val): val is number => {
       return typeof val === "number";
@@ -68,7 +68,7 @@ export function SpiralMatrix(
     logging.success(
       `SpiralMatrix Result: ${JSON.stringify(output.filter((x) => x))}`,
     );
-    return output.filter((x) => x).map<string>((x) => x.toString());
+    return output;
   }
   throw new Error("Unexpected data types Unable to solve contract.");
 }
@@ -86,14 +86,14 @@ export function ArrayJump(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): number {
   if (Array.isArray(data) && data.every((val) => typeof val === "number")) {
     logging.info(`${JSON.stringify(data)} type:${typeof data}`);
     const numberArray: number[] = data;
 
     const result = checkPosition(ns, numberArray, 0, 0,logging);
     logging.success(`${result}`);
-    if (result) {
+    if (result[0]) {
       return 1;
     }
     return 0;
@@ -119,7 +119,7 @@ export function ArrayJump2(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): number {
   if (Array.isArray(data) && data.every((val) => typeof val === "number")) {
     logging.info(`${JSON.stringify(data)} type:${typeof data}`);
     const numberArray: number[] = data;
@@ -178,7 +178,7 @@ export function MergeOverlapping(
   ns: NS,
   data: unknown,
   logging: Logging
-): number | string[] | undefined {
+): number[][] {
   if (
     is2DArray<number>(data, (val): val is number => {
       return typeof val === "number";
@@ -204,9 +204,7 @@ export function MergeOverlapping(
     logging.success(
       `${JSON.stringify(numberArray.length !== 1 ? numberArray : numberArray[0])}`,
     );
-    return [
-      JSON.stringify(numberArray.length !== 1 ? numberArray : numberArray[0]),
-    ];
+    return numberArray;
   }
   throw new Error("Unexpected data types Unable to solve contract.");
 }
