@@ -93,7 +93,7 @@ export function ArrayJump(
 
     const result = checkPosition(ns, numberArray, 0, 0,logging);
     logging.success(`${result}`);
-    if (result) {
+    if (result[0]) {
       return 1;
     }
     return 0;

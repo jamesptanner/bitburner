@@ -105,56 +105,38 @@ export function SanitizeParentheses(
       }
     }
     if (opens === 0) {
-      // logging.info(`👍 ${parens}`);
+      logging.info(`👍 ${parens}`);
     }
     return opens === 0;
   }
 
-  function removeChar(str: string, depth: number, ans: string[]) {
-    let bestSoFar = -Infinity;
-    for (
-      let index = 0, strcpy = str;
-      index < str.length;
-      index++, strcpy = str
-    ) {
-      strcpy = strcpy.substring(0, index) + strcpy.substring(index + 1);
-      if (depth === 0) {
-        if (isValid(strcpy)) {
-          ans.push(strcpy);
-          bestSoFar = depth;
-        }
-      } else if (bestSoFar >= depth) {
-        removeChar(strcpy, depth - 1, ans);
+  const queue = [parentheses]
+  const tested = new Set();
+  tested.add(parentheses);
+  let found = false;
+  const solutions = []
+  while(queue.length>0){
+    const expression = queue.shift();
+    if(!expression) continue;
+
+    if (isValid(expression)){
+      solutions.push(expression);
+      found = true;
+    }
+    if (found) continue;
+
+    for (let i = 0; i < expression.length; i++) {
+      if (expression.charAt(i) !== '(' &&  expression.charAt(i) !== ')'){
+        continue;
+      }
+      const stripped = expression.slice(0,i) + expression.slice(i+1);
+      if (!tested.has(stripped)){
+        queue.push(stripped);
+        tested.add(stripped);
       }
     }
   }
-
-  const answers: string[] = [];
-
-  if (isValid(parentheses)) {
-    answers.push(parentheses);
-  }
-  let n = 0;
-  while (answers.length === 0) {
-    // logging.info(`at depth ${n}`);
-    if (n === parentheses.length) {
-      answers.push("");
-    } else {
-      removeChar(parentheses, n, answers);
-    }
-    n++;
-  }
-
-  logging.success(
-    `${JSON.stringify(
-      answers.filter((v, i, self) => {
-        return self.indexOf(v) === i;
-      }),
-    )}`,
-  );
-  return answers.filter((v, i, self) => {
-    return self.indexOf(v) === i;
-  });
+  return solutions;
 }
 
 // "Find All Valid Math Expressions"
@@ -321,40 +303,41 @@ export function HammingItoB(
     logging.info(`converting: ${decimal}`);
 
     //convert decimal to binary
-    const bin = decToBin(decimal);
+    const bin = decToBin(decimal).reverse();
     logging.info(`convert to binary: ${bin.join("")}`);
     //calculate number of parity bits
     const controlBitsIndex: number[] = [];
     let i = 1;
     while ((bin.length + controlBitsIndex.length) / i >= 1) {
-      controlBitsIndex.push(i);
+      controlBitsIndex.push(i-1);
       i *= 2;
     }
 
-    bin.splice(0, 0, 0);
+    // bin.splice(0, 0, 2);
     controlBitsIndex.forEach((i) => {
-      bin.splice(i, 0, 0);
+      bin.splice(i, 0, 2);
     });
     logging.info(`inserted parity: ${bin.join("")}`);
 
     controlBitsIndex.forEach((i) => {
       logging.info(`calculating parity ${i}`);
-      bin[i] = bin
+      bin[i-1] = bin
         .filter((v, index) => {
-          logging.info(`${index} & ${i} == ${index & i}`);
+         // logging.info(`${index} & ${i} == ${index & i}`);
           return (i & index) !== 0;
         })
         .reduce((prev, curr, index) => {
-          return prev ^ (index & i) ? curr : 0;
+          return prev ^ (index-1 & i) ? curr : 0;
         }, 0);
-      logging.info(`${i} parity: ${bin[i]}`);
+      logging.info(`${i} parity: ${bin[i-1]}`);
       logging.info(`bin update: ${bin.join("")}`);
     });
 
     logging.info(`calulating parity 0`);
-    bin[0] = bin.reduce((prev, curr) => {
+    const bit0Parity = bin.reduce((prev, curr) => {
       return prev ^ curr;
     });
+    bin.unshift(bit0Parity);
     logging.info(`0 parity: ${bin[0]}`);
     logging.success(`with parity: ${bin.join("")}`);
     return bin.join("");
@@ -387,7 +370,7 @@ export function runLengthEncoding(
         return prev;
       }
     }, []);
-    logging.info(`${rlPairs}`);
+    logging.info(`${JSON.stringify(rlPairs)}`);
     let retData = "";
     while (rlPairs.length > 0) {
       if (rlPairs[0].count > 9) {
@@ -404,6 +387,29 @@ export function runLengthEncoding(
   throw new Error("Unexpected data types Unable to solve contract.");
 }
 
+
+
+// Lempel-Ziv (LZ) compression is a data compression technique which encodes data using references to earlier parts of the data. 
+// In this variant of LZ, data is encoded in two types of chunk. Each chunk begins with a length L, encoded as a single ASCII 
+// digit from 1 to 9, followed by the chunk data, which is either:
+
+//  1. Exactly L characters, which are to be copied directly into the uncompressed data.
+//  2. A reference to an earlier part of the uncompressed data. To do this, the length is followed by a second ASCII digit X: 
+// each of the L output characters is a copy of the character X places before it in the uncompressed data.
+
+// For both chunk types, a length of 0 instead means the chunk ends immediately, and the next character is the start of a new 
+// chunk. The two chunk types alternate, starting with type 1, and the final chunk may be of either type.
+
+//  You are given the following LZ-encoded string:
+//        9r4B6MHlqE08Jl6fIAmZ5988D20szFy1693Hqq23H45961A593J85
+//  Decode it and output the original string.
+
+//  Example: decoding '5aaabb450723abb' chunk-by-chunk
+//        5aaabb            ->   aaabb
+//        5aaabb45          ->   aaabbaaab
+//        5aaabb450         ->   aaabbaaab
+//        5aaabb45072       ->   aaabbaaababababa
+//        5aaabb450723abb   ->   aaabbaaababababaabb
 export function lzDecompression(
   ns: NS,
   data: unknown,
@@ -413,30 +419,74 @@ export function lzDecompression(
     logging.info(data);
     const datArr = [...data];
     let ret = "";
+    let state = 0;
     while (datArr.length > 0) {
-      //copy
-      const count = parseInt(datArr.splice(0, 1)[0]);
-      if (count !== 0) {
-        ret = ret + datArr.splice(0, count).join("");
-        if (datArr.length === 0) {
+      switch(state%2){
+        case 0:
+          {
+          const count = parseInt(datArr.shift()!);
+          logging.info(`direct ${count}`)
+          ret += datArr.splice(0,count).join("");
           break;
-        }
+          }
+        case 1:
+          {
+          let count = parseInt(datArr.shift()!);
+          if (count ==0) {logging.info(`skip copy`); break;}
+          const pos = parseInt(datArr.shift()!);
+          logging.info(`copy ${count} from ${pos}`);
+
+
+          // for (let index = ret.length-1-pos; index < ret.length-1-pos+count; index++){
+          //   ret += ret[index]; 
+          // }
+
+            while(count>0){
+              ret += ret[ret.length-pos];
+              count--;
+            }
+          break;
+          }
       }
-      //ref
-      const count2 = parseInt(datArr.splice(0, 1)[0]);
-      if (count !== 0) {
-        const pos = parseInt(datArr.splice(0, 1)[0]);
-        for (let i = 0; i < count2; i++) {
-          ret = ret + ret[Math.max(0, ret.length - pos - 1)];
-        }
-      }
+      logging.info(ret);
+      state++;
     }
     logging.success(ret);
-    // return [ret]
+    return ret;
   }
   throw new Error("Unexpected data types Unable to solve contract.");
 }
 
+/**
+ * Lempel-Ziv (LZ) compression is a data compression technique which encodes data using references to earlier parts of the data. In this variant of LZ,
+ *  data is encoded in two types of chunk. Each chunk begins with a length L, encoded as a single ASCII digit from 1 to 9, followed by the chunk data, 
+ * which is either:  
+  
+ 1. Exactly L characters, which are to be copied directly into the uncompressed data.  
+ 2. A reference to an earlier part of the uncompressed data. To do this, the length is followed by a second ASCII digit X: each of the L output characters 
+ is a copy of the character X places before it in the uncompressed data.  
+  
+ For both chunk types, a length of 0 instead means the chunk ends immediately, and the next character is the start of a new chunk. The two chunk types 
+ alternate, starting with type 1, and the final chunk may be of either type.  
+  
+ You are given the following input string:  
+           FLI48bcpSVUW55551VUW555655655Wo655655WoT655WoT655WoTRoTRojRoTRojRoTOoTRojRoTYe  
+ Encode it using Lempel-Ziv encoding with the minimum possible output length.  
+  
+ Examples (some have other possible encodings of minimal length):  
+           abracadabra        ->     7abracad47  
+           mississippi        ->     4miss433ppi  
+           aAAaAAaAaAA        ->     3aAA53035  
+           2718281828         ->     627182844  
+           abcdefghijk        ->     9abcdefghi02jk  
+           aaaaaaaaaaaa       ->     3aaa91  
+           aaaaaaaaaaaaa      ->     1a91031  
+           aaaaaaaaaaaaaa     ->     1a91041
+ * @param ns 
+ * @param data 
+ * @param logging 
+ * @returns 
+ */
 export function lzCompression(
   ns: NS,
   data: unknown,
@@ -444,6 +494,7 @@ export function lzCompression(
 ): string {
   if (typeof data === "string") {
     const ret = "";
+    
 
     logging.info(`${data} -> ${ret}`);
     return ret;
