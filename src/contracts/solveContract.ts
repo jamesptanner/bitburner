@@ -109,6 +109,7 @@ export async function main(ns: NS): Promise<void> {
     if (answer !== undefined) {
       const result = ns.codingcontract.attempt(answer, filename, host);
       if (result === "") {
+        ns.tail();
         logging.error(`Failed Contract: ${host}.${filename} - '${type}'`, true);
         ns.spawn(
           unsolveableContractPath,
@@ -134,6 +135,7 @@ export async function main(ns: NS): Promise<void> {
       ns.spawn(unsolveableContractPath, 1, "--file", filename, "--host", host);
     }
   } catch (e: unknown) {
+    ns.tail();
     if (typeof e === "string") {
       logging.error(e, true);
     } else if (e instanceof Error) {
