@@ -341,33 +341,9 @@ const waitToBackdoor = async function (ns: NS, server: string) {
 };
 
 const repForNextRole = function (ns: NS, corpName: string): number {
-    const jobs = ns.getPlayer().jobs as { [key: string]: string };
-    switch (jobs[corpName]) {
-        case "IT Intern":
-            return 7e3;
-        case "Software Engineering Intern":
-        case "Business Intern":
-            return 8e3;
-        case "IT Analyst":
-            return 35e3;
-        case "Junior Software Engineer":
-        case "Business Analyst":
-            return 40e3;
-        case "IT Manager":
-            return 175e3;
-        case "Senior Software Engineer":
-            return 200e3;
-        case "Lead Software Developer":
-            return 400e3;
-        case "Systems Administrator":
-        case "Head of Software":
-            return 800e3;
-        case "Head of Engineering":
-            return 1.6e6;
-        case "Vice President of Technology":
-            return 3.2e6;
-    }
-    return Infinity;
+    const jobs = ns.getPlayer().jobs; 
+    const postitionInfo = ns.singularity.getCompanyPositionInfo(corpName as keyof typeof jobs,(jobs[corpName as keyof typeof jobs])!)
+    return postitionInfo.nextPosition !== null ? ns.singularity.getCompanyPositionInfo(corpName as keyof typeof jobs,postitionInfo.nextPosition).requiredReputation : Infinity;
 };
 
 
@@ -417,6 +393,44 @@ const improveCorporateReputation = async function (
     }
 };
 
+// const enum processRequirementsResult {
+//     Failed,
+//     All,
+//     Some
+// }
+
+// const processRequirements = async function(requirements: PlayerRequirement[]) :processRequirementsResult{
+//     for (let index = 0; index < requirements.length; index++) {
+//         const requirement = requirements[index];
+//         switch (requirement.type){
+//             case MoneyRequirement.type:
+//         }
+        
+//     }
+// }
+
+
+const workOnKarma = async function(ns:NS, karamLevel:number){
+
+    if (ns.getPlayer().karma <= karamLevel) return;
+    while(ns.getPlayer().karma > karamLevel){
+        const timeToWait = ns.singularity.commitCrime("Homicide");
+        await ns.asleep(timeToWait);
+    }
+}
+
+const hacknetHasAtLeast = async function(ns:NS, hackingLevels: number, hackingRAM: number, hackingCPU: number){
+    while (true){
+        const totalNodes = ns.hacknet.numNodes();
+        for (let nodeId = 0; nodeId < totalNodes  ; nodeId++) {
+            const element = ns.hacknet.getNodeStats(nodeId);
+            if(element.level>= hackingLevels && element.ram >= hackingRAM && element.cores >= hackingCPU) return;
+        }
+        await ns.asleep(60000)
+    }
+
+}
+
 export const unlockFaction = async function (
     ns: NS,
     faction: string,
@@ -431,10 +445,12 @@ export const unlockFaction = async function (
 
     //need to put the work in to unlock the faction.
     const requirements = factionUnlockRequirements.get(faction);
+    // const requirements = ns.singularity.getFactionInviteRequirements(faction)
     if (!requirements) return false;
 
     while (ns.getPlayer().factions.indexOf(faction) === -1) {
         await ns.asleep(100);
+        // processRequirements(requirements);
         if (requirements.augments) {
             if (
                 requirements.augments >
@@ -492,12 +508,10 @@ export const unlockFaction = async function (
             requirements.hackingRAM ||
             requirements.hackingCPU
         ) {
-            // await hacknetBuyAtLeast(ns,requirements.hackingLevels, requirements.hackingRAM, requirements.hackingCPU)
-            return false;
+            await hacknetHasAtLeast(ns,requirements.hackingLevels? requirements.hackingLevels : 0 , requirements.hackingRAM ? requirements.hackingRAM : 0, requirements.hackingCPU ?  requirements.hackingCPU: 0)
         }
         if (requirements.karma) {
-            // await workOnKarma(ns,requirements.karma)
-            return false;
+            await workOnKarma(ns,requirements.karma)
         }
         if (requirements.backdoor) {
             logging.info(
