@@ -1,7 +1,6 @@
 import { NS } from "@ns";
 import { asNumber, asString } from "shared/utils";
 import { Logging } from "/shared/logging";
-import { StrictMode } from "react";
 // "Generate IP Addresses"
 
 // Given a string containing only digits, return an array with all possible
@@ -309,13 +308,13 @@ export function HammingItoB(
     const controlBitsIndex: number[] = [];
     let i = 1;
     while ((bin.length + controlBitsIndex.length) / i >= 1) {
-      controlBitsIndex.push(i-1);
+      controlBitsIndex.push(i);
       i *= 2;
     }
 
     // bin.splice(0, 0, 2);
     controlBitsIndex.forEach((i) => {
-      bin.splice(i, 0, 2);
+      bin.splice(i-1, 0, 0);
     });
     logging.info(`inserted parity: ${bin.join("")}`);
 
@@ -327,7 +326,7 @@ export function HammingItoB(
           return (i & index) !== 0;
         })
         .reduce((prev, curr, index) => {
-          return prev ^ (index-1 & i) ? curr : 0;
+          return prev ^ (index & i) ? curr : 0;
         }, 0);
       logging.info(`${i} parity: ${bin[i-1]}`);
       logging.info(`bin update: ${bin.join("")}`);
