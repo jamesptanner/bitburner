@@ -1,4 +1,4 @@
-import { CompanyName, NS, Skills } from "@ns";
+import { CompanyName, NS, PlayerRequirement, Skills, MoneyRequirement, SkillRequirement, KarmaRequiremennt, PeopleKilledRequirement, FileRequirement, NumAugmentationsRequirement, EmployedByRequirement, CompanyReputationRequirement, JobTitleRequirement, CityRequirement, LocationRequirement, BackdoorRequirement, HacknetRAMRequirement, HacknetCoresRequirement, HacknetLevelsRequirement, BitNodeRequirement, SourceFileRequirement, BladeburnerRankRequirement, NumInfiltrationsRequirement, NotRequirement, SomeRequirement, EveryRequirement } from "@ns";
 import { Logging } from "shared/logging";
 import { needToFocus } from "shared/utils";
 
@@ -341,23 +341,23 @@ const waitToBackdoor = async function (ns: NS, server: string) {
 };
 
 const repForNextRole = function (ns: NS, corpName: string): number {
-    const jobs = ns.getPlayer().jobs; 
-    const postitionInfo = ns.singularity.getCompanyPositionInfo(corpName as keyof typeof jobs,(jobs[corpName as keyof typeof jobs])!)
-    return postitionInfo.nextPosition !== null ? ns.singularity.getCompanyPositionInfo(corpName as keyof typeof jobs,postitionInfo.nextPosition).requiredReputation : Infinity;
+    const jobs = ns.getPlayer().jobs;
+    const postitionInfo = ns.singularity.getCompanyPositionInfo(corpName as keyof typeof jobs, (jobs[corpName as keyof typeof jobs])!)
+    return postitionInfo.nextPosition !== null ? ns.singularity.getCompanyPositionInfo(corpName as keyof typeof jobs, postitionInfo.nextPosition).requiredReputation : Infinity;
 };
 
 
-async function aquireSkills(ns:NS, logging: Logging, requiredSkills: Skills) {
-    await improveStat(ns,logging, requiredSkills.hacking,Math.max(requiredSkills.agility,requiredSkills.defense,requiredSkills.dexterity, requiredSkills.strength),requiredSkills.charisma);
+async function aquireSkills(ns: NS, logging: Logging, requiredSkills: Skills) {
+    await improveStat(ns, logging, requiredSkills.hacking, Math.max(requiredSkills.agility, requiredSkills.defense, requiredSkills.dexterity, requiredSkills.strength), requiredSkills.charisma);
 }
 
-const unlockNextRole = async function(ns:NS, corpName: CompanyName, logging: Logging){
+const unlockNextRole = async function (ns: NS, corpName: CompanyName, logging: Logging) {
     const currentJob = ns.getPlayer().jobs[corpName];
     if (currentJob) {
-        const posInfo =ns.singularity.getCompanyPositionInfo(corpName,currentJob);
+        const posInfo = ns.singularity.getCompanyPositionInfo(corpName, currentJob);
         const nextJob = posInfo.nextPosition;
-        if(nextJob){
-            await aquireSkills(ns,logging,ns.singularity.getCompanyPositionInfo(corpName,nextJob).requiredSkills)
+        if (nextJob) {
+            await aquireSkills(ns, logging, ns.singularity.getCompanyPositionInfo(corpName, nextJob).requiredSkills)
         }
     }
 }
@@ -378,7 +378,7 @@ const improveCorporateReputation = async function (
             await ns.asleep(60 * 1000);
             if (currentRep > repForNextRole(ns, corpName)) {
                 ns.singularity.stopAction();
-                await unlockNextRole(ns,corpName,logging);
+                await unlockNextRole(ns, corpName, logging);
                 break;
             }
             if (!ns.singularity.isBusy()) {
@@ -393,38 +393,106 @@ const improveCorporateReputation = async function (
     }
 };
 
-// const enum processRequirementsResult {
-//     Failed,
-//     All,
-//     Some
-// }
+const enum processRequirementsResult {
+    Failed,
+    Success,
+    Skip
+}
 
-// const processRequirements = async function(requirements: PlayerRequirement[]) :processRequirementsResult{
-//     for (let index = 0; index < requirements.length; index++) {
-//         const requirement = requirements[index];
-//         switch (requirement.type){
-//             case MoneyRequirement.type:
-//         }
-        
-//     }
-// }
+const processRequirements = async function (requirements: PlayerRequirement[]): Promise<processRequirementsResult> {
+    for (let index = 0; index < requirements.length; index++) {
+        const requirement = requirements[index];
+        let currentResult;
+        switch (requirement.type) {
+            case "money":
+                currentResult = await handleMoneyRequirement(requirement)
+                break;
+            case "skills":
+                currentResult = await handleSkillRequirement(requirement);
+                break;
+            case "karma":
+                currentResult = await handleKarmaRequirement(requirement);
+                break;
+            case "numPeopleKilled":
+                currentResult = await handleNumPeopleKilledRequirement(requirement);
+                break;
+            case "file":
+                currentResult = await handleFileRequirement(requirement);
+                break;
+            case "numAugmentations":
+                currentResult = await handleNumAugmentationRequirement(requirement);
+                break;
+            case "employedBy":
+                currentResult = await handleEmployedByRequirement(requirement);
+                break;
+            case "companyReputation":
+                currentResult = await handleCompanyReputationRequirement(requirement);
+                break;
+            case "jobTitle":
+                currentResult = await handleJobTitleRequirement(requirement);
+                break;
+            case "city":
+                currentResult = await handleCityRequirement(requirement);
+                break;
+            case "location":
+                currentResult = await handleLocationRequirement(requirement);
+                break;
+            case "backdoorInstalled":
+                currentResult = await handleBackdoorRequirement(requirement);
+                break;
+            case "hacknetRAM":
+                currentResult = await handleHacknetRamRequirement(requirement);
+                break;
+            case "hacknetCores":
+                currentResult = await handleHacknetCoresRequirement(requirement);
+                break;
+            case "hacknetLevels":
+                currentResult = await handleHacknetLevelsRequirement(requirement);
+                break;
+            case "bitNodeN":
+                currentResult = await handleBitnodeRequirement(requirement);
+                break;
+            case "sourceFile":
+                currentResult = await handleSourceFileRequirement(requirement);
+                break;
+            case "bladeburnerRank":
+                currentResult = await handleBladeburnerRankRequirement(requirement);
+                break;
+            case "numInfiltrations":
+                currentResult = await handleInfiltrationsRequirement(requirement);
+                break;
+            case "not":
+                currentResult = await handleNotRequirement(requirement);
+                break;
+            case "someCondition":
+                currentResult = await handleSomeRequirement(requirement);
+                break;
+            case "everyCondition":
+                currentResult = await handleEveryRequirement(requirement);
+                break;
+        }
+        if (currentResult !== processRequirementsResult.Success)
+            return currentResult;
+    }
+    return processRequirementsResult.Success;
+}
 
 
-const workOnKarma = async function(ns:NS, karamLevel:number){
+const workOnKarma = async function (ns: NS, karamLevel: number) {
 
     if (ns.getPlayer().karma <= karamLevel) return;
-    while(ns.getPlayer().karma > karamLevel){
+    while (ns.getPlayer().karma > karamLevel) {
         const timeToWait = ns.singularity.commitCrime("Homicide");
         await ns.asleep(timeToWait);
     }
 }
 
-const hacknetHasAtLeast = async function(ns:NS, hackingLevels: number, hackingRAM: number, hackingCPU: number){
-    while (true){
+const hacknetHasAtLeast = async function (ns: NS, hackingLevels: number, hackingRAM: number, hackingCPU: number) {
+    while (true) {
         const totalNodes = ns.hacknet.numNodes();
-        for (let nodeId = 0; nodeId < totalNodes  ; nodeId++) {
+        for (let nodeId = 0; nodeId < totalNodes; nodeId++) {
             const element = ns.hacknet.getNodeStats(nodeId);
-            if(element.level>= hackingLevels && element.ram >= hackingRAM && element.cores >= hackingCPU) return;
+            if (element.level >= hackingLevels && element.ram >= hackingRAM && element.cores >= hackingCPU) return;
         }
         await ns.asleep(60000)
     }
@@ -489,7 +557,7 @@ export const unlockFaction = async function (
         ) {
             logging.info(`improving hacking to ${requirements.hacking}`);
 
-            await improveStat(ns,logging, requirements.hacking);
+            await improveStat(ns, logging, requirements.hacking);
         }
         if (
             typeof requirements.corp === "string" &&
@@ -508,10 +576,10 @@ export const unlockFaction = async function (
             requirements.hackingRAM ||
             requirements.hackingCPU
         ) {
-            await hacknetHasAtLeast(ns,requirements.hackingLevels? requirements.hackingLevels : 0 , requirements.hackingRAM ? requirements.hackingRAM : 0, requirements.hackingCPU ?  requirements.hackingCPU: 0)
+            await hacknetHasAtLeast(ns, requirements.hackingLevels ? requirements.hackingLevels : 0, requirements.hackingRAM ? requirements.hackingRAM : 0, requirements.hackingCPU ? requirements.hackingCPU : 0)
         }
         if (requirements.karma) {
-            await workOnKarma(ns,requirements.karma)
+            await workOnKarma(ns, requirements.karma)
         }
         if (requirements.backdoor) {
             logging.info(
@@ -599,4 +667,92 @@ export const improveStat = async function (
     }
 };
 
+
+function handleMoneyRequirement(requirement: MoneyRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleSkillRequirement(requirement: SkillRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleKarmaRequirement(requirement: KarmaRequiremennt): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleNumPeopleKilledRequirement(requirement: PeopleKilledRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleFileRequirement(requirement: FileRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleNumAugmentationRequirement(requirement: NumAugmentationsRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleEmployedByRequirement(requirement: EmployedByRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleCompanyReputationRequirement(requirement: CompanyReputationRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleJobTitleRequirement(requirement: JobTitleRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleCityRequirement(requirement: CityRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleLocationRequirement(requirement: LocationRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleBackdoorRequirement(requirement: BackdoorRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleHacknetRamRequirement(requirement: HacknetRAMRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleHacknetCoresRequirement(requirement: HacknetCoresRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleHacknetLevelsRequirement(requirement: HacknetLevelsRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleBitnodeRequirement(requirement: BitNodeRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleSourceFileRequirement(requirement: SourceFileRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleBladeburnerRankRequirement(requirement: BladeburnerRankRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleInfiltrationsRequirement(requirement: NumInfiltrationsRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleNotRequirement(requirement: NotRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleSomeRequirement(requirement: SomeRequirement): any {
+    throw new Error("Function not implemented.");
+}
+
+function handleEveryRequirement(requirement: EveryRequirement): any {
+    throw new Error("Function not implemented.");
+}
 
