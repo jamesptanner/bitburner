@@ -47,6 +47,7 @@ export async function main(ns: NS): Promise<void> {
   }
   logging.info(`unlocking ${factions.join(", ")}`);
   for (const faction of factions) {
-    await unlockFaction(ns, faction);
+    logging.info(`working on ${faction}`)
+    await unlockFaction(ns,logging, faction);
   }
 }

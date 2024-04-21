@@ -58,9 +58,6 @@ export async function main(ns: NS): Promise<void> {
       }),
     ),
   );
-  if (opts.dry) {
-    ns.exit();
-  }
 
   primeAugment: for (const aug of augments) {
     if ((opts.skip as number) > 0) {
@@ -71,31 +68,33 @@ export async function main(ns: NS): Promise<void> {
       }
     }
     logging.info(`Attempting to buy ${aug.name}.`);
+    if (!opts.dry) {
 
-    if (ns.singularity.getAugmentationPrereq(aug.name).length > 0) {
-      for (const prerequisite of ns.singularity.getAugmentationPrereq(
-        aug.name,
-      )) {
-        if (
-          ns.singularity.getOwnedAugmentations(true).indexOf(prerequisite) !==
-          -1
-        ) {
-          continue;
-        }
-        const preReqAugs = augments.filter((aug) => {
-          return aug.name === prerequisite;
-        });
-        if (preReqAugs.length === 0) {
-          logging.info(`Skipping ${aug.name}, cant find pre-requisite.`);
-          continue primeAugment;
-        }
-        if (!(await purchaseAugment(ns, preReqAugs[0], opts.wait as boolean))) {
-          logging.info(`Skipping ${aug.name}, couldn't buy pre-requisite.`);
-          continue primeAugment;
+      if (ns.singularity.getAugmentationPrereq(aug.name).length > 0) {
+        for (const prerequisite of ns.singularity.getAugmentationPrereq(
+          aug.name,
+        )) {
+          if (
+            ns.singularity.getOwnedAugmentations(true).indexOf(prerequisite) !==
+            -1
+          ) {
+            continue;
+          }
+          const preReqAugs = augments.filter((aug) => {
+            return aug.name === prerequisite;
+          });
+          if (preReqAugs.length === 0) {
+            logging.info(`Skipping ${aug.name}, cant find pre-requisite.`);
+            continue primeAugment;
+          }
+          if (!(await purchaseAugment(ns, logging, preReqAugs[0], opts.wait as boolean))) {
+            logging.info(`Skipping ${aug.name}, couldn't buy pre-requisite.`);
+            continue primeAugment;
+          }
         }
       }
+      void (await purchaseAugment(ns, logging, aug, opts.wait as boolean));
     }
-    void (await purchaseAugment(ns, aug, opts.wait as boolean));
   }
 
   //keep buying neuroflux govenors until we hit the limit
@@ -126,14 +125,13 @@ export async function main(ns: NS): Promise<void> {
 
 async function purchaseAugment(
   ns: NS,
+  logging: Logging,
   aug: { name: string; location: string },
   wait: boolean,
 ): Promise<boolean> {
-  const logging = new Logging(ns);
-  await logging.initLogging();
   do {
     if (ns.getPlayer().money < ns.singularity.getAugmentationPrice(aug.name)) {
-      await ns.asleep(60000);
+      await ns.asleep(30000);
     } else {
       break;
     }

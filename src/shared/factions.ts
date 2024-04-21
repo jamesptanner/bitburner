@@ -433,10 +433,9 @@ const hacknetHasAtLeast = async function(ns:NS, hackingLevels: number, hackingRA
 
 export const unlockFaction = async function (
     ns: NS,
+    logging: Logging,
     faction: string,
 ): Promise<boolean> {
-    const logging = new Logging(ns);
-    await logging.initLogging();
     if (ns.getPlayer().factions.indexOf(faction) !== -1) return true;
     if (getAvailableFactions(ns).indexOf(faction) !== -1) {
         ns.singularity.joinFaction(faction);
@@ -445,6 +444,7 @@ export const unlockFaction = async function (
 
     //need to put the work in to unlock the faction.
     const requirements = factionUnlockRequirements.get(faction);
+    logging.info(`Requirments: ${JSON.stringify(requirements)}`)
     // const requirements = ns.singularity.getFactionInviteRequirements(faction)
     if (!requirements) return false;
 

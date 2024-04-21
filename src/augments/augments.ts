@@ -173,7 +173,7 @@ async function unlockNewFactionAndBuyAugments(
   do {
     if (ns.getPlayer().factions.indexOf(faction) === -1) {
       logging.info(`Unlocking faction ${faction}`);
-      unlocked = await unlockFaction(ns, faction);
+      unlocked = await unlockFaction(ns,logging, faction);
       if (unlocked) {
         ns.singularity.joinFaction(faction);
       } else {

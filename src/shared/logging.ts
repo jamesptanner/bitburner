@@ -149,6 +149,7 @@ export class Logging {
   }
 
   public async initLogging() {
+    this.n.clearLog();
     this.loggingDB = await OpenIDB("BBLogging", DBVERSION, {
       upgrade(db, prevVersion) {
         if (prevVersion < 1) {
