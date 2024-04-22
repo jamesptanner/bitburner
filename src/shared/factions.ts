@@ -101,38 +101,11 @@ export const getUniqueAugmentsAvailableFromFaction = function (
     });
 };
 
-const waitToBackdoor = async function (ns: NS, server: string) {
-    const logging = new Logging(ns);
-    await logging.initLogging();
-    logging.info(`Waiting for ${server} to be backdoored`);
-    while (!ns.getServer(server).backdoorInstalled) {
-        const currentWork = ns.singularity.getCurrentWork();
-        if (currentWork && currentWork.type !== "CLASS") {
-            logging.info(`improving hacking skills at uni`);
-            //improve hacking skill
-            if (!ns.singularity.isBusy()) {
-                if (ns.singularity.travelToCity("Volhaven")) {
-                    ns.singularity.universityCourse(
-                        "ZB Institute of Technology",
-                        "Algorithms",
-                    );
-                }
-            }
-        }
-        await ns.asleep(60 * 1000);
-    }
-    const currentWork = ns.singularity.getCurrentWork();
-    if (currentWork && currentWork.type === "CLASS") {
-        ns.singularity.stopAction();
-    }
-};
-
 const repForNextRole = function (ns: NS, corpName: string): number {
     const jobs = ns.getPlayer().jobs;
     const postitionInfo = ns.singularity.getCompanyPositionInfo(corpName as keyof typeof jobs, (jobs[corpName as keyof typeof jobs])!)
     return postitionInfo.nextPosition !== null ? ns.singularity.getCompanyPositionInfo(corpName as keyof typeof jobs, postitionInfo.nextPosition).requiredReputation : Infinity;
 };
-
 
 async function aquireSkills(ns: NS, logging: Logging, requiredSkills: Skills) {
     await improveStat(ns, logging, requiredSkills.hacking, Math.max(requiredSkills.agility, requiredSkills.defense, requiredSkills.dexterity, requiredSkills.strength), requiredSkills.charisma);
@@ -179,27 +152,6 @@ const improveCorporateReputation = async function (
         ns.singularity.stopAction();
     }
 };
-
-const workOnKarma = async function (ns: NS, karamLevel: number) {
-
-    if (ns.getPlayer().karma <= karamLevel) return;
-    while (ns.getPlayer().karma > karamLevel) {
-        const timeToWait = ns.singularity.commitCrime("Homicide");
-        await ns.asleep(timeToWait);
-    }
-}
-
-const hacknetHasAtLeast = async function (ns: NS, hackingLevels: number, hackingRAM: number, hackingCPU: number) {
-    while (true) {
-        const totalNodes = ns.hacknet.numNodes();
-        for (let nodeId = 0; nodeId < totalNodes; nodeId++) {
-            const element = ns.hacknet.getNodeStats(nodeId);
-            if (element.level >= hackingLevels && element.ram >= hackingRAM && element.cores >= hackingCPU) return;
-        }
-        await ns.asleep(60000)
-    }
-
-}
 
 export const unlockFaction = async function (
     ns: NS,
