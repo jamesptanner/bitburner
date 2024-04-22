@@ -145,6 +145,41 @@ class CompanyReputationRequirementHandler extends RequirementHandler<CompanyRepu
     return ns.singularity.getCompanyRep(requirement.company) >= requirement.reputation ? ProcessRequirementsResult.Forfilled : ProcessRequirementsResult.Possible
   }
   async do(ns: NS, logging: Logging, requirement: CompanyReputationRequirement): Promise<ProcessRequirementsResult> {
+    //find if we have a job with the company already.
+    let currentJob = ns.getPlayer().jobs[requirement.company]
+    if (currentJob === undefined){
+      logging.info(`No job with ${requirement.company} currently. Going for employment.`);
+      const positions = ns.singularity.getCompanyPositions(requirement.company);
+      if (positions.find(jobName =>{return jobName === ns.enums.JobName.software0})){
+        ns.singularity.applyToCompany(requirement.company,ns.enums.JobField.software);
+      }
+      currentJob = ns.getPlayer().jobs[requirement.company];
+    }
+    if (currentJob === undefined) return ProcessRequirementsResult.Possible
+    ns.singularity.workForCompany(requirement.company)
+
+    while(!this.check(ns,logging,requirement)){
+      const nextJob = ns.singularity.getCompanyPositionInfo(requirement.company,currentJob);
+      if(ns.singularity.getCompanyRep(requirement.company) >= nextJob.requiredReputation ){
+        // train for next promotion
+        nextJob.requiredSkills
+
+        if (nextJob.requiredSkills.agility) await this.trainGymSkill(ns, logging, ns.enums.GymType.agility, nextJob.requiredSkills.agility, "agility");
+        if (nextJob.requiredSkills.defense) await this.trainGymSkill(ns, logging, ns.enums.GymType.defense, nextJob.requiredSkills.defense, "defense");
+        if (nextJob.requiredSkills.dexterity) await this.trainGymSkill(ns, logging, ns.enums.GymType.dexterity, nextJob.requiredSkills.dexterity, "dexterity");
+        if (nextJob.requiredSkills.strength) await this.trainGymSkill(ns, logging, ns.enums.GymType.strength, nextJob.requiredSkills.strength, "strength");
+
+        if (nextJob.requiredSkills.hacking) await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.dataStructures, nextJob.requiredSkills.hacking, "hacking");
+        if (nextJob.requiredSkills.charisma) await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.leadership, nextJob.requiredSkills.charisma, "charisma");
+        ns.singularity.applyToCompany(requirement.company,ns.enums.JobField.software);
+        ns.singularity.workForCompany(requirement.company);
+      }
+
+      await ns.asleep(5000);
+    }
+
+
+
     return ProcessRequirementsResult.Impossible;
   }
 
