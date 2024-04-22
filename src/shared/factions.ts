@@ -1,6 +1,10 @@
-import { CompanyName, NS, PlayerRequirement, Skills, MoneyRequirement, SkillRequirement, KarmaRequiremennt, PeopleKilledRequirement, FileRequirement, NumAugmentationsRequirement, EmployedByRequirement, CompanyReputationRequirement, JobTitleRequirement, CityRequirement, LocationRequirement, BackdoorRequirement, HacknetRAMRequirement, HacknetCoresRequirement, HacknetLevelsRequirement, BitNodeRequirement, SourceFileRequirement, BladeburnerRankRequirement, NumInfiltrationsRequirement, NotRequirement, SomeRequirement, EveryRequirement } from "@ns";
+import { CompanyName, NS, PlayerRequirement, Skills, MoneyRequirement, SkillRequirement, KarmaRequiremennt, PeopleKilledRequirement, FileRequirement, NumAugmentationsRequirement, EmployedByRequirement, CompanyReputationRequirement, JobTitleRequirement, CityRequirement, LocationRequirement, BackdoorRequirement, HacknetRAMRequirement, HacknetCoresRequirement, HacknetLevelsRequirement, BitNodeRequirement, SourceFileRequirement, BladeburnerRankRequirement, NumInfiltrationsRequirement, NotRequirement, SomeRequirement, EveryRequirement, CityName, GymType } from "@ns";
 import { Logging } from "shared/logging";
 import { needToFocus } from "shared/utils";
+import { checkCostsPath } from "/servers/checkCosts";
+import { UniversityClassType } from "/lib/nsenums";
+import { buyScriptsPath } from "/cron/buyScripts";
+import { ProcessRequirementsResult, processRequirements } from "/shared/factionRequirementProcessor";
 
 export const factionsPath = "/shared/factions.js";
 
@@ -59,223 +63,6 @@ type FactionUnlockRequirements = {
     not?: FactionExclusions;
     augments?: number;
 };
-export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
-    new Map([
-        [
-            "CyberSec",
-            {
-                backdoor: "CSEC",
-            },
-        ],
-        [
-            "Tian Di Hui",
-            {
-                cash: 1000000,
-                hacking: 50,
-                location: "Chongqing",
-            },
-        ],
-        [
-            "Netburners",
-            {
-                hacking: 80,
-                hackinglevel: 100,
-                hackingRAM: 8,
-                hackingCPU: 4,
-            },
-        ],
-        [
-            "Sector-12",
-            {
-                location: "Sector12",
-                cash: 15000000,
-                not: {
-                    faction: ["Chongqing", "New Tokyo", "Ishima", "Volhaven"],
-                },
-            },
-        ],
-        [
-            "Chongqing",
-            {
-                location: "Chongqing",
-                cash: 20000000,
-                not: {
-                    faction: ["Sector-12", "Aevum", "Volhaven"],
-                },
-            },
-        ],
-        [
-            "New Tokyo",
-            {
-                location: "NewTokyo",
-                cash: 20000000,
-                not: {
-                    faction: ["Sector-12", "Aevum", "Volhaven"],
-                },
-            },
-        ],
-        [
-            "Ishima",
-            {
-                location: "Ishima",
-                cash: 30000000,
-                not: {
-                    faction: ["Sector-12", "Aevum", "Volhaven"],
-                },
-            },
-        ],
-        [
-            "Aevum",
-            {
-                location: "Aevum",
-                cash: 40000000,
-                not: {
-                    faction: ["Chongqing", "New Tokyo", "Ishima", "Volhaven"],
-                },
-            },
-        ],
-        [
-            "Volhaven",
-            {
-                location: "Volhaven",
-                cash: 50000000,
-                not: {
-                    faction: ["Sector-12", "Chongqing", "New Tokyo", "Ishima", "Aevum"],
-                },
-            },
-        ],
-        [
-            "NiteSec",
-            {
-                backdoor: "avmnite-02h",
-            },
-        ],
-        [
-            "The Black Hand",
-            {
-                backdoor: "I.I.I.I",
-            },
-        ],
-        [
-            "BitRunners",
-            {
-                backdoor: "run4theh111z",
-            },
-        ],
-        [
-            "ECorp",
-            {
-                corp: "ECorp",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "MegaCorp",
-            {
-                corp: "MegaCorp",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "KuaiGong International",
-            {
-                corp: "KuaiGong International",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "Four Sigma",
-            {
-                corp: "Four Sigma",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "NWO",
-            {
-                corp: "NWO",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "Blade Industries",
-            {
-                corp: "Blade Industries",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "OmniTek Incorporated",
-            {
-                corp: "OmniTek Incorporated",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "Bachman & Associates",
-            {
-                corp: "Bachman & Associates",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "Clarke Incorporated",
-            {
-                corp: "Clarke Incorporated",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "Fulcrum Secret Technologies",
-            {
-                corp: "Fulcrum Technologies",
-                corpRep: 200000,
-                backdoor: "fulcrumassets",
-            },
-        ],
-        [
-            "Slum Snakes",
-            {
-                combatSkill: 30,
-                karma: -9,
-                cash: 1000000,
-            },
-        ],
-        [
-            "Tetrads",
-            {
-                location: "Chongqing",
-                combatSkill: 75,
-                karma: -22,
-            },
-        ],
-        [
-            "The Covenant",
-            {
-                augments: 20,
-                cash: 75000000000,
-                hacking: 850,
-                combatSkill: 850,
-            },
-        ],
-        [
-            "Daedalus",
-            {
-                augments: 30,
-                cash: 100000000000,
-                hacking: 2500,
-            },
-        ],
-        [
-            "Illuminati",
-            {
-                augments: 30,
-                cash: 150000000000,
-                hacking: 1500,
-                combatSkill: 1200,
-            },
-        ],
-    ]);
 
 export const getAvailableFactions = function (ns: NS): string[] {
     const player = ns.getPlayer();
@@ -393,91 +180,6 @@ const improveCorporateReputation = async function (
     }
 };
 
-const enum processRequirementsResult {
-    Failed,
-    Success,
-    Skip
-}
-
-const processRequirements = async function (requirements: PlayerRequirement[]): Promise<processRequirementsResult> {
-    for (let index = 0; index < requirements.length; index++) {
-        const requirement = requirements[index];
-        let currentResult;
-        switch (requirement.type) {
-            case "money":
-                currentResult = await handleMoneyRequirement(requirement)
-                break;
-            case "skills":
-                currentResult = await handleSkillRequirement(requirement);
-                break;
-            case "karma":
-                currentResult = await handleKarmaRequirement(requirement);
-                break;
-            case "numPeopleKilled":
-                currentResult = await handleNumPeopleKilledRequirement(requirement);
-                break;
-            case "file":
-                currentResult = await handleFileRequirement(requirement);
-                break;
-            case "numAugmentations":
-                currentResult = await handleNumAugmentationRequirement(requirement);
-                break;
-            case "employedBy":
-                currentResult = await handleEmployedByRequirement(requirement);
-                break;
-            case "companyReputation":
-                currentResult = await handleCompanyReputationRequirement(requirement);
-                break;
-            case "jobTitle":
-                currentResult = await handleJobTitleRequirement(requirement);
-                break;
-            case "city":
-                currentResult = await handleCityRequirement(requirement);
-                break;
-            case "location":
-                currentResult = await handleLocationRequirement(requirement);
-                break;
-            case "backdoorInstalled":
-                currentResult = await handleBackdoorRequirement(requirement);
-                break;
-            case "hacknetRAM":
-                currentResult = await handleHacknetRamRequirement(requirement);
-                break;
-            case "hacknetCores":
-                currentResult = await handleHacknetCoresRequirement(requirement);
-                break;
-            case "hacknetLevels":
-                currentResult = await handleHacknetLevelsRequirement(requirement);
-                break;
-            case "bitNodeN":
-                currentResult = await handleBitnodeRequirement(requirement);
-                break;
-            case "sourceFile":
-                currentResult = await handleSourceFileRequirement(requirement);
-                break;
-            case "bladeburnerRank":
-                currentResult = await handleBladeburnerRankRequirement(requirement);
-                break;
-            case "numInfiltrations":
-                currentResult = await handleInfiltrationsRequirement(requirement);
-                break;
-            case "not":
-                currentResult = await handleNotRequirement(requirement);
-                break;
-            case "someCondition":
-                currentResult = await handleSomeRequirement(requirement);
-                break;
-            case "everyCondition":
-                currentResult = await handleEveryRequirement(requirement);
-                break;
-        }
-        if (currentResult !== processRequirementsResult.Success)
-            return currentResult;
-    }
-    return processRequirementsResult.Success;
-}
-
-
 const workOnKarma = async function (ns: NS, karamLevel: number) {
 
     if (ns.getPlayer().karma <= karamLevel) return;
@@ -511,81 +213,24 @@ export const unlockFaction = async function (
     }
 
     //need to put the work in to unlock the faction.
-    const requirements = factionUnlockRequirements.get(faction);
+    const requirements = ns.singularity.getFactionInviteRequirements(faction)
     logging.info(`Requirments: ${JSON.stringify(requirements)}`)
-    // const requirements = ns.singularity.getFactionInviteRequirements(faction)
     if (!requirements) return false;
 
-    while (ns.getPlayer().factions.indexOf(faction) === -1) {
+    factionLoop: while (ns.getPlayer().factions.indexOf(faction) === -1) {
         await ns.asleep(100);
-        // processRequirements(requirements);
-        if (requirements.augments) {
-            if (
-                requirements.augments >
-                ns.singularity.getOwnedAugmentations(false).length
-            ) {
-                logging.info(
-                    `Not enough augments installed ${ns.singularity.getOwnedAugmentations(false)}/${requirements.augments}`,
-                );
-                return false;
-            }
-        }
-        if (
-            requirements.location &&
-            ns.getPlayer().location !== requirements.location
-        ) {
-            ns.enums.CityName[
-                requirements.location as keyof typeof ns.enums.CityName
-            ];
-            ns.singularity.travelToCity(
-                ns.enums.CityName[
-                requirements.location as keyof typeof ns.enums.CityName
-                ],
-            );
-        }
-        if (requirements.cash && ns.getPlayer().money < requirements.cash) {
-            logging.info(`waiting for $${ns.formatNumber(requirements.cash)}`);
-            await ns.asleep(1000 * 60);
-        }
-        if (requirements.combatSkill) {
-            logging.info(`improving combat skill to ${requirements.combatSkill}`);
-            await improveStat(ns, logging, 0, requirements.combatSkill);
-        }
-        if (
-            requirements.hacking &&
-            ns.getPlayer().skills.hacking < requirements.hacking
-        ) {
-            logging.info(`improving hacking to ${requirements.hacking}`);
-
-            await improveStat(ns, logging, requirements.hacking);
-        }
-        if (
-            typeof requirements.corp === "string" &&
-            typeof requirements.corpRep === "number"
-        ) {
-            logging.info(`improving reputation with  ${requirements.corp}`);
-            await improveCorporateReputation(
-                ns,
-                requirements.corp,
-                requirements.corpRep,
-                logging
-            );
-        }
-        if (
-            requirements.hackingLevels ||
-            requirements.hackingRAM ||
-            requirements.hackingCPU
-        ) {
-            await hacknetHasAtLeast(ns, requirements.hackingLevels ? requirements.hackingLevels : 0, requirements.hackingRAM ? requirements.hackingRAM : 0, requirements.hackingCPU ? requirements.hackingCPU : 0)
-        }
-        if (requirements.karma) {
-            await workOnKarma(ns, requirements.karma)
-        }
-        if (requirements.backdoor) {
-            logging.info(
-                `waiting until we have a backdoor into ${requirements.backdoor}`,
-            );
-            await waitToBackdoor(ns, requirements.backdoor);
+        logging.info(`attempting to unlock ${faction} faction. `)
+        const factionState = await processRequirements(ns, logging, requirements);
+        switch (factionState) {
+            case ProcessRequirementsResult.Forfilled:
+                logging.info(`Completed unlocking ${faction}`);
+                break;
+            case ProcessRequirementsResult.Possible:
+                logging.info(`Did not complete unlocking ${faction}`);
+                break;
+            case ProcessRequirementsResult.Impossible:
+                logging.info(`Not possible to unlock ${faction}`);
+                break factionLoop;
         }
         ns.singularity.joinFaction(faction);
     }
@@ -600,7 +245,6 @@ export const improveFactionReputation = async function (
     const logging = new Logging(ns);
     await logging.initLogging();
     while (reputation > ns.singularity.getFactionRep(faction)) {
-        ns.tail();
         logging.info(
             `current faction relationship ${faction} is ${ns.formatNumber(ns.singularity.getFactionRep(faction))}, want ${ns.formatNumber(reputation)}.`,
         );
@@ -666,93 +310,3 @@ export const improveStat = async function (
         }
     }
 };
-
-
-function handleMoneyRequirement(requirement: MoneyRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleSkillRequirement(requirement: SkillRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleKarmaRequirement(requirement: KarmaRequiremennt): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleNumPeopleKilledRequirement(requirement: PeopleKilledRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleFileRequirement(requirement: FileRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleNumAugmentationRequirement(requirement: NumAugmentationsRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleEmployedByRequirement(requirement: EmployedByRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleCompanyReputationRequirement(requirement: CompanyReputationRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleJobTitleRequirement(requirement: JobTitleRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleCityRequirement(requirement: CityRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleLocationRequirement(requirement: LocationRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleBackdoorRequirement(requirement: BackdoorRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleHacknetRamRequirement(requirement: HacknetRAMRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleHacknetCoresRequirement(requirement: HacknetCoresRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleHacknetLevelsRequirement(requirement: HacknetLevelsRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleBitnodeRequirement(requirement: BitNodeRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleSourceFileRequirement(requirement: SourceFileRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleBladeburnerRankRequirement(requirement: BladeburnerRankRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleInfiltrationsRequirement(requirement: NumInfiltrationsRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleNotRequirement(requirement: NotRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleSomeRequirement(requirement: SomeRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
-function handleEveryRequirement(requirement: EveryRequirement): any {
-    throw new Error("Function not implemented.");
-}
-
