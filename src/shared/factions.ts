@@ -1,9 +1,6 @@
-import { CompanyName, NS, PlayerRequirement, Skills, MoneyRequirement, SkillRequirement, KarmaRequiremennt, PeopleKilledRequirement, FileRequirement, NumAugmentationsRequirement, EmployedByRequirement, CompanyReputationRequirement, JobTitleRequirement, CityRequirement, LocationRequirement, BackdoorRequirement, HacknetRAMRequirement, HacknetCoresRequirement, HacknetLevelsRequirement, BitNodeRequirement, SourceFileRequirement, BladeburnerRankRequirement, NumInfiltrationsRequirement, NotRequirement, SomeRequirement, EveryRequirement, CityName, GymType } from "@ns";
+import { NS } from "@ns";
 import { Logging } from "shared/logging";
 import { needToFocus } from "shared/utils";
-import { checkCostsPath } from "/servers/checkCosts";
-import { UniversityClassType } from "/lib/nsenums";
-import { buyScriptsPath } from "/cron/buyScripts";
 import { ProcessRequirementsResult, processRequirements } from "/shared/factionRequirementProcessor";
 
 export const factionsPath = "/shared/factions.js";
@@ -79,58 +76,6 @@ export const getUniqueAugmentsAvailableFromFaction = function (
     return getAugmentsAvailableFromFaction(ns, faction).filter((augment) => {
         return augment !== "NeuroFlux Governor";
     });
-};
-
-const repForNextRole = function (ns: NS, corpName: string): number {
-    const jobs = ns.getPlayer().jobs;
-    const postitionInfo = ns.singularity.getCompanyPositionInfo(corpName as keyof typeof jobs, (jobs[corpName as keyof typeof jobs])!)
-    return postitionInfo.nextPosition !== null ? ns.singularity.getCompanyPositionInfo(corpName as keyof typeof jobs, postitionInfo.nextPosition).requiredReputation : Infinity;
-};
-
-async function aquireSkills(ns: NS, logging: Logging, requiredSkills: Skills) {
-    await improveStat(ns, logging, requiredSkills.hacking, Math.max(requiredSkills.agility, requiredSkills.defense, requiredSkills.dexterity, requiredSkills.strength), requiredSkills.charisma);
-}
-
-const unlockNextRole = async function (ns: NS, corpName: CompanyName, logging: Logging) {
-    const currentJob = ns.getPlayer().jobs[corpName];
-    if (currentJob) {
-        const posInfo = ns.singularity.getCompanyPositionInfo(corpName, currentJob);
-        const nextJob = posInfo.nextPosition;
-        if (nextJob) {
-            await aquireSkills(ns, logging, ns.singularity.getCompanyPositionInfo(corpName, nextJob).requiredSkills)
-        }
-    }
-}
-
-const improveCorporateReputation = async function (
-    ns: NS,
-    corpNameAsString: string,
-    reputation: number,
-    logging: Logging
-) {
-    logging.info(`Waiting to improve reputation with ${corpNameAsString}`);
-    const corpName = ns.enums.CompanyName[corpNameAsString as keyof typeof ns.enums.CompanyName];
-    while (ns.singularity.getCompanyRep(corpName) < reputation) {
-        ns.singularity.applyToCompany(corpName, ns.enums.JobField.software);
-        ns.singularity.workForCompany(corpName);
-        const currentRep = ns.singularity.getCompanyRep(corpName);
-        while (currentRep < reputation) {
-            await ns.asleep(60 * 1000);
-            if (currentRep > repForNextRole(ns, corpName)) {
-                ns.singularity.stopAction();
-                await unlockNextRole(ns, corpName, logging);
-                break;
-            }
-            if (!ns.singularity.isBusy()) {
-                ns.singularity.workForCompany(corpName);
-            }
-            // TODO
-            // const repNeeded = ((reputation - currentRep) * 2) - ns.getPlayer().workRepGained
-            // logging.info(`RepNeeded: ${ns.nFormat(repNeeded, "(0.000)")}, repGain: ${ns.nFormat(ns.getPlayer().workRepGainRate * 5, "(0.000)")}`)
-            // logging.info(`estimated time remaining: ${ns.tFormat(repNeeded * 1000 / (ns.getPlayer().workRepGainRate * 5))}`)
-        }
-        ns.singularity.stopAction();
-    }
 };
 
 export const unlockFaction = async function (
