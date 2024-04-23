@@ -77,13 +77,6 @@ const sendLog = async function (
       [
         `${payload.timestamp}`,
         (payload.payload as LogData).message,
-        JSON.stringify({
-          host: payload.host,
-          args: payload.args,
-          script: payload.script,
-          game: settings.gameHost,
-          level: payload.payload.level,
-        }),
       ],
     ];
     const request = lokiRequest;
@@ -91,12 +84,10 @@ const sendLog = async function (
       streams: [
         {
           stream: {
-            trace: payload.trace,
             host: payload.host,
             args: payload.args,
             script: payload.script,
             game: settings.gameHost,
-            level: payload.payload.level,
           },
           values: values,
         },
@@ -189,7 +180,7 @@ async function trimRecords(ns: NS, loggingDB: IDBPDatabase): Promise<void> {
     }
   }
   loggingTX.commit();
-
+  
   const metricTX = loggingDB.transaction("metrics", "readwrite");
   const metricIndex = metricTX.index("timestamp");
   const metricRecords = await metricIndex.count(
@@ -235,7 +226,7 @@ export async function main(ns: NS): Promise<void> {
       } catch (e) {
         ns.print(`failed to send log: ${e}`);
       }
-      await ns.asleep(500);
+      await ns.asleep(1000);
     }
   }
 }

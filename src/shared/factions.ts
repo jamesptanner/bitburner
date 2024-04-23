@@ -1,6 +1,7 @@
-import { CompanyName, NS, Skills } from "@ns";
+import { NS } from "@ns";
 import { Logging } from "shared/logging";
 import { needToFocus } from "shared/utils";
+import { ProcessRequirementsResult, processRequirements } from "/shared/factionRequirementProcessor";
 
 export const factionsPath = "/shared/factions.js";
 
@@ -40,243 +41,6 @@ export const factions: string[] = [
     // "Church of the Machine God", //not sure who these are yet.
 ];
 
-type FactionExclusions = {
-    faction?: string[];
-    employers?: string[];
-};
-type FactionUnlockRequirements = {
-    location?: string;
-    backdoor?: string;
-    hacking?: number;
-    hackingLevels?: number;
-    hackingRAM?: number;
-    hackingCPU?: number;
-    cash?: number;
-    corp?: string;
-    corpRep?: number;
-    combatSkill?: number;
-    karma?: number;
-    not?: FactionExclusions;
-    augments?: number;
-};
-export const factionUnlockRequirements: Map<string, FactionUnlockRequirements> =
-    new Map([
-        [
-            "CyberSec",
-            {
-                backdoor: "CSEC",
-            },
-        ],
-        [
-            "Tian Di Hui",
-            {
-                cash: 1000000,
-                hacking: 50,
-                location: "Chongqing",
-            },
-        ],
-        [
-            "Netburners",
-            {
-                hacking: 80,
-                hackinglevel: 100,
-                hackingRAM: 8,
-                hackingCPU: 4,
-            },
-        ],
-        [
-            "Sector-12",
-            {
-                location: "Sector12",
-                cash: 15000000,
-                not: {
-                    faction: ["Chongqing", "New Tokyo", "Ishima", "Volhaven"],
-                },
-            },
-        ],
-        [
-            "Chongqing",
-            {
-                location: "Chongqing",
-                cash: 20000000,
-                not: {
-                    faction: ["Sector-12", "Aevum", "Volhaven"],
-                },
-            },
-        ],
-        [
-            "New Tokyo",
-            {
-                location: "NewTokyo",
-                cash: 20000000,
-                not: {
-                    faction: ["Sector-12", "Aevum", "Volhaven"],
-                },
-            },
-        ],
-        [
-            "Ishima",
-            {
-                location: "Ishima",
-                cash: 30000000,
-                not: {
-                    faction: ["Sector-12", "Aevum", "Volhaven"],
-                },
-            },
-        ],
-        [
-            "Aevum",
-            {
-                location: "Aevum",
-                cash: 40000000,
-                not: {
-                    faction: ["Chongqing", "New Tokyo", "Ishima", "Volhaven"],
-                },
-            },
-        ],
-        [
-            "Volhaven",
-            {
-                location: "Volhaven",
-                cash: 50000000,
-                not: {
-                    faction: ["Sector-12", "Chongqing", "New Tokyo", "Ishima", "Aevum"],
-                },
-            },
-        ],
-        [
-            "NiteSec",
-            {
-                backdoor: "avmnite-02h",
-            },
-        ],
-        [
-            "The Black Hand",
-            {
-                backdoor: "I.I.I.I",
-            },
-        ],
-        [
-            "BitRunners",
-            {
-                backdoor: "run4theh111z",
-            },
-        ],
-        [
-            "ECorp",
-            {
-                corp: "ECorp",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "MegaCorp",
-            {
-                corp: "MegaCorp",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "KuaiGong International",
-            {
-                corp: "KuaiGong International",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "Four Sigma",
-            {
-                corp: "Four Sigma",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "NWO",
-            {
-                corp: "NWO",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "Blade Industries",
-            {
-                corp: "Blade Industries",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "OmniTek Incorporated",
-            {
-                corp: "OmniTek Incorporated",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "Bachman & Associates",
-            {
-                corp: "Bachman & Associates",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "Clarke Incorporated",
-            {
-                corp: "Clarke Incorporated",
-                corpRep: 200000,
-            },
-        ],
-        [
-            "Fulcrum Secret Technologies",
-            {
-                corp: "Fulcrum Technologies",
-                corpRep: 200000,
-                backdoor: "fulcrumassets",
-            },
-        ],
-        [
-            "Slum Snakes",
-            {
-                combatSkill: 30,
-                karma: -9,
-                cash: 1000000,
-            },
-        ],
-        [
-            "Tetrads",
-            {
-                location: "Chongqing",
-                combatSkill: 75,
-                karma: -22,
-            },
-        ],
-        [
-            "The Covenant",
-            {
-                augments: 20,
-                cash: 75000000000,
-                hacking: 850,
-                combatSkill: 850,
-            },
-        ],
-        [
-            "Daedalus",
-            {
-                augments: 30,
-                cash: 100000000000,
-                hacking: 2500,
-            },
-        ],
-        [
-            "Illuminati",
-            {
-                augments: 30,
-                cash: 150000000000,
-                hacking: 1500,
-                combatSkill: 1200,
-            },
-        ],
-    ]);
-
 export const getAvailableFactions = function (ns: NS): string[] {
     const player = ns.getPlayer();
     return factions.filter((faction) => {
@@ -314,115 +78,11 @@ export const getUniqueAugmentsAvailableFromFaction = function (
     });
 };
 
-const waitToBackdoor = async function (ns: NS, server: string) {
-    const logging = new Logging(ns);
-    await logging.initLogging();
-    logging.info(`Waiting for ${server} to be backdoored`);
-    while (!ns.getServer(server).backdoorInstalled) {
-        const currentWork = ns.singularity.getCurrentWork();
-        if (currentWork && currentWork.type !== "CLASS") {
-            logging.info(`improving hacking skills at uni`);
-            //improve hacking skill
-            if (!ns.singularity.isBusy()) {
-                if (ns.singularity.travelToCity("Volhaven")) {
-                    ns.singularity.universityCourse(
-                        "ZB Institute of Technology",
-                        "Algorithms",
-                    );
-                }
-            }
-        }
-        await ns.asleep(60 * 1000);
-    }
-    const currentWork = ns.singularity.getCurrentWork();
-    if (currentWork && currentWork.type === "CLASS") {
-        ns.singularity.stopAction();
-    }
-};
-
-const repForNextRole = function (ns: NS, corpName: string): number {
-    const jobs = ns.getPlayer().jobs as { [key: string]: string };
-    switch (jobs[corpName]) {
-        case "IT Intern":
-            return 7e3;
-        case "Software Engineering Intern":
-        case "Business Intern":
-            return 8e3;
-        case "IT Analyst":
-            return 35e3;
-        case "Junior Software Engineer":
-        case "Business Analyst":
-            return 40e3;
-        case "IT Manager":
-            return 175e3;
-        case "Senior Software Engineer":
-            return 200e3;
-        case "Lead Software Developer":
-            return 400e3;
-        case "Systems Administrator":
-        case "Head of Software":
-            return 800e3;
-        case "Head of Engineering":
-            return 1.6e6;
-        case "Vice President of Technology":
-            return 3.2e6;
-    }
-    return Infinity;
-};
-
-
-async function aquireSkills(ns:NS, logging: Logging, requiredSkills: Skills) {
-    await improveStat(ns,logging, requiredSkills.hacking,Math.max(requiredSkills.agility,requiredSkills.defense,requiredSkills.dexterity, requiredSkills.strength),requiredSkills.charisma);
-}
-
-const unlockNextRole = async function(ns:NS, corpName: CompanyName, logging: Logging){
-    const currentJob = ns.getPlayer().jobs[corpName];
-    if (currentJob) {
-        const posInfo =ns.singularity.getCompanyPositionInfo(corpName,currentJob);
-        const nextJob = posInfo.nextPosition;
-        if(nextJob){
-            await aquireSkills(ns,logging,ns.singularity.getCompanyPositionInfo(corpName,nextJob).requiredSkills)
-        }
-    }
-}
-
-const improveCorporateReputation = async function (
-    ns: NS,
-    corpNameAsString: string,
-    reputation: number,
-    logging: Logging
-) {
-    logging.info(`Waiting to improve reputation with ${corpNameAsString}`);
-    const corpName = ns.enums.CompanyName[corpNameAsString as keyof typeof ns.enums.CompanyName];
-    while (ns.singularity.getCompanyRep(corpName) < reputation) {
-        ns.singularity.applyToCompany(corpName, ns.enums.JobField.software);
-        ns.singularity.workForCompany(corpName);
-        const currentRep = ns.singularity.getCompanyRep(corpName);
-        while (currentRep < reputation) {
-            await ns.asleep(60 * 1000);
-            if (currentRep > repForNextRole(ns, corpName)) {
-                ns.singularity.stopAction();
-                await unlockNextRole(ns,corpName,logging);
-                break;
-            }
-            if (!ns.singularity.isBusy()) {
-                ns.singularity.workForCompany(corpName);
-            }
-            // TODO
-            // const repNeeded = ((reputation - currentRep) * 2) - ns.getPlayer().workRepGained
-            // logging.info(`RepNeeded: ${ns.nFormat(repNeeded, "(0.000)")}, repGain: ${ns.nFormat(ns.getPlayer().workRepGainRate * 5, "(0.000)")}`)
-            // logging.info(`estimated time remaining: ${ns.tFormat(repNeeded * 1000 / (ns.getPlayer().workRepGainRate * 5))}`)
-        }
-        ns.singularity.stopAction();
-    }
-};
-
 export const unlockFaction = async function (
     ns: NS,
+    logging: Logging,
     faction: string,
 ): Promise<boolean> {
-    const logging = new Logging(ns);
-    await logging.initLogging();
     if (ns.getPlayer().factions.indexOf(faction) !== -1) return true;
     if (getAvailableFactions(ns).indexOf(faction) !== -1) {
         ns.singularity.joinFaction(faction);
@@ -430,80 +90,24 @@ export const unlockFaction = async function (
     }
 
     //need to put the work in to unlock the faction.
-    const requirements = factionUnlockRequirements.get(faction);
+    const requirements = ns.singularity.getFactionInviteRequirements(faction)
+    logging.info(`Requirments: ${JSON.stringify(requirements)}`)
     if (!requirements) return false;
 
-    while (ns.getPlayer().factions.indexOf(faction) === -1) {
+    factionLoop: while (ns.getPlayer().factions.indexOf(faction) === -1) {
         await ns.asleep(100);
-        if (requirements.augments) {
-            if (
-                requirements.augments >
-                ns.singularity.getOwnedAugmentations(false).length
-            ) {
-                logging.info(
-                    `Not enough augments installed ${ns.singularity.getOwnedAugmentations(false)}/${requirements.augments}`,
-                );
-                return false;
-            }
-        }
-        if (
-            requirements.location &&
-            ns.getPlayer().location !== requirements.location
-        ) {
-            ns.enums.CityName[
-                requirements.location as keyof typeof ns.enums.CityName
-            ];
-            ns.singularity.travelToCity(
-                ns.enums.CityName[
-                requirements.location as keyof typeof ns.enums.CityName
-                ],
-            );
-        }
-        if (requirements.cash && ns.getPlayer().money < requirements.cash) {
-            logging.info(`waiting for $${ns.formatNumber(requirements.cash)}`);
-            await ns.asleep(1000 * 60);
-        }
-        if (requirements.combatSkill) {
-            logging.info(`improving combat skill to ${requirements.combatSkill}`);
-            await improveStat(ns, logging, 0, requirements.combatSkill);
-        }
-        if (
-            requirements.hacking &&
-            ns.getPlayer().skills.hacking < requirements.hacking
-        ) {
-            logging.info(`improving hacking to ${requirements.hacking}`);
-
-            await improveStat(ns,logging, requirements.hacking);
-        }
-        if (
-            typeof requirements.corp === "string" &&
-            typeof requirements.corpRep === "number"
-        ) {
-            logging.info(`improving reputation with  ${requirements.corp}`);
-            await improveCorporateReputation(
-                ns,
-                requirements.corp,
-                requirements.corpRep,
-                logging
-            );
-        }
-        if (
-            requirements.hackingLevels ||
-            requirements.hackingRAM ||
-            requirements.hackingCPU
-        ) {
-            // await hacknetBuyAtLeast(ns,requirements.hackingLevels, requirements.hackingRAM, requirements.hackingCPU)
-            return false;
-        }
-        if (requirements.karma) {
-            // await workOnKarma(ns,requirements.karma)
-            return false;
-        }
-        if (requirements.backdoor) {
-            logging.info(
-                `waiting until we have a backdoor into ${requirements.backdoor}`,
-            );
-            await waitToBackdoor(ns, requirements.backdoor);
+        logging.info(`attempting to unlock ${faction} faction. `)
+        const factionState = await processRequirements(ns, logging, requirements);
+        switch (factionState) {
+            case ProcessRequirementsResult.Forfilled:
+                logging.info(`Completed unlocking ${faction}`);
+                break;
+            case ProcessRequirementsResult.Possible:
+                logging.info(`Did not complete unlocking ${faction}`);
+                break;
+            case ProcessRequirementsResult.Impossible:
+                logging.info(`Not possible to unlock ${faction}`);
+                break factionLoop;
         }
         ns.singularity.joinFaction(faction);
     }
@@ -518,7 +122,6 @@ export const improveFactionReputation = async function (
     const logging = new Logging(ns);
     await logging.initLogging();
     while (reputation > ns.singularity.getFactionRep(faction)) {
-        ns.tail();
         logging.info(
             `current faction relationship ${faction} is ${ns.formatNumber(ns.singularity.getFactionRep(faction))}, want ${ns.formatNumber(reputation)}.`,
         );
@@ -584,5 +187,3 @@ export const improveStat = async function (
         }
     }
 };
-
-

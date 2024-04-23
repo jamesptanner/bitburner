@@ -1,11 +1,8 @@
 import { NS } from "@ns";
 import {
-  factions,
-  factionUnlockRequirements,
   getAvailableFactions,
   getUniqueAugmentsAvailableFromFaction,
   improveFactionReputation,
-  unlockFaction,
 } from "shared/factions";
 import { getAugmentsAvailableFromFaction } from "/shared/factions";
 import { Logging } from "/shared/logging";
@@ -18,34 +15,34 @@ const intersection = function <T>(a: T[], b: T[]): T[] {
   });
 };
 
-const chooseAFaction = function (ns: NS, skipFactions: string[]): string {
-  const factionsToComplete = factions.filter((faction) => {
-    return getUniqueAugmentsAvailableFromFaction(ns, faction).length !== 0;
-  });
-  if (factionsToComplete.length === 1) return factionsToComplete[0];
-  const factionInvites = ns.singularity.checkFactionInvitations();
-  if (factionInvites.length > 0) {
-    const readyNow = intersection(factionInvites, factionsToComplete);
-    if (readyNow.length > 0) return readyNow[0];
-  }
-  return factionsToComplete.filter((faction) => {
-    if (skipFactions.indexOf(faction) !== -1) return false;
-    const requirements = factionUnlockRequirements.get(faction);
-    if (!requirements?.not) return true;
-    if (
-      requirements.not.faction &&
-      intersection(requirements.not.faction, ns.getPlayer().factions).length > 0
-    )
-      return false;
-    if (
-      requirements.not.employers &&
-      intersection(requirements.not.employers, Object.keys(ns.getPlayer().jobs))
-        .length > 0
-    )
-      return false;
-    return true;
-  })[0];
-};
+// const chooseAFaction = function (ns: NS, skipFactions: string[]): string {
+//   const factionsToComplete = factions.filter((faction) => {
+//     return getUniqueAugmentsAvailableFromFaction(ns, faction).length !== 0;
+//   });
+//   if (factionsToComplete.length === 1) return factionsToComplete[0];
+//   const factionInvites = ns.singularity.checkFactionInvitations();
+//   if (factionInvites.length > 0) {
+//     const readyNow = intersection(factionInvites, factionsToComplete);
+//     if (readyNow.length > 0) return readyNow[0];
+//   }
+//   return factionsToComplete.filter((faction) => {
+//     if (skipFactions.indexOf(faction) !== -1) return false;
+//     const requirements = factionUnlockRequirements.get(faction);
+//     if (!requirements?.not) return true;
+//     if (
+//       requirements.not.faction &&
+//       intersection(requirements.not.faction, ns.getPlayer().factions).length > 0
+//     )
+//       return false;
+//     if (
+//       requirements.not.employers &&
+//       intersection(requirements.not.employers, Object.keys(ns.getPlayer().jobs))
+//         .length > 0
+//     )
+//       return false;
+//     return true;
+//   })[0];
+// };
 
 /**
  * Attempt to purchase a augmentation from a faction. If we fail to purchase 3 times after meeting the criteria then fail.
@@ -156,52 +153,52 @@ export async function main(ns: NS): Promise<void> {
     });
 
   if (availableAugments.length === 0) {
-    await unlockNewFactionAndBuyAugments(ns, skippedFactions);
+    // await unlockNewFactionAndBuyAugments(ns, skippedFactions);
   } else {
     await buyExistingAugments(ns, availableAugments);
   }
 }
 
-async function unlockNewFactionAndBuyAugments(
-  ns: NS,
-  skippedFactions: string[],
-) {
-  const logging = new Logging(ns);
-  await logging.initLogging();
-  let faction = chooseAFaction(ns, skippedFactions);
-  let unlocked = false;
-  do {
-    if (ns.getPlayer().factions.indexOf(faction) === -1) {
-      logging.info(`Unlocking faction ${faction}`);
-      unlocked = await unlockFaction(ns, faction);
-      if (unlocked) {
-        ns.singularity.joinFaction(faction);
-      } else {
-        logging.error(`Cant faction ${faction}`);
-        skippedFactions.push(faction);
-        faction = chooseAFaction(ns, skippedFactions);
-      }
-    } else {
-      unlocked = true;
-    }
-    await ns.asleep(100);
-    if (faction === undefined) {
-      ns.exit();
-    }
-  } while (!unlocked);
-  logging.info(`buying up all augments from ${faction}`);
-  const augments = getUniqueAugmentsAvailableFromFaction(ns, faction);
-  logging.info(`augments available [${augments}]`);
-  const maxRepNeeded = augments.reduce((repNeeded, augment) => {
-    return Math.max(repNeeded, ns.singularity.getAugmentationRepReq(augment));
-  }, 0);
+// async function unlockNewFactionAndBuyAugments(
+//   ns: NS,
+//   skippedFactions: string[],
+// ) {
+//   const logging = new Logging(ns);
+//   await logging.initLogging();
+//   let faction = chooseAFaction(ns, skippedFactions);
+//   let unlocked = false;
+//   do {
+//     if (ns.getPlayer().factions.indexOf(faction) === -1) {
+//       logging.info(`Unlocking faction ${faction}`);
+//       unlocked = await unlockFaction(ns,logging, faction);
+//       if (unlocked) {
+//         ns.singularity.joinFaction(faction);
+//       } else {
+//         logging.error(`Cant faction ${faction}`);
+//         skippedFactions.push(faction);
+//         faction = chooseAFaction(ns, skippedFactions);
+//       }
+//     } else {
+//       unlocked = true;
+//     }
+//     await ns.asleep(100);
+//     if (faction === undefined) {
+//       ns.exit();
+//     }
+//   } while (!unlocked);
+//   logging.info(`buying up all augments from ${faction}`);
+//   const augments = getUniqueAugmentsAvailableFromFaction(ns, faction);
+//   logging.info(`augments available [${augments}]`);
+//   const maxRepNeeded = augments.reduce((repNeeded, augment) => {
+//     return Math.max(repNeeded, ns.singularity.getAugmentationRepReq(augment));
+//   }, 0);
 
-  if (ns.singularity.getFactionRep(faction) < maxRepNeeded) {
-    logging.info(`improving reputation with ${faction}`);
-    await improveFactionReputation(ns, faction, maxRepNeeded);
-  }
-  await purchaseAugments(ns, faction, augments);
-}
+//   if (ns.singularity.getFactionRep(faction) < maxRepNeeded) {
+//     logging.info(`improving reputation with ${faction}`);
+//     await improveFactionReputation(ns, faction, maxRepNeeded);
+//   }
+//   await purchaseAugments(ns, faction, augments);
+// }
 
 async function buyExistingAugments(ns: NS, availableAugments: string[]) {
   //turn the augments we have available into pairs of aug/faction

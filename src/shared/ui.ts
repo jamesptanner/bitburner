@@ -68,5 +68,5 @@ export const makeTable = function (
     return makeRow(d, widths, padding);
   });
   const joinedRows = dataRows.join(`${seperator}`);
-  return `${seperator}${headerRow}${seperator}${joinedRows}${seperator}`;
+  return `\n${seperator}${headerRow}${seperator}${joinedRows}${seperator}`;
 };
