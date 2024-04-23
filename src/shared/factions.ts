@@ -44,26 +44,6 @@ export const factions: string[] = [
     // "Church of the Machine God", //not sure who these are yet.
 ];
 
-type FactionExclusions = {
-    faction?: string[];
-    employers?: string[];
-};
-type FactionUnlockRequirements = {
-    location?: string;
-    backdoor?: string;
-    hacking?: number;
-    hackingLevels?: number;
-    hackingRAM?: number;
-    hackingCPU?: number;
-    cash?: number;
-    corp?: string;
-    corpRep?: number;
-    combatSkill?: number;
-    karma?: number;
-    not?: FactionExclusions;
-    augments?: number;
-};
-
 export const getAvailableFactions = function (ns: NS): string[] {
     const player = ns.getPlayer();
     return factions.filter((faction) => {
