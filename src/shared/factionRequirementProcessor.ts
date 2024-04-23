@@ -159,7 +159,8 @@ class CompanyReputationRequirementHandler extends RequirementHandler<CompanyRepu
     ns.singularity.workForCompany(requirement.company)
 
     while(!this.check(ns,logging,requirement)){
-      const nextJob = ns.singularity.getCompanyPositionInfo(requirement.company,currentJob);
+      const currentJobInfo = ns.singularity.getCompanyPositionInfo(requirement.company,currentJob) ;
+      const nextJob = ns.singularity.getCompanyPositionInfo(requirement.company,currentJobInfo.nextPosition!);
       if(ns.singularity.getCompanyRep(requirement.company) >= nextJob.requiredReputation ){
         // train for next promotion
 
