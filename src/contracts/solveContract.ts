@@ -123,7 +123,7 @@ export async function main(ns: NS): Promise<void> {
         //logging.success(`${result}`, true);
         await ns.write(
           "solvedContracts.txt",
-          JSON.stringify([type, data, answer, "\n"]),
+          JSON.stringify([type, data, "\n"]),
           "a",
         );
       }
