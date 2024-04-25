@@ -1,5 +1,7 @@
 import { NS } from "@ns";
 import { createDotGraph } from "/extern/netgraph";
+import React, {ReactDom} from "@react";
+import { WheelEventHandler } from "react";
 
 export const MapWindowPath = "/ui/MapWindow.js";
 type Transformation = {
@@ -115,75 +117,78 @@ const renderer = (e: PanAndZoomRender) => {
   return Object.assign({}, canZoom(state), canPan(state));
 };
 
-export async function main(ns: NS): Promise<void> {
-  const eval2 = eval;
-  const doc: Document = eval2("document"); //dont want to pay the toll for this one.
-  if (!doc.getElementById("networkMap")) {
-    const mapWin = doc.createElement("div");
-    mapWin.id = "mapWindow";
-    mapWin.style.width = "34vh";
-    mapWin.style.height = "fit-content";
-    mapWin.style.position = "fixed";
-    mapWin.style.transform = "translate(-18px, -18px)";
-    mapWin.style.zIndex = "1000";
-    mapWin.style.bottom = "0";
-    mapWin.style.right = "0";
-    mapWin.style.display = "inline-block";
-    mapWin.style.background = "white";
-    mapWin.style.overflow = "hidden";
+interface IMapWindowProps{
+  imagePath: string
+}
 
-    const image: HTMLImageElement = doc.createElement("img");
-    image.style.width = "100%";
-    image.style.height = "100%";
-    image.style.display = "block";
-    image.id = "networkMap";
-    mapWin.appendChild(image);
-    doc.getElementById("root")?.appendChild(mapWin);
-  }
-  const mapWin = doc.getElementById("mapWindow") as HTMLImageElement;
-  const image = doc.getElementById("networkMap") as HTMLImageElement;
-  image.src = `https://quickchart.io/graphviz?graph=${createDotGraph(ns)}`;
-  const renderSettings: PanAndZoomRender = {
-    minScale: 0.1,
-    maxScale: 50,
-    element: image,
-    scaleSensitivity: 100,
-    transformation: {
-      originX: 0,
-      originY: 0,
-      translateX: 0,
-      translateY: 0,
-      scale: 1,
-    },
-  };
-  const instance = renderer(renderSettings);
-  const wheelEvent = (event: WheelEvent) => {
+const mapWindowStyle: React.CSSProperties ={
+ height: "90%",
+ position: "fixed",
+ transform: "translate(0%, -100%)",
+ display: "inline-block",
+ background: "white",
+ overflow: "hidden",
+}
+
+const networkMapStyle: React.CSSProperties = {
+  height:"100%",
+  display:"block"
+}
+
+const MapWindow = ({imagePath}: IMapWindowProps) => {
+
+  
+  // const renderSettings: PanAndZoomRender = {
+  //   minScale: 0.1,
+  //   maxScale: 50,
+  //   element: image,
+  //   scaleSensitivity: 100,
+  //   transformation: {
+  //     originX: 0,
+  //     originY: 0,
+  //     translateX: 0,
+  //     translateY: 0,
+  //     scale: 1,
+  //   },
+  // };
+  // const instance = renderer(renderSettings);
+
+
+  const wheelEvent = (event: React.WheelEvent<HTMLDivElement>) => {
     if (!event.ctrlKey) {
       return;
     }
     event.preventDefault();
-    instance.zoom(
-      event.pageX,
-      event.pageY,
-      Math.sign(event.deltaY) > 0 ? 1 : -1,
-    );
+  //   instance.zoom(
+  //     event.pageX,
+  //     event.pageY,
+  //     Math.sign(event.deltaY) > 0 ? 1 : -1,
+  //   );
   };
-  mapWin.removeEventListener("wheel", wheelEvent);
-  mapWin.addEventListener("wheel", wheelEvent);
 
   const dblclickEvent = () => {
-    instance.panTo(0, 0, 1);
+    // instance.panTo(0, 0, 1);
   };
-  mapWin.removeEventListener("dblclick", dblclickEvent);
-  mapWin.addEventListener("dblclick", dblclickEvent);
 
-  const mouseMoveEvent = (event: MouseEvent) => {
+  const mouseMoveEvent = (event: React.MouseEvent<HTMLImageElement>) => {
     if (!event.shiftKey) {
       return;
     }
     event.preventDefault();
-    instance.panBy(event.movementX, event.movementY);
+    // instance.panBy(event.movementX, event.movementY);
   };
-  mapWin.removeEventListener("mousemove", mouseMoveEvent);
-  mapWin.addEventListener("mousemove", mouseMoveEvent);
+
+    
+  return (
+  <div id="mapWindow" style={mapWindowStyle} onWheel={wheelEvent}> 
+    <img id="networkMap" style={networkMapStyle} src={imagePath} onDoubleClick={dblclickEvent} onMouseMove={mouseMoveEvent}></img>
+  </div>
+  );
+}
+
+export async function main(ns: NS): Promise<void> {
+  ns.disableLog("ALL");
+  const imgUrl = `https://quickchart.io/graphviz?graph=${encodeURI(createDotGraph(ns))}`;
+  ns.printRaw(<MapWindow imagePath={imgUrl}/>);
+  ns.tail()
 }

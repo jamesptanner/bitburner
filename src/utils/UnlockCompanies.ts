@@ -45,9 +45,13 @@ export async function main(ns: NS): Promise<void> {
   if (opts.crime) {
     factions.push(...crimeFactions);
   }
+
+  const unlockedFactions = ns.getPlayer().factions ?? [];
+
   logging.info(`unlocking ${factions.join(", ")}`);
-  for (const faction of factions) {
-    logging.info(`working on ${faction}`)
+  for (const faction of factions.filter(faction =>{
+    return !unlockedFactions.some(unlocked => faction === unlocked);
+  })) {
     await unlockFaction(ns,logging, faction);
   }
 }

@@ -22,14 +22,14 @@ function genConfig(file) {
 }
 
 
-glob.sync(`src/**/*.*ts`,).filter(path=>{return path.indexOf(".test.")===-1}).forEach(path => genConfig(path))
+glob.sync(`src/**/*.*ts*`,).filter(path=>{return path.indexOf(".test.")===-1}).forEach(path => genConfig(path))
 
 
 function addApp(path,includes) {
     config.push({
         input: path,
         output: {
-            file: path.replace('src/', 'bundle/').replace('.ts', '.js'),
+            file: path.replace('src/', 'bundle/').replace('.ts', '.js').replace('.jsx','.js'),
             format: 'es',
             sourcemap: "inline",
             interop: 'esModule',

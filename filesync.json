@@ -2,7 +2,8 @@
   "allowedFiletypes": [
     ".js",
     ".script",
-    ".txt"
+    ".txt",
+    ".jsx"
   ],
   "allowDeletingFiles": false,
   "port": 12525,
