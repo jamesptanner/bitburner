@@ -11,7 +11,7 @@ export async function main(ns: NS): Promise<void> {
 
 export function createDotGraph(ns: NS): string {
   let dotText = "digraph Hosts {";
-  const servers = getAllServers(ns);
+  const servers = getAllServers(ns); 
   servers.push("home");
   const serverMap = new Map<string, string>();
 
@@ -19,13 +19,13 @@ export function createDotGraph(ns: NS): string {
     const serverInfo = ns.getServer(host);
     if (
       serverInfo &&
-      serverInfo.requiredHackingSkill &&
-      serverInfo.openPortCount &&
-      serverInfo.numOpenPortsRequired
+      serverInfo.requiredHackingSkill !== undefined &&
+      serverInfo.openPortCount !== undefined &&
+      serverInfo.numOpenPortsRequired !== undefined
     ) {
       dotText =
         dotText +
-        `nd_${servers.indexOf(host)} [label = "${host}\\n${serverInfo.requiredHackingSkill}" color=${serverInfo.backdoorInstalled || serverInfo.purchasedByPlayer ? "green" : serverInfo.openPortCount >= serverInfo.numOpenPortsRequired && serverInfo.requiredHackingSkill <= ns.getPlayer().skills.hacking ? "yellow" : "red"}]`;
+        ` nd_${servers.indexOf(host)} [label = "${host}\\n${serverInfo.requiredHackingSkill}" color=${serverInfo.backdoorInstalled || serverInfo.purchasedByPlayer ? "green" : serverInfo.openPortCount >= serverInfo.numOpenPortsRequired && serverInfo.requiredHackingSkill <= ns.getPlayer().skills.hacking ? "yellow" : "red"}]`;
     }
     serverMap.set(host, `nd_${servers.indexOf(host)}`);
   });
