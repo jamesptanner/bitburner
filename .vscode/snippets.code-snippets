@@ -4,7 +4,7 @@
       "prefix": "template",
       "body": [
         "import { NS } from '@ns';",
-        "import { Logging } from '/shared/logging';",
+        "import { Game } from '/lib/game'",
         "",
         "export const ${TM_FILENAME_BASE}Path =\"${RELATIVE_FILEPATH/(src[\\\\\\\/])|([\\\\\\\/][\\w]*\\.ts)|([\\\\\\\/])/\\//gm}${TM_FILENAME_BASE}.js\";",
         "",

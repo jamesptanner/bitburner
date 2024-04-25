@@ -5,19 +5,20 @@ import { hackPath } from "batching/hack";
 import { prepareHostPath } from "/batching/prepareHost";
 
 import { findBestTarget, getAllServers } from "/shared/utils";
-import { Logging } from "/shared/logging";
+import { Game } from "/lib/game";
 
 export const hackingDaemonPath = "/batching/hackingDaemon.js";
 
 export async function main(ns: NS): Promise<void> {
-  const logging = new Logging(ns);
-  await logging.initLogging();
+
+  const game = new Game(ns)
+  await game.logging.initLogging()
   ns.disableLog("ALL");
 
   const servers = getAllServers(ns);
 
-  killPrepScripts(ns,logging);
-  await waitForBatchedHackToFinish(ns);
+  killPrepScripts(game);
+  await waitForBatchedHackToFinish(game);
 
   // if we dont have a server to target yet, wait until we do have.
 
@@ -39,12 +40,12 @@ export async function main(ns: NS): Promise<void> {
       return ns.exec(
         prepareHostPath,
         server,
-        Math.floor(ramAvalible / ns.getScriptRam(prepareHostPath)),
+        {threads: Math.floor(ramAvalible / ns.getScriptRam(prepareHostPath)), temporary:true, },
         target,
       );
     return 0;
   });
-  await waitForPids(prepPid, ns,logging);
+  await waitForPids(prepPid, game);
 
   const hack_time = ns.getHackTime(target);
   const weak_time = ns.getWeakenTime(target);
@@ -89,14 +90,15 @@ export async function main(ns: NS): Promise<void> {
       const newTarget = findBestTarget(ns);
       if (
         newTarget !== target ||
-        ns.getServerMoneyAvailable(target) / ns.getServerMaxMoney(target) < 0.9
+        game.ns.getServerMoneyAvailable(target) / ns.getServerMaxMoney(target) < 0.9
       ) {
-        await waitForBatchedHackToFinish(ns);
+        await waitForBatchedHackToFinish(game);
         //restart
-        ns.spawn(hackingDaemonPath);
+        game.ns.spawn(hackingDaemonPath);
       }
     }
     const scheduleWorked = await ScheduleHackEvent(
+      game,
       event,
       weak_time,
       hack_time,
@@ -105,28 +107,26 @@ export async function main(ns: NS): Promise<void> {
       depth,
       period,
       t0,
-      ns,
       target,
     );
     if (!scheduleWorked) {
-      logging.error(`Unable to schedule batch task`, true);
-      await ns.asleep((event % 120) * 1000);
+      game.logging.error(`Unable to schedule batch task`, true);
+      await game.ns.asleep((event % 120) * 1000);
     } else {
       event++;
     }
   }
 
-  logging.info(`length of cycle: ${period}`);
-  logging.info(`Number of cycles needed: ${depth}`);
+  game.logging.info(`length of cycle: ${period}`);
+  game.logging.info(`Number of cycles needed: ${depth}`);
 }
 
-async function waitForBatchedHackToFinish(ns: NS) {
-  const logging = new Logging(ns);
-  await logging.initLogging();
-  logging.info(`waiting for current hacking threads to finish.`);
-  const pids = getAllServers(ns)
+async function waitForBatchedHackToFinish(game:Game) {
+
+  game.logging.info(`waiting for current hacking threads to finish.`);
+  const pids = getAllServers(game.ns)
     .map((server) => {
-      return ns.ps(server);
+      return game.ns.ps(server);
     })
     .reduce((prev: ProcessInfo[], curr: ProcessInfo[]) => {
       return prev.concat(...curr);
@@ -139,14 +139,14 @@ async function waitForBatchedHackToFinish(ns: NS) {
       );
     })
     .map((procInfo) => procInfo.pid);
-  await waitForPids(pids, ns,logging);
+  await waitForPids(pids, game);
 }
 
-function killPrepScripts(ns: NS, logging: Logging) {
-  logging.info(`Killing any preparation scripts.`);
-  getAllServers(ns)
+function killPrepScripts(game:Game) {
+  game.logging.info(`Killing any preparation scripts.`);
+  getAllServers(game.ns)
     .map((server) => {
-      return ns.ps(server);
+      return game.ns.ps(server);
     })
     .reduce((prev: ProcessInfo[], curr: ProcessInfo[]) => {
       return prev.concat(...curr);
@@ -155,20 +155,21 @@ function killPrepScripts(ns: NS, logging: Logging) {
       return proc.filename === prepareHostPath;
     })
     .forEach((proc) => {
-      ns.kill(proc.pid);
+      game.ns.kill(proc.pid);
     });
 }
 
-async function waitForPids(pids: number[], ns: NS, logging: Logging) {
+async function waitForPids(pids: number[],game:Game) {
   do {
-    const finished = pids.filter((pid) => pid === 0 || !ns.isRunning(pid, ""));
+    const finished = pids.filter((pid) => pid === 0 || !game.ns.isRunning(pid, ""));
     finished.forEach((pid) => pids.splice(pids.indexOf(pid), 1));
-    logging.info(`${pids.length} processes left`);
-    if (pids.length > 0) await ns.asleep(30 * 1000);
+    game.logging.info(`${pids.length} processes left`);
+    if (pids.length > 0) await game.ns.asleep(30 * 1000);
   } while (pids.length > 0);
 }
 
 async function ScheduleHackEvent(
+  game: Game,
   event: number,
   weak_time: number,
   hack_time: number,
@@ -177,11 +178,9 @@ async function ScheduleHackEvent(
   depth: number,
   period: number,
   t0: number,
-  ns: NS,
   target: string,
 ): Promise<boolean> {
-  const logging = new Logging(ns);
-  await logging.initLogging();
+
   let event_time = 0;
   let event_script = "";
   switch (event % 4) {
@@ -203,31 +202,29 @@ async function ScheduleHackEvent(
   const script_start =
     startTime + depth * period - event * t0 * -1 - event_time;
   if (script_start < 0) {
-    logging.error(`Wait time negative. restarting script.`, true);
-    await ns.asleep(weak_time);
-    ns.spawn(hackingDaemonPath, 1);
+    game.logging.error(`Wait time negative. restarting script.`, true);
+    await game.ns.asleep(weak_time);
+    game.ns.spawn(hackingDaemonPath, 1);
   }
-  logging.info(
+  game.logging.info(
     `{"name":"${event_script}-${event}", "startTime":"${new Date(script_start).toISOString()}", "duration":${Math.floor(event_time / 1000)}}`,
   );
-  logging.info(
+  game.logging.info(
     `${event_script}: To Complete ${new Date(script_start + event_time).toISOString()}`,
   );
-  return runTask(ns, event_script, target, script_start);
+  return runTask(game, event_script, target, script_start);
 }
 
 async function runTask(
-  ns: NS,
+  game: Game,
   script: string,
   ...args: (string | number | boolean)[]
 ): Promise<boolean> {
-  const logging = new Logging(ns);
-  await logging.initLogging();
-  const servers = getAllServers(ns);
+  const servers = getAllServers(game.ns);
   //find a server with enough free memory to run the script.
-  const scriptMem = ns.getScriptRam(script);
+  const scriptMem = game.ns.getScriptRam(script);
   const candidateServers = servers.filter((server) => {
-    const serverInfo = ns.getServer(server);
+    const serverInfo = game.ns.getServer(server);
     const memFree = serverInfo.maxRam - serverInfo.ramUsed;
     return (
       (serverInfo.backdoorInstalled || serverInfo.purchasedByPlayer) &&
@@ -235,12 +232,12 @@ async function runTask(
     );
   });
   if (candidateServers.length === 0) return false;
-  await ns.scp(script, candidateServers[0]);
-  const pid = ns.exec(script, candidateServers[0], {threads: 1, temporary: true}, ...args);
+  await game.ns.scp(script, candidateServers[0]);
+  const pid = game.ns.exec(script, candidateServers[0], {threads: 1, temporary: true}, ...args);
   if (pid === 0) {
-    logging.error(`Failed to run ${script} on ${candidateServers[0]}`);
+    game.logging.error(`Failed to run ${script} on ${candidateServers[0]}`);
     return false;
   }
-  logging.info(`Scheduled ${script} to run on ${candidateServers[0]}`);
+  game.logging.info(`Scheduled ${script} to run on ${candidateServers[0]}`);
   return true;
 }

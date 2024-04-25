@@ -88,7 +88,7 @@ export const unlockFaction = async function (
         ns.singularity.joinFaction(faction);
         return true;
     }
-
+    logging.info(`unlocking faction ${faction}`)
     //need to put the work in to unlock the faction.
     const requirements = ns.singularity.getFactionInviteRequirements(faction)
     logging.info(`Requirments: ${JSON.stringify(requirements)}`)
@@ -98,18 +98,18 @@ export const unlockFaction = async function (
         await ns.asleep(100);
         logging.info(`attempting to unlock ${faction} faction. `)
         const factionState = await processRequirements(ns, logging, requirements);
-        switch (factionState) {
-            case ProcessRequirementsResult.Forfilled:
-                logging.info(`Completed unlocking ${faction}`);
-                break;
-            case ProcessRequirementsResult.Possible:
-                logging.info(`Did not complete unlocking ${faction}`);
-                break;
-            case ProcessRequirementsResult.Impossible:
-                logging.info(`Not possible to unlock ${faction}`);
-                break factionLoop;
-        }
-        ns.singularity.joinFaction(faction);
+            switch (factionState) {
+                case ProcessRequirementsResult.Forfilled:
+                    logging.info(`Completed unlocking ${faction}`);
+                    break;
+                case ProcessRequirementsResult.Possible:
+                    logging.info(`Did not complete unlocking ${faction}`);
+                    break;
+                case ProcessRequirementsResult.Impossible:
+                    logging.info(`Not possible to unlock ${faction}`);
+                    break factionLoop;
+            }
+        ns.singularity.joinFaction(faction)
     }
     return true;
 };

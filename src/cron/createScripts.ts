@@ -18,11 +18,7 @@ export async function main(ns: NS): Promise<void> {
         (currentWork && currentWork.type === "CREATE_PROGRAM")
       ) {
         logging.info(`working on new script ${script}`);
-        ns.singularity.createProgram(script, true);
-      }
-      if (!ns.singularity.isFocused() && currentWork) {
-        logging.info(`focusing on current work. ${currentWork.type}`);
-        ns.singularity.setFocus(true);
+        ns.singularity.createProgram(script);
       }
     }
   }
