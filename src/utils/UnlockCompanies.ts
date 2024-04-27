@@ -1,5 +1,5 @@
 import { NS } from "@ns";
-import { unlockFaction } from "shared/factions";
+import { unlockFaction, factions as allFactions } from "shared/factions";
 import { Logging } from "/shared/logging";
 
 export const UnlockCompaniesPath = "/utils/UnlockCompanies.js";
@@ -33,19 +33,25 @@ export async function main(ns: NS): Promise<void> {
     ["crime", false],
     ["early", false],
     ["corp", false],
+    ["all", false], 
   ]);
 
-  const factions = [];
-  if (opts.early) {
-    factions.push(...earlyGameFactions);
+  const factions:string[] = [];
+  if(opts.all){
+    factions.push(...allFactions);
   }
-  if (opts.corp) {
-    factions.push(...corporateFactions);
+  else{
+    if (opts.early) {
+      factions.push(...earlyGameFactions);
+    }
+    if (opts.corp) {
+      factions.push(...corporateFactions);
+    }
+    if (opts.crime) {
+      factions.push(...crimeFactions);
+    }
   }
-  if (opts.crime) {
-    factions.push(...crimeFactions);
-  }
-
+ 
   const unlockedFactions = ns.getPlayer().factions ?? [];
 
   logging.info(`unlocking ${factions.join(", ")}`);

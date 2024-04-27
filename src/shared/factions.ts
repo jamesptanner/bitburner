@@ -82,9 +82,16 @@ export const unlockFaction = async function (
     ns: NS,
     logging: Logging,
     faction: string,
+    autojoin = false
 ): Promise<boolean> {
     if (ns.getPlayer().factions.indexOf(faction) !== -1) return true;
-    if (getAvailableFactions(ns).indexOf(faction) !== -1) {
+    if(ns.singularity.getFactionEnemies(faction).some(enemy =>{
+        return ns.getPlayer().factions.indexOf(enemy) !== -1
+    })){
+        logging.info(`Unable to unlock ${faction} as we are friends with a enemy.`);
+        return false;
+    }
+    if (getAvailableFactions(ns).indexOf(faction) !== -1 && autojoin) {
         ns.singularity.joinFaction(faction);
         return true;
     }
@@ -94,7 +101,7 @@ export const unlockFaction = async function (
     logging.info(`Requirments: ${JSON.stringify(requirements)}`)
     if (!requirements) return false;
 
-    factionLoop: while (ns.getPlayer().factions.indexOf(faction) === -1) {
+    factionLoop: while (ns.getPlayer().factions.indexOf(faction) === -1 && ns.singularity.checkFactionInvitations().indexOf(faction) === -1) {
         await ns.asleep(100);
         logging.info(`attempting to unlock ${faction} faction. `)
         const factionState = await processRequirements(ns, logging, requirements);
@@ -109,7 +116,7 @@ export const unlockFaction = async function (
                     logging.info(`Not possible to unlock ${faction}`);
                     break factionLoop;
             }
-        ns.singularity.joinFaction(faction)
+        if(autojoin) ns.singularity.joinFaction(faction)
     }
     return true;
 };
@@ -129,7 +136,7 @@ export const improveFactionReputation = async function (
         // logging.info(`Time Remaining: ${(ns.getPlayer()..currentWorkFactionName === faction ? ns.tFormat(((reputation - (ns.singularity.getFactionRep(faction) + ns.getPlayer().workRepGained)) / (ns.getPlayer().workRepGainRate * 5)) * 1000, false) : "unknown")}`)
         if (!ns.singularity.isBusy()) {
             logging.info(`improving relationship with ${faction}`);
-            ns.singularity.workForFaction(faction, "hacking", true);
+            ns.singularity.workForFaction(faction, "hacking", false);
         }
         if (!ns.singularity.isFocused() && needToFocus(ns)) {
             // TODO
