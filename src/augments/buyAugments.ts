@@ -98,7 +98,7 @@ export async function main(ns: NS): Promise<void> {
   }
 
   //keep buying neuroflux govenors until we hit the limit
-  if (opts.neuro) {
+  if (opts.neuro && !opts.dry) {
     logging.info("getting neuroflux govenors.");
     while (
       opts.skip === 0
@@ -131,7 +131,7 @@ async function purchaseAugment(
 ): Promise<boolean> {
   do {
     if (ns.getPlayer().money < ns.singularity.getAugmentationPrice(aug.name)) {
-      await ns.asleep(30000);
+      await ns.asleep(1000);
     } else {
       break;
     }
