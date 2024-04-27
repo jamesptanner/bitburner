@@ -95,7 +95,7 @@ class SkillRequirementHandler extends RequirementHandler<SkillRequirement> {
     if (requirement.skills.dexterity) await this.trainGymSkill(ns, logging, ns.enums.GymType.dexterity, requirement.skills.dexterity, "dexterity");
     if (requirement.skills.strength) await this.trainGymSkill(ns, logging, ns.enums.GymType.strength, requirement.skills.strength, "strength");
 
-    if (requirement.skills.hacking) await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.dataStructures, requirement.skills.hacking, "hacking");
+    if (requirement.skills.hacking) await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.algorithms, requirement.skills.hacking, "hacking");
     if (requirement.skills.charisma) await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.leadership, requirement.skills.charisma, "charisma");
     return ProcessRequirementsResult.Forfilled;
   }
@@ -188,7 +188,7 @@ class CompanyReputationRequirementHandler extends RequirementHandler<CompanyRepu
         if (nextJob.requiredSkills.dexterity) await this.trainGymSkill(ns, logging, ns.enums.GymType.dexterity, nextJob.requiredSkills.dexterity, "dexterity");
         if (nextJob.requiredSkills.strength) await this.trainGymSkill(ns, logging, ns.enums.GymType.strength, nextJob.requiredSkills.strength, "strength");
 
-        if (nextJob.requiredSkills.hacking) await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.dataStructures, nextJob.requiredSkills.hacking, "hacking");
+        if (nextJob.requiredSkills.hacking) await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.algorithms, nextJob.requiredSkills.hacking, "hacking");
         if (nextJob.requiredSkills.charisma) await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.leadership, nextJob.requiredSkills.charisma, "charisma");
         ns.singularity.applyToCompany(requirement.company,ns.enums.JobField.software);
         ns.singularity.workForCompany(requirement.company,false);
@@ -235,7 +235,7 @@ class JobTitleRequirementHandler extends RequirementHandler<JobTitleRequirement>
         if (nextJob.requiredSkills.dexterity) await this.trainGymSkill(ns, logging, ns.enums.GymType.dexterity, nextJob.requiredSkills.dexterity, "dexterity");
         if (nextJob.requiredSkills.strength) await this.trainGymSkill(ns, logging, ns.enums.GymType.strength, nextJob.requiredSkills.strength, "strength");
 
-        if (nextJob.requiredSkills.hacking) await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.dataStructures, nextJob.requiredSkills.hacking, "hacking");
+        if (nextJob.requiredSkills.hacking) await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.algorithms, nextJob.requiredSkills.hacking, "hacking");
         if (nextJob.requiredSkills.charisma) await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.leadership, nextJob.requiredSkills.charisma, "charisma");
         ns.singularity.applyToCompany(company,targetRole.field);
         ns.singularity.workForCompany(company,false);
@@ -272,7 +272,7 @@ class BackdoorRequirementHandler extends RequirementHandler<BackdoorRequirement>
     const hackingNeeded = ns.getServer(requirement.server).requiredHackingSkill
     if (hackingNeeded !== undefined && hackingNeeded > ns.getPlayer().skills.hacking) {
       logging.info(`Not skilled enough to install backdoor (${ns.getPlayer().skills.hacking}/${hackingNeeded})`)
-      await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.dataStructures, hackingNeeded, "hacking")
+      await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.algorithms, hackingNeeded, "hacking")
     }
 
     while (this.check(ns, logging, requirement) !== ProcessRequirementsResult.Forfilled) {
@@ -385,9 +385,7 @@ requirementProcessors.set("bitNodeN", new BitNodeRequirementHandler());
 
 class SourceFileRequirementHandler extends RequirementHandler<SourceFileRequirement> {
   check(ns: NS, logging: Logging, requirement: SourceFileRequirement): ProcessRequirementsResult {
-    return ns.singularity.getOwnedSourceFiles().find((src) => {
-      return src.n == requirement.sourceFile && src.lvl > 0;
-    }) ? ProcessRequirementsResult.Forfilled : ProcessRequirementsResult.Impossible;
+    return ns.getResetInfo().ownedSF.has(requirement.sourceFile) ? ProcessRequirementsResult.Forfilled : ProcessRequirementsResult.Impossible;
   }
   async do(ns: NS, logging: Logging, requirement: SourceFileRequirement): Promise<ProcessRequirementsResult> {
     return ProcessRequirementsResult.Forfilled
