@@ -13,10 +13,15 @@ export async function main(ns: NS): Promise<void> {
 
   ns.clearLog();
   ns.tail();
-  const augments: string[] = ns.singularity.getOwnedAugmentations(true);
+  let augments: string[] = ns.singularity.getOwnedAugmentations(true);
   factions.forEach((faction) => {
     augments.push(...getAllAugmentsFromFaction(ns, faction));
   });
+  augments = augments
+    .sort((a,b)=>{
+      return ns.singularity.getAugmentationPrice(a) - ns.singularity.getAugmentationPrice(b)
+    })
+    .reverse();
 
   const flags = ns.flags([
     ["player", false],
@@ -33,7 +38,6 @@ export async function main(ns: NS): Promise<void> {
   };
   const augmentData = augments
     .filter(unique)
-    .sort()
     .map((augment) => {
       const augmentInfo = ns.singularity.getAugmentationStats(augment);
       const player = [
@@ -81,7 +85,6 @@ export async function main(ns: NS): Promise<void> {
     });
   const defaultData = augments
     .filter(unique)
-    .sort()
     .map((augment) => {
       return [
         augment,
