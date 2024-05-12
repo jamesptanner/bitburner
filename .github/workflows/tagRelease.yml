@@ -23,12 +23,12 @@ jobs:
       with:
         tag-prefix: 'v'
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.PUSH_KEY }}
 
     - name: Merge Back to Develop
       uses: Logerfo/gitflow-action@0.0.4
       with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+        github-token: ${{ secrets.PUSH_KEY }}
         dev: dev # The `dev` branch.
         master: main # The `master` branch.
   BuildRelease:
