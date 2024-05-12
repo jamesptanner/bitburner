@@ -1,6 +1,6 @@
 import { NS } from "@ns";
 import { Logging } from "shared/logging";
-import { needToFocus } from "shared/utils";
+import { needToFocus, unique } from "shared/utils";
 import { ProcessRequirementsResult, processRequirements } from "/shared/factionRequirementProcessor";
 
 export const factionsPath = "/shared/factions.js";
@@ -51,10 +51,7 @@ export const getAvailableFactions = function (ns: NS): string[] {
     });
 };
 
-export const getAugmentsAvailableFromFaction = function (
-    ns: NS,
-    faction: string,
-): string[] {
+export const getAugmentsAvailableFromFaction = function (ns: NS, faction: string): string[] {
     return ns.singularity
         .getAugmentationsFromFaction(faction)
         .filter((augment) => {
@@ -62,32 +59,27 @@ export const getAugmentsAvailableFromFaction = function (
         });
 };
 
-export const getAllAugmentsFromFaction = function (
-    ns: NS,
-    faction: string,
-): string[] {
+export const getAllAugmentsFromFaction = function (ns: NS,faction: string): string[] {
     return ns.singularity.getAugmentationsFromFaction(faction);
 };
 
-export const getUniqueAugmentsAvailableFromFaction = function (
-    ns: NS,
-    faction: string,
-): string[] {
+export const getUniqueAugmentsAvailableFromFaction = function (ns: NS, faction: string): string[] {
+
+    //get list of augments in other factions
+    const otherFactionAugs = new Set<String>(factions.map(otherFaction =>{return otherFaction !== faction ? getAugmentsAvailableFromFaction(ns,otherFaction):[]})
+    .reduce((prev,curr)=>{return [...prev,...curr]})
+    .filter(unique));
+
     return getAugmentsAvailableFromFaction(ns, faction).filter((augment) => {
-        return augment !== "NeuroFlux Governor";
+        return !otherFactionAugs.has(augment);
     });
 };
 
-export const unlockFaction = async function (
-    ns: NS,
-    logging: Logging,
-    faction: string,
-    autojoin = false
-): Promise<boolean> {
+export const unlockFaction = async function (ns: NS, logging: Logging, faction: string, autojoin = false): Promise<boolean> {
     if (ns.getPlayer().factions.indexOf(faction) !== -1) return true;
-    if(ns.singularity.getFactionEnemies(faction).some(enemy =>{
+    if (ns.singularity.getFactionEnemies(faction).some(enemy => {
         return ns.getPlayer().factions.indexOf(enemy) !== -1
-    })){
+    })) {
         logging.info(`Unable to unlock ${faction} as we are friends with a enemy.`);
         return false;
     }
@@ -105,92 +97,44 @@ export const unlockFaction = async function (
         await ns.asleep(100);
         logging.info(`attempting to unlock ${faction} faction. `)
         const factionState = await processRequirements(ns, logging, requirements);
-            switch (factionState) {
-                case ProcessRequirementsResult.Forfilled:
-                    logging.info(`Completed unlocking ${faction}`);
-                    break;
-                case ProcessRequirementsResult.Possible:
-                    logging.info(`Did not complete unlocking ${faction}`);
-                    break;
-                case ProcessRequirementsResult.Impossible:
-                    logging.info(`Not possible to unlock ${faction}`);
-                    break factionLoop;
-            }
-        if(autojoin) ns.singularity.joinFaction(faction)
+        switch (factionState) {
+            case ProcessRequirementsResult.Forfilled:
+                logging.info(`Completed unlocking ${faction}`);
+                break;
+            case ProcessRequirementsResult.Possible:
+                logging.info(`Did not complete unlocking ${faction}`);
+                break;
+            case ProcessRequirementsResult.Impossible:
+                logging.info(`Not possible to unlock ${faction}`);
+                break factionLoop;
+        }
+        if (autojoin) ns.singularity.joinFaction(faction)
     }
     return true;
 };
 
-export const improveFactionReputation = async function (
-    ns: NS,
-    faction: string,
-    reputation: number,
-): Promise<void> {
+export const improveFactionReputation = async function (ns: NS, faction: string, reputation: number): Promise<void> {
     const logging = new Logging(ns);
     await logging.initLogging();
     while (reputation > ns.singularity.getFactionRep(faction)) {
         logging.info(
             `current faction relationship ${faction} is ${ns.formatNumber(ns.singularity.getFactionRep(faction))}, want ${ns.formatNumber(reputation)}.`,
         );
+        ns.setTitle(`${faction}:  ${ns.formatNumber(ns.singularity.getFactionRep(faction))}/${ns.formatNumber(reputation)}`)
         // TODO
         // logging.info(`Time Remaining: ${(ns.getPlayer()..currentWorkFactionName === faction ? ns.tFormat(((reputation - (ns.singularity.getFactionRep(faction) + ns.getPlayer().workRepGained)) / (ns.getPlayer().workRepGainRate * 5)) * 1000, false) : "unknown")}`)
         if (!ns.singularity.isBusy()) {
             logging.info(`improving relationship with ${faction}`);
-            ns.singularity.workForFaction(faction, "hacking", false);
+            if (!ns.singularity.workForFaction(faction, ns.enums.FactionWorkType.hacking, false)){
+                ns.singularity.workForFaction(faction, ns.enums.FactionWorkType.security, false)
+            };
         }
         if (!ns.singularity.isFocused() && needToFocus(ns)) {
             // TODO
             // logging.info(`focusing on work. ${ns.getPlayer().currentWorkFactionName}`)
             ns.singularity.setFocus(true);
         }
-        await ns.asleep(1000 * 60);
+        await ns.asleep(5000);
     }
     ns.singularity.stopAction();
-};
-
-export const improveStat = async function (
-    ns: NS,
-    logging: Logging,
-    hacking = 0,
-    combat = 0,
-    charisma = 0,
-): Promise<void> {
-    let previousSkill = "";
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-        await ns.asleep(1000);
-        const player = ns.getPlayer();
-        let skill = "";
-
-        if (player.skills.agility < combat) skill = "agility";
-        else if (player.skills.strength < combat) skill = "strength";
-        else if (player.skills.defense < combat) skill = "defense";
-        else if (player.skills.dexterity < combat) skill = "dexterity";
-        else if (player.skills.charisma < charisma) skill = "charisma";
-        else if (player.skills.hacking < hacking) skill = "hacking";
-
-        if (skill === "") {
-            ns.singularity.stopAction();
-            break;
-        }
-
-        if (previousSkill !== skill || !ns.singularity.isBusy()) {
-            previousSkill = skill;
-            if (player.location.toLowerCase() !== "sector-12") {
-                ns.singularity.travelToCity(ns.enums.CityName.Sector12);
-            }
-            if (
-                ["agility", "strength", "defense", "dexterity"].indexOf(skill) !== -1
-            ) {
-                ns.singularity.gymWorkout("powerhouse gym", skill);
-                logging.info(`Working on ${skill} at powerhouse gym`);
-            } else if (skill === "charisma") {
-                ns.singularity.universityCourse("rothman university", "leadership");
-                logging.info(`Working on ${skill} at rothman university`);
-            } else if (skill === "hacking") {
-                ns.singularity.universityCourse("rothman university", "algorithms");
-                logging.info(`Working on ${skill} at rothman university`);
-            }
-        }
-    }
 };
