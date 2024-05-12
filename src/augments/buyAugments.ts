@@ -3,7 +3,7 @@ import { NS } from "@ns";
 import { getAugmentsAvailableFromFaction } from "/shared/factions";
 import { unique } from "/shared/utils";
 import { makeTable } from "/shared/ui";
-import { Logging } from "/shared/logging";
+import { Logging, TextColors } from "/shared/logging";
 
 export const buyAugmentsPath = "/augments/buyAugments.js";
 
@@ -22,6 +22,7 @@ export async function main(ns: NS): Promise<void> {
     name: string;
     price: number;
     location: string;
+    reputation: string;
   };
 
   const augments = ns
@@ -35,14 +36,22 @@ export async function main(ns: NS): Promise<void> {
     }, [])
     .filter(unique)
     .map<augInfo>((augment) => {
+
+      //find best faction
+      const repNeeded = ns.singularity.getAugmentationRepReq(augment)
+      const bestFaction = ns.getPlayer().factions.filter((faction) => {
+        return (
+          getAugmentsAvailableFromFaction(ns, faction).indexOf(augment) !== -1
+        );
+      }).reduce((oldFaction, testFaction)=>{
+        return ns.singularity.getFactionRep(oldFaction) > ns.singularity.getFactionRep(testFaction) ? oldFaction : testFaction;
+      })
+
       return {
         name: augment,
         price: ns.singularity.getAugmentationPrice(augment),
-        location: ns.getPlayer().factions.filter((faction) => {
-          return (
-            getAugmentsAvailableFromFaction(ns, faction).indexOf(augment) !== -1
-          );
-        })[0],
+        reputation:`${ns.singularity.getFactionRep(bestFaction)>ns.singularity.getAugmentationRepReq(augment)?TextColors.green:TextColors.red}${ns.formatNumber(repNeeded)}${TextColors.reset}`,
+        location: bestFaction,
       };
     })
     .sort((a, b) => {
@@ -52,9 +61,9 @@ export async function main(ns: NS): Promise<void> {
   logging.info(
     makeTable(
       ns,
-      ["augment", "faction", "price"],
+      ["augment", "faction","rep", "price"],
       augments.map((aug) => {
-        return [aug.name, aug.location, ns.formatNumber(aug.price)];
+        return [aug.name, aug.location,aug.reputation, ns.formatNumber(aug.price)];
       }),
     ),
   );
@@ -130,6 +139,7 @@ async function purchaseAugment(
   wait: boolean,
 ): Promise<boolean> {
   do {
+    ns.setTitle(`${aug.name} ${ns.formatNumber(ns.singularity.getAugmentationPrice(aug.name))}`)
     if (ns.getPlayer().money < ns.singularity.getAugmentationPrice(aug.name)) {
       await ns.asleep(1000);
     } else {
