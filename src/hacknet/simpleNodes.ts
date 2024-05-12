@@ -68,7 +68,8 @@ export async function runHacknet(
       bestOption.levelCost,
       ns.hacknet.getPurchaseNodeCost(),
     );
-    if (ns.getPlayer().money > lowestCost) {
+    const moneySources = ns.getMoneySources().sinceInstall;
+    if (ns.getPlayer().money > lowestCost && ((moneySources.hacknet/2) - moneySources.hacknet_expenses) > lowestCost) {
       if (lowestCost === bestOption.coreCost) {
         ns.hacknet.upgradeCore(bestOption.nodeID, 1);
       }
