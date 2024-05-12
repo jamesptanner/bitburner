@@ -1,6 +1,7 @@
-import { BackdoorRequirement, BitNodeRequirement, CityRequirement, CompanyName, CompanyReputationRequirement, EmployedByRequirement, EveryRequirement, GymType, HacknetCoresRequirement, HacknetLevelsRequirement, HacknetRAMRequirement, JobTitleRequirement, KarmaRequiremennt, MoneyRequirement, NS, NotRequirement, NumAugmentationsRequirement, PeopleKilledRequirement, PlayerRequirement, SkillRequirement, Skills, SomeRequirement, SourceFileRequirement } from "@ns";
+import { BackdoorRequirement, BitNodeRequirement, CityRequirement, CompanyName, CompanyReputationRequirement, EmployedByRequirement, EveryRequirement, HacknetCoresRequirement, HacknetLevelsRequirement, HacknetRAMRequirement, JobTitleRequirement, KarmaRequiremennt, MoneyRequirement, NS, NotRequirement, NumAugmentationsRequirement, PeopleKilledRequirement, PlayerRequirement, SkillRequirement, Skills, SomeRequirement, SourceFileRequirement } from "@ns";
 import { Logging } from "/shared/logging";
-import { FindValidMathExpressions } from "/contracts/solvers/StringContracts";
+import { trainSkill } from "/shared/singularity";
+import { Game } from "/lib/game";
 
 export const enum ProcessRequirementsResult {
   Forfilled,
@@ -10,44 +11,17 @@ export const enum ProcessRequirementsResult {
 
 abstract class RequirementHandler<T extends PlayerRequirement> {
 
-  protected async trainGymSkill(ns: NS, logging: Logging, skill: GymType, target: number, skillName: keyof Skills) {
-    if(ns.getPlayer().skills[skillName] >= target) return;
-    logging.info(`Training in ${skillName} at ${ns.enums.LocationName.Sector12PowerhouseGym} ${ns.getPlayer().skills[skillName]}/${target}`);
-    if (ns.getPlayer().location !== ns.enums.CityName.Sector12){
-      while (! ns.singularity.travelToCity(ns.enums.CityName.Sector12) && ns.getPlayer().location !== ns.enums.CityName.Sector12){
-        await ns.asleep(10000);
-      }
-    } 
-    ns.singularity.gymWorkout(ns.enums.LocationName.Sector12PowerhouseGym, skill,false)
-    let lastSkillLevel = 0;
-    while (ns.getPlayer().skills[skillName] < target) {
-      if(lastSkillLevel < ns.getPlayer().skills[skillName] ){
-        lastSkillLevel = ns.getPlayer().skills[skillName]
-        logging.info(`${skillName} ${ns.getPlayer().skills[skillName]}/${target}`)
-      }
-      await ns.asleep(5000);
-    }
-    ns.singularity.stopAction()
+  protected async trainSkill(ns: NS, logging: Logging, skill: keyof Skills, target: number) {
+    await trainSkill(new Game(ns,logging),skill,target)
   }
 
-  protected async trainUniSkill(ns: NS, logging: Logging, skill: string, target: number, skillName: keyof Skills) {
-    if(ns.getPlayer().skills[skillName] >= target) return;
-    logging.info(`Training in ${skillName} at ${ns.enums.LocationName.VolhavenZBInstituteOfTechnology} ${ns.getPlayer().skills[skillName]}/${target}`);
-    if (ns.getPlayer().location !== ns.enums.CityName.Volhaven){
-      while (! ns.singularity.travelToCity(ns.enums.CityName.Volhaven) && ns.getPlayer().location !== ns.enums.CityName.Volhaven){
-        await ns.asleep(10000);
-      }
-    } 
-    ns.singularity.universityCourse(ns.enums.LocationName.VolhavenZBInstituteOfTechnology, skill,false)
-    let lastSkillLevel = 0;
-    while (ns.getPlayer().skills[skillName] < target) {
-      if(lastSkillLevel < ns.getPlayer().skills[skillName] ){
-        lastSkillLevel = ns.getPlayer().skills[skillName]
-        logging.info(`${skillName} ${ns.getPlayer().skills[skillName]}/${target}`)
-      }
-      await ns.asleep(5000);
-    }
-    ns.singularity.stopAction()
+  protected async trainAllSkills(ns:NS, logging:Logging, skills: Partial<Skills>){
+    if (skills.agility) await this.trainSkill(ns, logging,"agility", skills.agility);
+    if (skills.defense) await this.trainSkill(ns, logging,"defense", skills.defense);
+    if (skills.dexterity) await this.trainSkill(ns, logging,"dexterity", skills.dexterity);
+    if (skills.strength) await this.trainSkill(ns, logging,"strength", skills.strength);
+    if (skills.hacking) await this.trainSkill(ns, logging,"hacking", skills.hacking);
+    if (skills.charisma) await this.trainSkill(ns, logging,"charisma", skills.charisma);
   }
 
   protected canReverse(ns: NS, logging: Logging, requirement: PlayerRequirement): boolean {
@@ -90,13 +64,7 @@ class SkillRequirementHandler extends RequirementHandler<SkillRequirement> {
   }
 
   async do(ns: NS, logging: Logging, requirement: SkillRequirement): Promise<ProcessRequirementsResult> {
-    if (requirement.skills.agility) await this.trainGymSkill(ns, logging, ns.enums.GymType.agility, requirement.skills.agility, "agility");
-    if (requirement.skills.defense) await this.trainGymSkill(ns, logging, ns.enums.GymType.defense, requirement.skills.defense, "defense");
-    if (requirement.skills.dexterity) await this.trainGymSkill(ns, logging, ns.enums.GymType.dexterity, requirement.skills.dexterity, "dexterity");
-    if (requirement.skills.strength) await this.trainGymSkill(ns, logging, ns.enums.GymType.strength, requirement.skills.strength, "strength");
-
-    if (requirement.skills.hacking) await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.algorithms, requirement.skills.hacking, "hacking");
-    if (requirement.skills.charisma) await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.leadership, requirement.skills.charisma, "charisma");
+    await this.trainAllSkills(ns,logging, requirement.skills)
     return ProcessRequirementsResult.Forfilled;
   }
 }
@@ -112,6 +80,7 @@ class KarmaRequirementHandler extends RequirementHandler<KarmaRequiremennt> {
       const timeToWait = ns.singularity.commitCrime("Homicide");
       await ns.asleep(timeToWait);
     }
+    ns.singularity.stopAction();
     return ProcessRequirementsResult.Forfilled
   }
 
@@ -124,10 +93,11 @@ class PeopleKilledRequirementHandler extends RequirementHandler<PeopleKilledRequ
   }
   async do(ns: NS, logging: Logging, requirement: PeopleKilledRequirement): Promise<ProcessRequirementsResult> {
     logging.info(`Committing homicide to reach comitting ${requirement.numPeopleKilled} murders`)
-    while (ns.getPlayer().numPeopleKilled > requirement.numPeopleKilled) {
+    while (ns.getPlayer().numPeopleKilled <  requirement.numPeopleKilled) {
       const timeToWait = ns.singularity.commitCrime("Homicide");
       await ns.asleep(timeToWait);
     }
+    ns.singularity.stopAction();
     return ProcessRequirementsResult.Forfilled
   }
 
@@ -182,20 +152,15 @@ class CompanyReputationRequirementHandler extends RequirementHandler<CompanyRepu
       const nextJob = ns.singularity.getCompanyPositionInfo(requirement.company,currentJobInfo.nextPosition!);
       if(ns.singularity.getCompanyRep(requirement.company) >= nextJob.requiredReputation ){
         // train for next promotion
+        await this.trainAllSkills(ns,logging,nextJob.requiredSkills)
 
-        if (nextJob.requiredSkills.agility) await this.trainGymSkill(ns, logging, ns.enums.GymType.agility, nextJob.requiredSkills.agility, "agility");
-        if (nextJob.requiredSkills.defense) await this.trainGymSkill(ns, logging, ns.enums.GymType.defense, nextJob.requiredSkills.defense, "defense");
-        if (nextJob.requiredSkills.dexterity) await this.trainGymSkill(ns, logging, ns.enums.GymType.dexterity, nextJob.requiredSkills.dexterity, "dexterity");
-        if (nextJob.requiredSkills.strength) await this.trainGymSkill(ns, logging, ns.enums.GymType.strength, nextJob.requiredSkills.strength, "strength");
-
-        if (nextJob.requiredSkills.hacking) await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.algorithms, nextJob.requiredSkills.hacking, "hacking");
-        if (nextJob.requiredSkills.charisma) await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.leadership, nextJob.requiredSkills.charisma, "charisma");
         ns.singularity.applyToCompany(requirement.company,ns.enums.JobField.software);
         ns.singularity.workForCompany(requirement.company,false);
       }
 
       await ns.asleep(5000);
     }
+    ns.singularity.stopAction();
     return ProcessRequirementsResult.Forfilled;
   }
 
@@ -218,7 +183,15 @@ class JobTitleRequirementHandler extends RequirementHandler<JobTitleRequirement>
     }) as CompanyName;
     const targetRole = ns.singularity.getCompanyPositionInfo(company,requirement.jobTitle)
 
-    ns.singularity.applyToCompany(company,targetRole.field);
+    if(ns.getPlayer().jobs[company] === undefined){
+      const firstJob = ns.singularity.getCompanyPositions(company)
+        .map(job =>{return ns.singularity.getCompanyPositionInfo(company,job)})
+        .filter((jobInfo)=>{return jobInfo.field === targetRole.field})
+        .sort((a,b) =>{return a.requiredReputation - b.requiredReputation})[0];
+      await this.trainAllSkills(ns,logging,firstJob.requiredSkills)
+      ns.singularity.applyToCompany(company,targetRole.field);
+    }
+
     ns.singularity.workForCompany(company,false);
 
     while(this.check(ns,logging,requirement) !== ProcessRequirementsResult.Forfilled){
@@ -230,19 +203,16 @@ class JobTitleRequirementHandler extends RequirementHandler<JobTitleRequirement>
       if(ns.singularity.getCompanyRep(company) >= nextJob.requiredReputation ){
         // train for next promotion
         ns.singularity.stopAction()
-        if (nextJob.requiredSkills.agility) await this.trainGymSkill(ns, logging, ns.enums.GymType.agility, nextJob.requiredSkills.agility, "agility");
-        if (nextJob.requiredSkills.defense) await this.trainGymSkill(ns, logging, ns.enums.GymType.defense, nextJob.requiredSkills.defense, "defense");
-        if (nextJob.requiredSkills.dexterity) await this.trainGymSkill(ns, logging, ns.enums.GymType.dexterity, nextJob.requiredSkills.dexterity, "dexterity");
-        if (nextJob.requiredSkills.strength) await this.trainGymSkill(ns, logging, ns.enums.GymType.strength, nextJob.requiredSkills.strength, "strength");
 
-        if (nextJob.requiredSkills.hacking) await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.algorithms, nextJob.requiredSkills.hacking, "hacking");
-        if (nextJob.requiredSkills.charisma) await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.leadership, nextJob.requiredSkills.charisma, "charisma");
+        await this.trainAllSkills(ns,logging, nextJob.requiredSkills)
+
         ns.singularity.applyToCompany(company,targetRole.field);
         ns.singularity.workForCompany(company,false);
       }
 
       await ns.asleep(10000);
     }
+    ns.singularity.stopAction();
     //find what we need for the postition
     return ProcessRequirementsResult.Forfilled;
   }
@@ -272,9 +242,9 @@ class BackdoorRequirementHandler extends RequirementHandler<BackdoorRequirement>
     const hackingNeeded = ns.getServer(requirement.server).requiredHackingSkill
     if (hackingNeeded !== undefined && hackingNeeded > ns.getPlayer().skills.hacking) {
       logging.info(`Not skilled enough to install backdoor (${ns.getPlayer().skills.hacking}/${hackingNeeded})`)
-      await this.trainUniSkill(ns, logging, ns.enums.UniversityClassType.algorithms, hackingNeeded, "hacking")
+      await this.trainSkill(ns, logging,"hacking", hackingNeeded);
     }
-
+    ns.run("autorun/checkRemoteServers.js")
     while (this.check(ns, logging, requirement) !== ProcessRequirementsResult.Forfilled) {
       logging.info(`Waiting for background jobs to backdoor ${requirement.server}`)
       await ns.asleep(10000);
@@ -481,6 +451,7 @@ export const processRequirements = async function (ns: NS, logging: Logging, req
     let currentState = ProcessRequirementsResult.Forfilled;
     requirementList: for (let index = 0; index < requirements.length; index++) {
       const requirement = requirements[index];
+      ns.setTitle(`Processing ${requirement.type} requirement`)
       if (!requirementProcessors.has(requirement.type)) {
         return ProcessRequirementsResult.Impossible
       }

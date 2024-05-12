@@ -30,9 +30,10 @@ export async function main(ns: NS): Promise<void> {
     }
     ns.print(`cronjob triggered.`);
     logging.info(`Running ${script}`, true);
-    await ns
-      .asleep(interval)
-      .catch(() => logging.info("did I get killed while sleeping"));
-    ns.print("loop end");
+    do {
+
+    await ns.asleep(interval)
+    } while (ns.getRunningScript(pid) !== null)
+
   }
 }

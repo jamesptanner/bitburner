@@ -168,16 +168,20 @@ async function trimRecords(ns: NS, loggingDB: IDBPDatabase): Promise<void> {
   );
   ns.print(`Deleting ${loggingRecords} from logging table`);
   if (loggingRecords > 0) {
-    const cursorReq = loggingIndex.openCursor(
-      IDBKeyRange.upperBound(deleteTime, false),
-    );
-    const cursor = await wrapIDBRequest(cursorReq);
-    while (cursor) {
-      ns.print(`deleting ${cursor.primaryKey}`);
-      await cursor.delete();
-      cursor.continue();
-      await wrapIDBRequest(cursorReq);
+    const cursor = loggingTX.openCursorRaw( IDBKeyRange.upperBound(deleteTime, false))
+    let cursorDone = false;
+    cursor.onsuccess = function () {
+      if (cursor.result) {
+        cursor.result.delete()
+        cursor.result.continue();
+      }
+      else{
+        cursorDone = true;
+      }
     }
+    do{
+      await ns.asleep(50);
+    } while(!cursorDone)
   }
   loggingTX.commit();
   
@@ -188,21 +192,23 @@ async function trimRecords(ns: NS, loggingDB: IDBPDatabase): Promise<void> {
   );
   ns.print(`Deleting ${metricRecords} from metrics table`);
   if (metricRecords > 0) {
-    const cursorReq = metricIndex.openCursor(
-      IDBKeyRange.upperBound(deleteTime, false),
-    );
-    const cursor = await wrapIDBRequest(cursorReq);
-    while (cursor) {
-      ns.print(`deleting ${cursor.primaryKey}`);
-      await cursor.delete();
-
-      cursor.continue();
-      await wrapIDBRequest(cursorReq);
+    const cursor = metricTX.openCursorRaw( IDBKeyRange.upperBound(deleteTime, false))
+    let cursorDone = false;
+    cursor.onsuccess = function () {
+      if (cursor.result) {
+        cursor.result.delete()
+        cursor.result.continue();
+      }
+      else{
+        cursorDone = true;
+      }
     }
+    do{
+      await ns.asleep(50);
+    } while(!cursorDone)
   }
   metricTX.commit();
 }
-
 export async function main(ns: NS): Promise<void> {
   const loggingSettings = await checkLoggingSettings(ns);
   setupLoki(loggingSettings);

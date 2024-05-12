@@ -1,9 +1,9 @@
 import { NS } from "@ns";
-import { factions } from "shared/factions";
+import { factions, getUniqueAugmentsAvailableFromFaction } from "shared/factions";
 import { getAugmentsAvailableFromFaction } from "/shared/factions";
 
 import { makeTable } from "/shared/ui";
-import { Logging } from "/shared/logging";
+import { Logging, TextColors } from "/shared/logging";
 
 export const listAugmentsPath = "/utils/listAugments.js";
 
@@ -21,11 +21,12 @@ export async function main(ns: NS): Promise<void> {
   };
   factions.forEach((faction) => {
     const augments = getAugmentsAvailableFromFaction(ns, faction);
+    const uniqueAugs = new Set<String>(getUniqueAugmentsAvailableFromFaction(ns,faction))
     if (augments.length > 0) {
       const headers = ["augment", "reputation", "price"];
       const data = augments.map((aug) => {
         return [
-          aug,
+          `${(uniqueAugs.has(aug))?TextColors.yellow:""}${aug}${TextColors.reset}`,
           `${ns.formatNumber(ns.singularity.getAugmentationRepReq(aug))}`,
           `$${ns.formatNumber(ns.singularity.getAugmentationPrice(aug), 2)}`,
         ];

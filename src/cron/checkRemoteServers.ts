@@ -1,16 +1,16 @@
 import { NS } from "@ns";
 
-import { getAllServers, routeToHost, walk } from "/shared/utils";
+import { getAllServers, routeToHost } from "/shared/utils";
 import { Logging } from "/shared/logging";
 
 export const checkRemoteServersPath = "/cron/checkRemoteServers.js";
 
 export async function main(ns: NS): Promise<void> {
   const servers = getAllServers(ns);
+  const logging = new Logging(ns);
+  await logging.initLogging();
 
   for (let index = 0; index < servers.length; index++) {
-    const logging = new Logging(ns);
-    await logging.initLogging();
     const host = servers[index];
     let serverInfo = ns.getServer(host);
 
@@ -76,14 +76,14 @@ export async function main(ns: NS): Promise<void> {
       }
       serverInfo = ns.getServer(host);
       if (serverInfo.hasAdminRights && !serverInfo.backdoorInstalled) {
+
+        logging.info("Installing backdoor");
+        const route = routeToHost(ns, "home", host);
         if (
           ns.getResetInfo().ownedSF.has(4) ||
           ns.getResetInfo().currentNode === 4
         ) {
-          logging.info("Installing backdoor");
           ns.singularity.connect("home");
-          const route = routeToHost(ns, "home", host);
-
           for (let routeIndex = 0; routeIndex < route.length; routeIndex++) {
             const routeHost = route[routeIndex];
             ns.singularity.connect(routeHost);
@@ -93,6 +93,7 @@ export async function main(ns: NS): Promise<void> {
           logging.info(`Backdoor installed on ${host}`, true);
         } else {
           logging.warning(`Need to backdoor ${host} manually`, true);
+          ns.tprint(`Backdoor route: ${route}`)
         }
       }
     }
