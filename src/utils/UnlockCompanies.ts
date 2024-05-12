@@ -3,7 +3,18 @@ import { unlockFaction, factions as allFactions } from "shared/factions";
 import { Logging } from "/shared/logging";
 
 export const UnlockCompaniesPath = "/utils/UnlockCompanies.js";
-const earlyGameFactions = ["CyberSec", "Tian Di Hui", "Netburners"];
+const earlyGameFactions = [
+  "CyberSec",
+  "Tian Di Hui",
+  "Netburners",
+  "Sector-12",
+  "Chongqing",
+  "New Tokyo",
+  "Ishima",
+  "Aevum",
+  "Volhaven",
+  "NiteSec"
+];
 
 const crimeFactions = [
   "Slum Snakes",
