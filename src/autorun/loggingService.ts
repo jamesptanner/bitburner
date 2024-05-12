@@ -183,7 +183,6 @@ async function trimRecords(ns: NS, loggingDB: IDBPDatabase): Promise<void> {
       await ns.asleep(50);
     } while(!cursorDone)
   }
-  loggingTX.commit();
   
   const metricTX = loggingDB.transaction("metrics", "readwrite");
   const metricIndex = metricTX.index("timestamp");
@@ -207,7 +206,6 @@ async function trimRecords(ns: NS, loggingDB: IDBPDatabase): Promise<void> {
       await ns.asleep(50);
     } while(!cursorDone)
   }
-  metricTX.commit();
 }
 export async function main(ns: NS): Promise<void> {
   const loggingSettings = await checkLoggingSettings(ns);
