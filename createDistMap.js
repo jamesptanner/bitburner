@@ -1,7 +1,7 @@
 import { mkdir, copyFile, writeFileSync } from 'fs'
 import { sync } from 'glob'
 
-const sourceDir = 'dist/public'
+const sourceDir = 'dist/bundle'
 const packageDir = 'dist/package'
 
 mkdir('dist/package')
