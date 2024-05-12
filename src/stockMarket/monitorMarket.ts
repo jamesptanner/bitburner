@@ -1,28 +1,30 @@
-import { NS } from '@ns';
-import { error } from './../shared/logging';
-import { initLogging, sendMetric } from '/shared/logging';
+import { NS } from "@ns";
+import { Logging } from "/shared/logging";
 
 export const monitorMarketPath = "/stockMarket/monitorMarket.js";
 
 export async function main(ns: NS): Promise<void> {
-    await initLogging(ns)
-    const symbols = ns.stock.getSymbols()
-    const has4s = ns.getPlayer().has4SDataTixApi
+  const logging = new Logging(ns);
+  const symbols = ns.stock.getSymbols();
+  const has4s = ns.stock.has4SData() && ns.stock.has4SDataTIXAPI();
 
-    if(!ns.getPlayer().hasTixApiAccess){
-        error("Dont have TIX API access",true)
-    }
-    while (true) {
-
-        symbols.forEach(sym => {
-            sendMetric(`stock.${sym}.price`, ns.stock.getPrice(sym))
-            sendMetric(`stock.${sym}.askprice`, ns.stock.getAskPrice(sym))
-            sendMetric(`stock.${sym}.bidprice`, ns.stock.getBidPrice(sym))
-            if (has4s) {
-                sendMetric(`stock.${sym}.forcast`, ns.stock.getForecast(sym))
-                sendMetric(`stock.${sym}.volatility`, ns.stock.getVolatility(sym))
-            }
-        })
-        await ns.sleep(48000)
-    }
+  if (!ns.stock.has4SDataTIXAPI()) {
+    logging.error("Dont have TIX API access", true);
+  }
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    symbols.forEach((sym) => {
+      logging.sendMetric(`stock.${sym}.price`, ns.stock.getPrice(sym));
+      logging.sendMetric(`stock.${sym}.askprice`, ns.stock.getAskPrice(sym));
+      logging.sendMetric(`stock.${sym}.bidprice`, ns.stock.getBidPrice(sym));
+      if (has4s) {
+        logging.sendMetric(`stock.${sym}.forcast`, ns.stock.getForecast(sym));
+        logging.sendMetric(
+          `stock.${sym}.volatility`,
+          ns.stock.getVolatility(sym),
+        );
+      }
+    });
+    await ns.asleep(48000);
+  }
 }

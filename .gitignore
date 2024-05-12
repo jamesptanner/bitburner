@@ -1,5 +1,6 @@
-build/
 docs/
 dist/
 node_modules/
+NetScriptDefinitions.d.ts
 NetscriptDefinitions.d.ts
+bundle/

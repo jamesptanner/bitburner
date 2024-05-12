@@ -1,0 +1,18 @@
+{
+  "allowedFiletypes": [
+    ".js",
+    ".script",
+    ".txt",
+    ".jsx"
+  ],
+  "allowDeletingFiles": false,
+  "port": 12525,
+  "scriptsFolder": "bundle",
+  "quiet": true,
+  "dry": false,
+  "definitionFile": {
+    "update": true,
+    "location": "NetscriptDefinitions.d.ts"
+  },
+  "pushAllOnConnection": true
+}

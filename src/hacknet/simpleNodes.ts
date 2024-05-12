@@ -1,30 +1,38 @@
-import { NodeStats, NS } from '@ns';
+import { NodeStats, NS } from "@ns";
 
 export const simpleNodesPath = "/hacknet/simpleNodes.js";
 
 const nodeMaxedOut = function (node: PurchaseOption): boolean {
-    return node.coreCost == null && node.ramCost === null && node.levelCost=== null;
-}
+  return (
+    node.coreCost === null && node.ramCost === null && node.levelCost === null
+  );
+};
 
 type PurchaseOption = {
-    nodeID: number
-    coreCost: number
-    ramCost: number
-    levelCost: number
-    nodeStat: NodeStats
-}
+  nodeID: number;
+  coreCost: number;
+  ramCost: number;
+  levelCost: number;
+  nodeStat: NodeStats;
+};
 
 export async function main(ns: NS): Promise<void> {
-  await runHacknet(ns,()=>{return true});
+  await runHacknet(ns, () => {
+    return true;
+  });
 }
 
-export async function runHacknet(ns: NS,otherCheck?:()=>boolean):Promise<void> {
-  if (ns.hacknet.numNodes() == 0) {
+export async function runHacknet(
+  ns: NS,
+  otherCheck?: () => boolean,
+): Promise<void> {
+  if (ns.hacknet.numNodes() === 0) {
     while (ns.getPlayer().money < ns.hacknet.getPurchaseNodeCost()) {
-      await ns.sleep(60 * 1000);
+      await ns.asleep(60 * 1000);
     }
     ns.hacknet.purchaseNode();
   }
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const purchaseOptions: PurchaseOption[] = [];
     for (let index = 0; index < ns.hacknet.numNodes(); index++) {
@@ -40,19 +48,28 @@ export async function runHacknet(ns: NS,otherCheck?:()=>boolean):Promise<void> {
 
     const bestOption = purchaseOptions.reduce((prev, curr) => {
       ns.print(`${JSON.stringify(prev)} :  ${JSON.stringify(curr)}`);
-      if (prev == null || nodeMaxedOut(prev)) {
+      if (prev === null || nodeMaxedOut(prev)) {
         return curr;
-      } else if (curr == null || nodeMaxedOut(curr)) {
+      } else if (curr === null || nodeMaxedOut(curr)) {
         return prev;
       } else {
-        if (Math.min(prev.coreCost, prev.levelCost, prev.ramCost) < Math.min(curr.coreCost, curr.levelCost, curr.ramCost))
+        if (
+          Math.min(prev.coreCost, prev.levelCost, prev.ramCost) <
+          Math.min(curr.coreCost, curr.levelCost, curr.ramCost)
+        )
           return prev;
         return curr;
       }
     });
 
-    const lowestCost = Math.min(bestOption.coreCost, bestOption.ramCost, bestOption.levelCost, ns.hacknet.getPurchaseNodeCost());
-    if (ns.getPlayer().money > lowestCost) {
+    const lowestCost = Math.min(
+      bestOption.coreCost,
+      bestOption.ramCost,
+      bestOption.levelCost,
+      ns.hacknet.getPurchaseNodeCost(),
+    );
+    const moneySources = ns.getMoneySources().sinceInstall;
+    if (ns.getPlayer().money > lowestCost && ((moneySources.hacknet/2) - moneySources.hacknet_expenses) > lowestCost) {
       if (lowestCost === bestOption.coreCost) {
         ns.hacknet.upgradeCore(bestOption.nodeID, 1);
       }
@@ -66,9 +83,9 @@ export async function runHacknet(ns: NS,otherCheck?:()=>boolean):Promise<void> {
         ns.hacknet.purchaseNode();
       }
     }
-    await ns.sleep(500);
+    await ns.asleep(500);
 
-    if(otherCheck !== undefined && !otherCheck()){
+    if (otherCheck !== undefined && !otherCheck()) {
       break;
     }
   }

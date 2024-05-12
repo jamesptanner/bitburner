@@ -1,51 +1,74 @@
-import { NS } from '@ns';
-import { unlockFaction } from 'shared/factions';
-import { initLogging,logging } from '/shared/logging';
+import { NS } from "@ns";
+import { unlockFaction, factions as allFactions } from "shared/factions";
+import { Logging } from "/shared/logging";
 
-export const UnlockCompaniesPath ="/utils/UnlockCompanies.js";
+export const UnlockCompaniesPath = "/utils/UnlockCompanies.js";
 const earlyGameFactions = [
-    "CyberSec",
-    "Tian Di Hui",
-    "Netburners"
-]
+  "CyberSec",
+  "Tian Di Hui",
+  "Netburners",
+  "Sector-12",
+  "Chongqing",
+  "New Tokyo",
+  "Ishima",
+  "Aevum",
+  "Volhaven",
+  "NiteSec"
+];
 
 const crimeFactions = [
-    "Slum Snakes",
-    "Tetrads",
-    "Silhouette",
-    "Speakers for the Dead",
-    "The Dark Army",
-    "The Syndicate"
-]
+  "Slum Snakes",
+  "Tetrads",
+  "Silhouette",
+  "Speakers for the Dead",
+  "The Dark Army",
+  "The Syndicate",
+];
 const corporateFactions = [
-    "ECorp",
-    "MegaCorp",
-    "KuaiGong International",
-    "Four Sigma",
-    "NWO",
-    "Blade Industries",
-    "OmniTek Incorporated",
-    "Bachman & Associates",
-    "Clarke Incorporated",
-    "Fulcrum Secret Technologies"
-]
-export async function main(ns : NS) : Promise<void> {
-    await initLogging(ns)
-    ns.tail()
-    const opts = ns.flags([["crime", false],["early",false],["corp",false]])
+  "ECorp",
+  "MegaCorp",
+  "KuaiGong International",
+  "Four Sigma",
+  "NWO",
+  "Blade Industries",
+  "OmniTek Incorporated",
+  "Bachman & Associates",
+  "Clarke Incorporated",
+  "Fulcrum Secret Technologies",
+];
+export async function main(ns: NS): Promise<void> {
+  const logging = new Logging(ns);
+  await logging.initLogging();
+  ns.tail();
+  const opts = ns.flags([
+    ["crime", false],
+    ["early", false],
+    ["corp", false],
+    ["all", false], 
+  ]);
 
-    const factions = []
-    if(opts.early){
-        factions.push(...earlyGameFactions)
+  const factions:string[] = [];
+  if(opts.all){
+    factions.push(...allFactions);
+  }
+  else{
+    if (opts.early) {
+      factions.push(...earlyGameFactions);
     }
-    if(opts.corp){
-        factions.push(...corporateFactions)
+    if (opts.corp) {
+      factions.push(...corporateFactions);
     }
-    if(opts.crime){
-        factions.push(...crimeFactions)
+    if (opts.crime) {
+      factions.push(...crimeFactions);
     }
-    logging.info(`unlocking ${factions.join(", ")}`)
-    for (const faction of factions){
-        await unlockFaction(ns,faction)
-    }
+  }
+ 
+  const unlockedFactions = ns.getPlayer().factions ?? [];
+
+  logging.info(`unlocking ${factions.join(", ")}`);
+  for (const faction of factions.filter(faction =>{
+    return !unlockedFactions.some(unlocked => faction === unlocked);
+  })) {
+    await unlockFaction(ns,logging, faction);
+  }
 }

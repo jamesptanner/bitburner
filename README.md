@@ -1,4 +1,6 @@
 # bitburner
+[![Code Style](https://github.com/jamesptanner/bitburner/actions/workflows/checkstyle.yml/badge.svg?event=push)](https://github.com/jamesptanner/bitburner/actions/workflows/checkstyle.yml)
+[![GitHub Release](https://img.shields.io/github/release/jamesptanner/bitburner.svg?style=flat)]() 
 
 Collection of scripts used to automate bitburner
 
