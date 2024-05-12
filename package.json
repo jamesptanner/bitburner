@@ -16,6 +16,7 @@
     "docs": "npx typedoc",
 
     "defs": "node ./updateDefs.mjs",
+    "build": "npx rollup -c",
     "createdist": "node ./createDistMap.mjs"
   },
   "author": "jamesptanner",
