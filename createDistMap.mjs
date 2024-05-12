@@ -1,10 +1,11 @@
-import { mkdir, copyFile, writeFileSync } from 'fs'
-import { sync } from 'glob'
+import { copyFile, writeFileSync, mkdirSync } from 'fs'
+import pkg from 'glob';
+const { sync } = pkg;
 
 const sourceDir = 'dist/bundle'
 const packageDir = 'dist/package'
 
-mkdir('dist/package')
+mkdirSync(packageDir)
 
 const fileMap = {}
 sync(`${sourceDir}/**/*.js`).forEach(path =>{
