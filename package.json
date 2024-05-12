@@ -15,8 +15,8 @@
     "lint": "npx eslint --ext ts,tsx,js,jsx",
     "docs": "npx typedoc",
 
-    "defs": "node ./updateDefs.js",
-    "createdist": "node ./createDistMap.js"
+    "defs": "node ./updateDefs.mjs",
+    "createdist": "node ./createDistMap.mjs"
   },
   "author": "jamesptanner",
   "license": "ISC",
