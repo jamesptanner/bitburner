@@ -1,9 +1,10 @@
 import { NS } from "@ns";
+import { ansiRegex } from "/shared/logging";
 
 export const makeTable = function (
   ns: NS,
   headers: string[],
-  data: string[][],
+  data: (string|number)[][],
   padding = 1,
 ): string {
   const getLineLength = function (
@@ -22,7 +23,8 @@ export const makeTable = function (
   const getMinColWidth = function (rows: string[], padding: number): number {
     return rows
       .map((row) => {
-        return row.length;
+        
+        return row.replace(ansiRegex(),'').length;
       })
       .reduce((p, n) => {
         return Math.max(p, n + padding * 2);
@@ -33,27 +35,27 @@ export const makeTable = function (
   };
 
   const padCell = function (content: string, width: number): string {
-    const paddingCells = width - content.length;
+    const paddingCells = width - content.replace(ansiRegex(),'').length;
     return `${" ".repeat(Math.floor(paddingCells / 2))}${content}${" ".repeat(Math.ceil(paddingCells / 2))}`;
   };
 
   const makeRow = function (
-    values: string[],
+    values: (string|number)[],
     widths: number[],
     padding: number,
   ): string {
     const paddedCells = values.map((v, i) => {
-      return `${" ".repeat(padding)}${padCell(v, widths[i])}${" ".repeat(padding)}`;
+      return `${" ".repeat(padding)}${padCell(String(v), widths[i])}${" ".repeat(padding)}`;
     });
     return `|${paddedCells.join("|")}|\n`;
   };
 
   const extractColumnValues = function (
-    data: string[][],
+    data: (string|number)[][],
     column: number,
   ): string[] {
     return data.map((r) => {
-      return r[column];
+      return String(r[column]);
     });
   };
 
