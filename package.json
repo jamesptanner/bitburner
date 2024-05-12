@@ -13,7 +13,10 @@
     "watch:all": "concurrently npm:watch:rollup npm:watch:local npm:watch:remote npm:watch:lint",
     "watch": "npm run watch:init && npm run watch:all",
     "lint": "npx eslint --ext ts,tsx,js,jsx",
-    "docs": "npx typedoc"
+    "docs": "npx typedoc",
+
+    "defs": "node ./updateDefs.js",
+    "createdist": "node ./createDistMap.js"
   },
   "author": "jamesptanner",
   "license": "ISC",
